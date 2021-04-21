@@ -9,7 +9,7 @@
      <v-navigation-drawer v-model="drawer" absolute temporary>
       <v-list nav dense >
         <v-list-item-group v-model="group">
-          <v-list-item @click="menu('/Home')">
+          <v-list-item @click="menu('/shop/Home')">
             <v-list-item-icon  >
               <v-icon>mdi-home</v-icon>
             </v-list-item-icon>
