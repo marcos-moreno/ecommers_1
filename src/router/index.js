@@ -6,6 +6,10 @@ Vue.use(VueRouter)
 
 const routes = [
   {
+    path: '/',
+    redirect: 'shop',  
+  },
+  {
     path: '/shop/',
     name: 'Inicio', 
     component: () => import('../views/Home.vue')
