@@ -1,6 +1,7 @@
 <template>
  <v-container class="grey lighten-5">
     <div class="text-center">
+      
       <v-dialog v-model="isLoad" persistent width="300">
          <v-card color="primary" dark >
           <v-card-text>
@@ -10,12 +11,26 @@
         </v-card> 
       </v-dialog>
     </div>
-    <v-btn icon color="blue" @click="returnOrigen"> <v-icon>mdi-arrow-left</v-icon></v-btn>
-    <div v-if="productoEncontrado">
+    <v-container>
+      <v-row >
+        <v-col cols="12" sm="4">
+          <v-btn icon color="blue" @click="returnOrigen"> <v-icon>mdi-arrow-left</v-icon>volver</v-btn>
+        </v-col>
+        <v-col cols="12" sm="8" >
+          <!-- <v-btn icon color="blue" @click="returnOrigen"> <v-icon>mdi-arrow-left</v-icon>volver</v-btn> -->
+        </v-col>
+      </v-row>
+    </v-container>
+   
+    <div v-if="productoEncontrado && isLoad == false" style="min-height: 600px;">
       <v-row v-if="agregado==false" no-gutters >
         <v-col>
-          <v-card  >
-          <v-img width="700px" :src="producto.img"></v-img>
+          <v-card  >  
+          <center> 
+            <v-img width="400px" v-if="producto.img=='/noImg.png' || isMobile()"  :src="producto.img"></v-img>
+            <zoom-on-hover :scale="2"  v-else width="400px" :img-normal="producto.img">
+            </zoom-on-hover> 
+          </center>
           <v-card-title>{{producto.name}}</v-card-title>
           <v-card-subtitle class="pb-0">
               {{producto.description}}
@@ -24,7 +39,7 @@
             <template v-slot:default>
               <thead>
                 <tr>
-                  <th class="text-left">DISPONIBLE</th>
+                  <th class="text-left">DISP.</th>
                   <th class="text-left">PRECIO</th>
                   <th class="text-left">UNIDAD</th>
                   <th class="text-left">CÓDIGO</th>
@@ -77,11 +92,6 @@
                     </div>
                   </div>  
                   <br>
-                  <!-- <v-card-actions>
-                    <v-btn class="mx-auto" width="100%" large color="primary"  >
-                      Comprar Ahora
-                    </v-btn>  
-                  </v-card-actions> -->
                   <v-card-actions>
                     <v-btn class="mx-auto" width="100%" large color="primary" @click="addtocar"  >
                       Agregar Al Carrito
@@ -96,14 +106,12 @@
           </template> 
         </v-col>  
       </v-row> 
-   
-
       <v-row v-else no-gutters class="my-12 mx-auto">
           <v-container  style="min-height:556px;"  >
           <div >
             <v-card style="min-height:186px;"> 
               <v-row>
-                <v-col cols="12" sm="6" md="2">
+                <v-col cols="12" sm="6" md="2"> 
                   <v-img width="200px" :src="producto.img"></v-img>
                 </v-col>
                 <v-col cols="12" sm="6" md="6">
@@ -121,28 +129,22 @@
                         Ver carrito
                       </v-btn>  
                     </v-card-actions>
-                    <!-- <v-card-actions>
-                      <v-btn class="mx-auto" width="100%" large color="#D7ECF9" >
-                        Comprar Ahora
-                      </v-btn>      
-                    </v-card-actions>       -->
                 </v-col>
               </v-row> 
             </v-card> 
           </div>  
         </v-container>
       </v-row>  
-  </div>
-  <div v-if="isLoad == false && productoEncontrado==false" >
-    <v-container class="mx-auto text-center" style="min-height:706px;">
-      <br><br><br>
-      <img width="280" src="../../public/error.gif">
-      <p style="font-size: 2em;color :#909090">  
-        <strong>El producto que buscas no esta disponible.</strong> 
-      </p>
-    </v-container>
-  </div>
-  
+    </div>
+    <div v-if="isLoad == false && productoEncontrado==false" >
+      <v-container class="mx-auto text-center" style="min-height:706px;">
+        <br><br><br>
+        <img width="280" src="../../public/error.gif">
+        <p style="font-size: 2em;color :#909090">  
+          <strong>El producto que buscas no esta disponible.</strong> 
+        </p>
+      </v-container>
+    </div>
     <v-spacer class="my-12"></v-spacer> 
   </v-container>
 </template>
@@ -159,37 +161,52 @@ import axios from 'axios';
 import config from '../json/config.json'
 
 export default {
-    name:"appProducto",
-    props: ['value','origen','pagina'], 
-    data() {
-      return { 
-          qty : 1
-         ,producto : {value:0}
-         ,user:{}
-         ,isLogged:false
-         ,isLoad:false
-         ,agregado : false
-         ,productoEncontrado: false
-         ,msgErro:''
-      }
+  name:"appProducto",
+  props: ['value','origen','pagina'], 
+  data() {
+    return { 
+      qty : 1
+      ,producto : {value:0}
+      ,user:{}
+      ,isLogged:false
+      ,isLoad:false
+      ,agregado : false
+      ,productoEncontrado: false
+      ,msgErro:''
+    }
+  },
+  async mounted() {    
+    window.scrollTo(0,0);
+  }, 
+  async created(){ 
+    console.log(this.isMobile());
+    this.isLoad = true;
+    await this.validaLogin(); 
+    await this.getProduct();
+    this.isLoad = false;
+  },
+  methods:{
+    isMobile(){
+      if( navigator.userAgent.match(/Android/i)
+        || navigator.userAgent.match(/webOS/i)
+        || navigator.userAgent.match(/iPhone/i)
+        || navigator.userAgent.match(/iPad/i)
+        || navigator.userAgent.match(/iPod/i)
+        || navigator.userAgent.match(/BlackBerry/i)
+        || navigator.userAgent.match(/Windows Phone/i)){
+          return true;
+        }else{
+          return false;
+        }
     },
-    async mounted() {    
-      window.scrollTo(0,0);
-    },
-    async created(){
-      this.isLoad = true;
-      await this.validaLogin(); 
-      await this.getProduct();
-      this.isLoad = false;
-    },methods:{
-      returnOrigen(){
+    returnOrigen(){
         if (this.origen == "home") {
           this.menu("/shop/"+this.origen+'/'+this.pagina);
         }else{
           this.menu("/shop/"+this.origen+'/');
         }
-      },
-      async cantidadCar(){
+    },
+    async cantidadCar(){
         await axios.get(config.apiAdempiere + "/shopingcar/get_auth", 
         {
           'headers': { 'token': this.$cookie.get('token') }
@@ -200,13 +217,13 @@ export default {
           }  
         })
         .catch(err=>{return err;});   
-      },
-      menu(path){
+    },
+    menu(path){
         if (this.$route.path !== path){
         this.$router.push(path);
         }  
-      }, 
-      async addtocar(){  
+    }, 
+    async addtocar(){  
         this.isLoad = true;
         if (this.isLogged) {
           if (this.isInt(this.qty) && this.qty > 0) { 
@@ -235,20 +252,24 @@ export default {
             this.menu('/shop/Login/');
         }
         this.isLoad = false; 
-      },
-      isInt(value) {
+    },
+    isInt(value) {
         var x;
         return isNaN(value) ? !1 : (x = parseFloat(value), (0 | x) === x);
-      },
-      async qtyMovement(vl){ 
+    },
+    async qtyMovement(vl){ 
         try {
           if (this.isInt(this.qty)) {
+
             if (vl == '+') {
               this.qty  = parseInt(this.qty) + 1;
             }else  if (vl == '-') {
               if ( parseInt(this.qty)  > 1) {
                   this.qty =  parseInt(this.qty)  - 1;
               }
+            } 
+            if (this.qty < 0) {
+             this.qty = this.qty * -1;
             } 
           }else{
             if (this.qty != "") {
@@ -262,7 +283,7 @@ export default {
     },
     async getProduct(){
       try {
-       let uri = this.isLogged ? "/productos/productByValue_auth" : "/productos/productByValue";
+        let uri = this.isLogged ? "/productos/productByValue_auth" : "/productos/productByValue";
         uri = config.apiAdempiere + uri; 
         this.producto = await axios.get(uri
         ,{headers: { 'token': this.$cookie.get('token') },params: {value: this.value}})
@@ -271,13 +292,17 @@ export default {
         }).catch(function (response){  
           return response;
         }); 
-        
         if (this.producto.status == "success") {
+          
           this.producto = this.producto.data; 
           if (this.producto.length > 0) {
             this.producto = this.producto[0]; 
-            this.producto.img = 'data:image/jpeg;base64,' + 
-            btoa(new Uint8Array(this.producto.img.data).reduce((data,byte)=>data+String.fromCharCode(byte),'')); 
+            if (this.producto.img  != null && this.producto.img  != "null") {
+              this.producto.img = 'data:image/jpeg;base64,' + 
+              btoa(new Uint8Array(this.producto.img.data).reduce((data,byte)=>data+String.fromCharCode(byte),'')); 
+            }else{
+              this.producto.img = "/noImg.png";
+            } 
             this.productoEncontrado = true; 
           } 
         } else {
@@ -286,8 +311,8 @@ export default {
       } catch (error) {
         this.productoEncontrado = false; 
       }
-    }
-    ,async validaLogin(){
+    },
+    async validaLogin(){
       this.user = await axios.get(config.apiAdempiere + "/user/userByToken", 
                   {'headers': { 'token': this.$cookie.get('token') }})
                   .then(res=>{return res.data;})
@@ -297,17 +322,23 @@ export default {
         this.isLogged = true;
       }else if(this.user.status == "unauthorized"){ 
         this.isLogged = false; 
+        let inputCar = document.getElementById("cantidadInCar");
+        if (inputCar != null) {
+          inputCar.value = "";
+        }
       }  
-    },formatMXN(value) {
-        var formatter = new Intl.NumberFormat('es-MX', {style: 'currency', currency: 'MXN',});
-        return formatter.format(value);
+    },
+    formatMXN(value) {
+          var formatter = new Intl.NumberFormat('es-MX', {style: 'currency', currency: 'MXN',});
+          return formatter.format(value);
     } 
-  },computed:{  
-      calculaTotalProd(){
-        let total = 0;
-         total = this.producto.l0 * this.qty;
-        return this.formatMXN(total);
-      },
+  },
+  computed:{  
+    calculaTotalProd(){
+      let total = 0;
+        total = this.producto.l0 * this.qty;
+      return this.formatMXN(total);
+    },
   },
 
 }

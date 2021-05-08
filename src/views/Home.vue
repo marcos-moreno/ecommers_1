@@ -35,10 +35,13 @@
         </div>
 
         <v-col v-for="producto in productosPaginator" :key="producto.value"> 
-          <v-card class="mx-auto my-12" width="260" height="500" @click=seeProduct(producto.value) >  
-            <v-img  width="230" :src="producto.img" ></v-img>
+          <v-card class="mx-auto my-12" width="260" height="500" @click=seeProduct(producto.value) >
+            <center>  
+              <v-img  width="230" :src="producto.img" ></v-img>
+            </center>
             <v-card-text>
               <div class="my-4 subtitle-3">{{producto.name}}</div>
+              <div class="my-4 subtitle-2">{{producto.value}}</div>
             </v-card-text> 
             <v-divider class="mx-4">Costos</v-divider>
             <v-card-title >
@@ -101,10 +104,11 @@ export default {
       }
     }catch (ex){ 
       this.page = 1;
-    } 
+    }
     this.isLoad = true;  
     await this.validaLogin(); 
     await this.allProduct();
+    await this.paginator();
     this.isLoad = false;  
   }
   ,methods: {
@@ -150,31 +154,8 @@ export default {
       }).catch(function (response){ 
         console.log(response);
         return [];
-      });  
-      
-      this.lengthPaginator = Math.ceil(this.productos.length/this.totalPage);
-      for (let index = 0; index < this.productos.length; index++) {
-        let element = this.productos[index];  
-        if (index < this.totalPage) {
-          let img = await axios.get(config.apiAdempiere + "/productos/imgByValue?value="+element.value)
-          .then(function (response) { 
-            if (response.data.status == "success") {
-              return response.data.data[0].img;
-            } else {
-              console.log(response.data.data);
-              return "";
-            }
-          }).catch(function (response){ 
-            console.log(response);
-            return "";
-          });   
-          element.img = 'data:image/jpeg;base64,' + btoa(
-              new Uint8Array(img.data)
-              .reduce((data, byte) => data + String.fromCharCode(byte), '')
-          );    
-          this.productosPaginator.push(element);   
-        }
-      }  
+      });   
+      this.lengthPaginator = Math.ceil(this.productos.length/this.totalPage); 
     }
     ,async paginator(){ 
       this.isLoad = true; 
@@ -188,18 +169,21 @@ export default {
         .then(function (response) { 
           if (response.data.status == "success") {
             return response.data.data[0].img;
-          } else {
-            console.log(response.data.data);
-            return "";
+          } else { 
+             return false;
           }
         }).catch(function (response){ 
           console.log(response);
-          return "";
-        });   
-        element.img = 'data:image/jpeg;base64,' + btoa(
+          return false;
+        });  
+        if (img != false) {
+          element.img = 'data:image/jpeg;base64,' + btoa(
             new Uint8Array(img.data)
             .reduce((data, byte) => data + String.fromCharCode(byte), '')
-        );
+          );
+        }else{
+          element.img = "../../noImg.png";
+        } 
         this.productosPaginator.push(element);
         if (index == fin-1) {
           this.isLoad = false;   

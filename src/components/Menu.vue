@@ -7,7 +7,6 @@
         <v-toolbar-title>
           <v-btn @click="shopincaropen()" class="ma-2" text  color="#FFF"  >
             <v-icon>mdi-cart</v-icon><div v-if="isLogged"> 
-              <!-- {{shopingcarlength}} -->
               <input disabled style="color:#fff;border:none;width:50px;" id="cantidadInCar"/>
               </div>
           </v-btn>
@@ -42,7 +41,7 @@
                   </v-col>  
                 </v-row>  
                 <v-list-item-group v-model="group">
-                <v-list-item @click="menu('/shop/Home')">
+                <v-list-item @click="menu('/shop/purchases')">
                   <v-list-item-icon  >
                     <v-icon>mdi-shopping</v-icon>
                   </v-list-item-icon>
@@ -145,6 +144,9 @@
         }
       },
       menu(path){
+        if (path == '/shop/Home') {
+          location.href = "/shop/Home";
+        }
         if (this.$route.path !== path){
           this.$router.push(path);
         } 
@@ -174,7 +176,7 @@
         if (this.shopingcar.status == "success") {
           this.shopingcar = this.shopingcar.data;
           document.getElementById("cantidadInCar").value = this.shopingcar.length==0?"":this.shopingcar.length;
-         }else if(this.user.status == "unauthorized"){  
+        }else if(this.user.status == "unauthorized"){
           this.shopingcar = [];
         } 
     },
@@ -182,8 +184,7 @@
       letterAvatar(){
         return this.user.username.substring(1,0).toUpperCase();
       },
-      shopingcarlength(){
-          console.log("computed");
+      shopingcarlength(){ 
         return this.shopingcar.length;
       },
     } 

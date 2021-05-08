@@ -24,7 +24,10 @@ const routes = [
 
   ,{ path: '/shop/shopingcar/',name: 'Shopingcar',props: true,component: () => import('../components/Shopingcar.vue')}
 
+  ,{ path: '/shop/purchases/',name: 'Purchases',props: true,component: () => import('../views/Purchases.vue')}
+
   ,{ path: '/:pathMatch(.*)*',name: 'Not Found',component: () => import('../components/NotFound.vue')}, 
+  
 ]
 
 const router = new VueRouter({

@@ -11,6 +11,14 @@
       </v-dialog>
     </div>
     <template v-if="shopingcarlength > 0" >
+
+      <v-alert v-if="msgSucces!=''" dense text type="success">
+        {{msgSucces}}
+      </v-alert>
+      <v-alert v-if="msgError!=''" dense outlined type="error">
+        {{msgError}}
+      </v-alert>
+
       <v-container v-if="isSucursal" style="min-height:656px;">
         <v-card style="min-height:186px;">  
           <v-btn class="text-center" color="primary" text  @click="returnPago"
@@ -22,14 +30,8 @@
           </p>  
           <v-img class="mx-auto text-center" width="70" src="../../public/tienda.png" ></v-img> 
           <v-radio-group v-model="sucursalSelec">  
-            <v-simple-table >
+            <v-simple-table class="my-15" >
               <template v-slot:default>
-                <thead>
-                  <tr> 
-                    <th class="text-left"></th>
-                    <th class="text-left"></th>
-                  </tr>
-                </thead>
                 <tbody> 
                   <tr v-for="sucursal in sucursales" :key="sucursal.value"> 
                     <td>
@@ -50,8 +52,8 @@
             <br><br><br>
             <v-row>  
               <v-col class="mx-auto text-center"> 
-                <v-btn :disabled="sucursalSelec==0"  class="mx-auto" color="primary" width="50%" large>
-                  CONTINUAR
+                <v-btn :disabled="sucursalSelec==0" @click="confirmarCompra"  class="mx-auto" color="primary" width="50%" large>
+                  CONFIRMAR COMPRA
                 </v-btn>            
               </v-col> 
             </v-row> 
@@ -69,8 +71,33 @@
             </p>   
             <v-container>
             <v-row dense> 
+                <v-col cols="12">
+                <v-card color="#">
+                  <div class="d-flex flex-no-wrap justify-space-between">
+                    <div>
+                      <v-card-title class="text-h5">Requiero Factura</v-card-title> 
+                      <v-card-subtitle >
+                        <v-row>
+                          <v-col>
+                            <v-switch
+                            v-model="factura" @change="validaFactura"
+                            :label="factura?'Si requiero Factura':'No requiero Factura'"
+                            ></v-switch>
+                          </v-col>
+                          <v-col v-if="!factura">
+                            <v-alert  dense outlined type="warning">
+                              Ya no podrás solicitar una factura de esta compra posteriormente.
+                            </v-alert>
+                          </v-col>
+                        </v-row>
+                      </v-card-subtitle> 
+                    </div> 
+                  </div>
+                </v-card> 
+              </v-col>
+
               <v-col cols="12">
-                <v-card color="#1F7087"  dark v-if="validaCredito" >
+                <v-card color="#1F7087"  dark v-if="validaCredito && factura" >
                   <div class="d-flex flex-no-wrap justify-space-between">
                     <div>
                       <v-card-title class="text-h5">Crédito Refividrio</v-card-title> 
@@ -126,6 +153,7 @@
                             currency="MXN" 
                             :client="credentials" 
                             :items="payProducts"
+                            env="sandbox"
                             v-on:payment-authorized="paymentAuthorized"
                             v-on:payment-completed="paymentCompleted"
                             v-on:payment-cancelled="paymentCancelled"
@@ -140,14 +168,7 @@
                 </v-col>
                 </v-row>
               </v-container>  
-            <br><br><br>
-
-            <v-alert v-if="msgSucces!=''" dense text type="success">
-              {{msgSucces}}
-            </v-alert>
-            <v-alert v-if="msgError!=''" dense outlined type="error">
-              {{msgError}}
-            </v-alert> 
+            <br><br><br> 
             <v-row>  
               <v-col class="mx-auto text-center"> 
                 <v-btn :disabled="enaContinueMPay" @click="payComplet" class="mx-auto" color="primary" width="50%" large>
@@ -157,6 +178,9 @@
             </v-row> 
         </v-card>    
       </v-container> 
+
+
+   
     </template>
 
     <v-container v-if="shopingcarlength == 0 && isLoad == false && this.saleOrder.status_pay != 'pagado'"  style="min-height:656px;"  >
@@ -191,8 +215,7 @@ export default {
       ,productos : []
       ,isLogged : false
       ,user : {}
-      ,isLoad : false 
-      ,msgErro : ""
+      ,isLoad : false  
       ,sucursales : []
       ,isPay : false
       ,methodPay : 0
@@ -204,10 +227,17 @@ export default {
         production: 'AbEpHVkInyW2GzxG2fWPaLwvikiDqD2zh08oTUzEKuUsoq9Aq-OSybEHv2d1aQsH5CjbJglP3xnPY29S'
       }
       ,payProducts: []
-      ,paypalStyle: {label: 'checkout',  size:  'responsive',  shape: 'pill', color: 'blue'}
+      ,paypalStyle: {label:'checkout',size:'responsive',shape:'pill',color:'blue'}
       ,msgSucces:"",msgError:""
-      ,saleOrder : {status_pay:""}
-      ,pagadoConPaypal : false
+      ,saleOrder : {
+        status_pay:"",paymentAuthorized:""
+        ,paymentCompleted:"",paymentCancelled:""
+        ,c_order_id:"-",documentno : "-"
+        ,estado_pago:"-",_id : ""
+        ,method_pay : ""
+        ,productos:[]
+      } 
+      ,factura:false
     }; 
   }, 
   async created() { 
@@ -218,84 +248,94 @@ export default {
       await this.allProductinCar();
       for (let index = 0; index < this.productos.length; index++) { 
         this.payProducts.push(
-          {
-            "name": this.productos[index].name
+          {"name": this.productos[index].name
             ,"description": this.productos[index].value
             ,"quantity": this.productos[index].cantidad.toString()
             ,"price": parseFloat(this.productos[index].l0).toFixed(2).toString()
-            , "currency": "MXN"
-          }
-        );
-      }
+            ,"currency": "MXN" 
+          });
+          this.saleOrder.productos.push(
+          {
+            "quantity": this.productos[index].cantidad.toString()
+            ,"price": parseFloat(this.productos[index].l0).toFixed(2)
+            ,"total": (
+                        parseFloat(this.productos[index].l0).toFixed(2) 
+                          * 
+                        parseFloat(this.productos[index].cantidad).toFixed(2)
+                      ).toFixed(2)
+            ,"m_product_id":this.productos[index].m_product_id 
+            ,"value":this.productos[index].value  
+          });
+      } 
       this.total = this.totalCarNet().toString();
       this.saleOrder.c_bpartner_id = this.user.c_bpartner_id;
       this.saleOrder.ad_user_id = this.user.ad_user_id;
-      this.saleOrder.method_pay = "";
       this.saleOrder.grandtotal = this.totalCarNet();
-      this.saleOrder.status_entrega = "pendiente";
-      this.saleOrder.paymentAuthorized = "";
-      this.saleOrder.paymentCompleted = "";
-      this.saleOrder.paymentCancelled = "";
-      this.saleOrder.status_pay = "";
-      this.saleOrder.productos = this.payProducts;
+      this.saleOrder.status_entrega = "pendiente";  
       this.saleOrder.m_pricelist_id = this.user.m_pricelist_id;
-      this.saleOrder.c_order_id = "-";
-      this.saleOrder.documentno = "-";
-      this.saleOrder.estado_pago = "-";
-      this.saleOrder._id = ""; 
     }else{
       this.menu('/shop/Login/');
     }
     this.isLoad = false;  
     this.isPay = true; 
-  },
-  components: {
-      PayPal
-  }
-  ,computed: {
-    validaCredito(){
-      if (this.user.socreditstatus == "O") {
-        try {
-          if (this.creditoDisponible() > this.calculaTotalCar_fn()) {
-            return true;
-          }else{
-            return false;
-          }
-        } catch (error) { 
-          return false;
-        } 
-      } 
-      return false;
-    },
-    shopingcarlength(){
-          return this.productos.length;
-    },calculaTotalCar(){
-      let total = 0;
-      for (let index = 0; index < this.productos.length; index++) {
-        const element = this.productos[index];
-        total += element.cantidad * element.l0;
-      }
-      return this.formatMXN(total);
-    },
   }
   ,methods: {
-    async insertSaleOrder(){ 
+    validaFactura(){
+      if(this.factura == false){
+        this.methodPay = 0;
+        this.enaContinueMPay = true; 
+      }
+    },
+    async confirmarCompra(){ 
+      if (this.sucursalSelec > 0) {
+        this.isLoad = true; 
+        this.saleOrder.ad_org_recpt_id = this.sucursalSelec;
+        if (this.methodPay  == "CRE" || this.methodPay  == "EFE") {
+          const resIns = await this.insertSaleOrder()
+          if (resIns)this.menu("/shop/purchases");  
+        }else if(this.methodPay  == "paypal" && this.saleOrder.status_pay == "pagado"){
+          const resUpd = await this.updateSaleOrder(); 
+          if (resUpd)this.menu("/shop/purchases");  
+        }
+       this.isLoad = false;
+      }else{
+        this.sucursalSelec = 0;
+      }
+    },
+    async updateSaleOrder(){  
+      const result =  await axios.put(config.apiAdempiere + "/saleorder/updatebyID_auth", 
+                                      this.saleOrder
+                                      ,{headers:{'token': this.$cookie.get('token')}}
+                                    )
+      .then(res=>{ 
+        if(res.data.data.status != "success")return true; else return false;
+      }).catch(err=>{
+        console.log(err);
+        this.msgError = err;
+        return false;
+      });    
+      return result;    
+    },
+    async insertSaleOrder(){
+      this.saleOrder.isfactura = this.factura;  
       const result = await axios.post(
-        config.apiAdempiere + "/saleorder/add_auth", 
+        config.apiAdempiere + "/saleorder/add_auth_with_ad", 
         this.saleOrder
       ,{headers:{'token': this.$cookie.get('token')}})
-      .then(res=>{ 
+      .then(res=>{  
         return res.data;
       }).catch(err=>{
         console.log(err);
+        this.msgError = err;
         return false;
-      }); 
-
+      });  
       if(result.status == "success"){ 
-        this.saleOrder = result.data;
+        this.saleOrder = result.data; 
+        console.log(result.data);
+        this.emptyCar();
         return true;
-      }else{
-        console.log(result); 
+      }else{ 
+        this.msgError = result.data;
         return false; 
       }   
     },
@@ -303,17 +343,19 @@ export default {
       if (this.methodPay  == "CRE" || this.methodPay  == "EFE" || this.methodPay  == "paypal") {
         this.enaContinueMPay = false; 
         this.saleOrder.method_pay = this.methodPay;
+        if (this.methodPay  == "CRE" || this.methodPay  == "EFE") { 
+          this.saleOrder.status_pay = "pendiente";
+          if (this.methodPay  == "CRE") {
+            this.saleOrder.estado_pago = "procesado";
+          }else{
+            this.saleOrder.estado_pago = "pendiente";
+          } 
+        } 
       }else{
         this.enaContinueMPay = true; 
         this.saleOrder.method_pay = "";
       }
-    },
-    // continuePay(){
-    //   if (this.methodPay  == "CRE" || this.methodPay  == "EFE" || this.methodPay  == "paypal") {
-    //     this.isSucursal = true;
-    //     this.isPay = false;
-    //   } 
-    // },
+    }, 
     paymentAuthorized: function (data) {
       this.saleOrder.paymentAuthorized = data;
       this.saleOrder.status_pay = "paymentAuthorized";
@@ -326,17 +368,21 @@ export default {
     },
     paymentCompleted: async function (data) {
       if (data.state == "approved") {
+        this.isLoad = true;
         this.saleOrder.paymentCompleted = data;
         this.saleOrder.status_pay = "pagado"; 
         this.methodPay = "paypal";
         const OSInsert = await this.insertSaleOrder();
         if (this.saleOrder._id != "" && OSInsert) {
-          this.msgSucces = "Pago Procesado Exitosamente cadena del comprobante: " +this.saleOrder._id;
+          this.msgSucces = "Pago Procesado Exitosamente, cadena del comprobante: " +this.saleOrder._id;
           this.changeMethodPay();
-          this.emptyCar();
+          this.isPay = false;
+          this.isSucursal = true;
         }
+        this.isLoad = false;
       } else {
         this.msgError = "El pago no se pudo completar";
+        console.log(data);
       } 
     },
     async emptyCar(){
@@ -348,6 +394,10 @@ export default {
           if(res.data.status != "success"){ console.log(res.data);} 
         }).catch(err=>{console.log(err);});  
       } 
+      let inputCar = document.getElementById("cantidadInCar");
+      if (inputCar != null) {
+        inputCar.value = "";
+      }
     },
     paymentCancelled: function (data) {
       this.saleOrder.paymentCancelled = data;
@@ -355,8 +405,7 @@ export default {
       this.enaContinueMPay = true; 
       this.methodPay = 0;
     },
-    payComplet(){
-      console.log(this.saleOrder.method_pay + " // " + this.saleOrder.status_pay);
+    payComplet(){ 
       if ((this.saleOrder.method_pay == "paypal" && this.saleOrder.status_pay == "pagado" )
             || this.saleOrder.method_pay  == "CRE" 
             || this.saleOrder.method_pay  == "EFE" 
@@ -373,8 +422,12 @@ export default {
     calculaTotalCar_fn(){
       let total = 0;
       for (let index = 0; index < this.productos.length; index++) {
-        const element = this.productos[index];
-        total += element.cantidad * element.l0;
+        try {
+          const element = this.productos[index];
+          total += parseFloat(element.cantidad) * parseFloat(element.l0);
+        } catch (error) { 
+          return null;
+        } 
       }
       return total;
     },
@@ -387,7 +440,7 @@ export default {
       }  
     }
     ,async validaLogin(){
-         this.user = await axios.get(config.apiAdempiere + "/user/userByToken", 
+        this.user = await axios.get(config.apiAdempiere + "/user/userByToken", 
         {'headers': { 'token': this.$cookie.get('token') }})
         .then(res=>{return res.data;})
         .catch(err=>{return err;});    
@@ -396,7 +449,8 @@ export default {
           this.isLogged = true;
         }else if(this.user.status == "unauthorized"){ 
           this.isLogged = false;
-        }  
+          location.href = "/";
+        }   
     },
     async allProductinCar(){
         let productsincar = await axios.get(config.apiAdempiere + "/shopingcar/getcomplete_auth", 
@@ -433,10 +487,28 @@ export default {
       return parseFloat(this.user.so_creditlimit) - parseFloat(this.user.so_creditused);
     }
   },  
-  watch: {
-  
-  },
- 
+  components: {
+      PayPal
+  }
+  ,computed: {
+    validaCredito(){
+      if (this.user.socreditstatus == "O") {
+        try {
+          if (this.creditoDisponible() > this.calculaTotalCar_fn()) {
+            return true;
+          }
+        } catch (error) { 
+          return false;
+        } 
+      } 
+      return false;
+    },
+    shopingcarlength(){
+      return this.productos.length;
+    },calculaTotalCar(){ 
+      return this.formatMXN(this.calculaTotalCar_fn());
+    },
+  }
   
 }
 </script>

@@ -203,6 +203,9 @@ export default {
                 producto.cantidad = parseInt(producto.cantidad) - 1;
             }
           } 
+          if (producto.cantidad < 0) {
+             producto.cantidad = producto.cantidad * -1;
+          }
         }else{
           if (producto.cantidad != "") {
             producto.cantidad = 0;
