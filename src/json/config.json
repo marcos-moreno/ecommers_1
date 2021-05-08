@@ -1,4 +1,4 @@
 {
-    "apiAdempiere" : "http://172.16.102.70:5000"
-    ,"@apiAdempiere" : "https://aromatizantes.refividrio.com.mx:5000"
+    "@apiAdempiere" : "http://172.16.102.70:5000"
+    ,"apiAdempiere" : "https://aromatizantes.refividrio.com.mx:5000"
 }
