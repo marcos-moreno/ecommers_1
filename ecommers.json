@@ -1,0 +1,9 @@
+{
+    "apps": [
+        {
+            "name": "ecommers_1",
+            "script": "npm",
+            "args" : "start"
+        }
+    ]
+}
