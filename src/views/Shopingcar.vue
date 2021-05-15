@@ -1,4 +1,6 @@
 <template> 
+  <div>
+    <app-menu/>
   <v-container class="grey lighten-5" style="min-height:756px;"  >
     <div class="text-center">
       <v-dialog v-model="isLoad" persistent width="300">
@@ -109,6 +111,7 @@
       </div>  
     </v-container>
   </v-container>  
+  </div>
 </template>
 
 <style scoped>
@@ -120,6 +123,8 @@
 <script>
 import config from '../json/config.json'
 import axios from 'axios'; 
+import AppMenu from '../components/Menu.vue';
+
 export default {
   name: "CrudDepartment",
   data() {
@@ -142,7 +147,9 @@ export default {
     } 
     this.isLoad = false;  
   }
-
+  ,components: { 
+        'app-menu': AppMenu, 
+  }
   ,methods: { 
     async mounted() {    
       window.scrollTo(0,0);

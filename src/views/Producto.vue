@@ -1,7 +1,8 @@
 <template>
+<div>
+<app-menu/>
  <v-container class="grey lighten-5">
-    <div class="text-center">
-      
+    <div class="text-center"> 
       <v-dialog v-model="isLoad" persistent width="300">
          <v-card color="primary" dark >
           <v-card-text>
@@ -147,6 +148,7 @@
     </div>
     <v-spacer class="my-12"></v-spacer> 
   </v-container>
+  </div>
 </template>
 
 
@@ -159,6 +161,7 @@
 <script>
 import axios from 'axios'; 
 import config from '../json/config.json'
+import AppMenu from '../components/Menu.vue';
 
 export default {
   name:"appProducto",
@@ -175,11 +178,14 @@ export default {
       ,msgErro:''
     }
   },
+  components: { 
+      'app-menu': AppMenu, 
+  },
   async mounted() {    
     window.scrollTo(0,0);
   }, 
   async created(){ 
-    console.log(this.isMobile());
+    this.isMobile();
     this.isLoad = true;
     await this.validaLogin(); 
     await this.getProduct();
@@ -293,7 +299,6 @@ export default {
           return response;
         }); 
         if (this.producto.status == "success") {
-          
           this.producto = this.producto.data; 
           if (this.producto.length > 0) {
             this.producto = this.producto[0]; 
@@ -326,7 +331,7 @@ export default {
         if (inputCar != null) {
           inputCar.value = "";
         }
-      }  
+      } 
     },
     formatMXN(value) {
           var formatter = new Intl.NumberFormat('es-MX', {style: 'currency', currency: 'MXN',});

@@ -1,6 +1,6 @@
 <template>
  <v-app>
-
+    <app-menu/>
     <v-app-bar color="deep" dark > 
       <v-spacer></v-spacer> 
       <v-text-field @keyup.enter.native="search" v-model="filter" dense flat hide-details rounded solo-inverted ></v-text-field>  
@@ -74,6 +74,8 @@
 import AppSlider from '../components/Slider'; 
 import config from '../json/config.json'
 import axios from 'axios'; 
+import AppMenu from '../components/Menu.vue';
+
 export default {
   name: "Productos", 
   props: ['pagina'], 
@@ -93,8 +95,9 @@ export default {
     }; 
   }, 
   components: { 
-    'app-slider': AppSlider, 
-  },
+    'app-slider': AppSlider,
+    'app-menu': AppMenu, 
+  }, 
   async created() {  
     try{
       if (parseInt(this.pagina) > 0) {
@@ -113,15 +116,21 @@ export default {
   }
   ,methods: {
     async deleteFilter(){
+      this.page = 1;
+      this.isLoad = true;  
       this.filter = "";
       this.valorBuscado = "";
       this.verfiltro = false;
       await this.allProduct();
+      await this.paginator();
+      this.isLoad = false;  
     },
-    async search(){  
+    async search(){   
       this.isLoad = true;  
       this.valorBuscado = this.filter.toUpperCase();
       await this.allProduct();
+      this.page = 1;
+      await this.paginator();
       this.verfiltro = true;
       this.isLoad = false;  
     },
@@ -157,7 +166,8 @@ export default {
       });   
       this.lengthPaginator = Math.ceil(this.productos.length/this.totalPage); 
     }
-    ,async paginator(){ 
+    ,async paginator(){  
+      console.log(this.page);
       this.isLoad = true; 
       this.productosPaginator = [];
       let fin = ((this.page * (this.totalPage )) -1) > (this.productos.length -1) ? (this.productos.length -1):((this.page * (this.totalPage )) -1);  

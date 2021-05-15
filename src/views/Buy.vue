@@ -97,7 +97,7 @@
               </v-col>
 
               <v-col cols="12">
-                <v-card color="#1F7087"  dark v-if="validaCredito && factura" >
+                <v-card color="#1F7087"  dark v-if="validaCredito" >
                   <div class="d-flex flex-no-wrap justify-space-between">
                     <div>
                       <v-card-title class="text-h5">Crédito Refividrio</v-card-title> 
@@ -331,7 +331,7 @@ export default {
       });  
       if(result.status == "success"){ 
         this.saleOrder = result.data; 
-        console.log(result.data);
+        // console.log(result.data);
         this.emptyCar();
         return true;
       }else{ 

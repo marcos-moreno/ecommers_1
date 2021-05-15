@@ -1,6 +1,6 @@
-<template>
-  <v-main>
-    <app-menu/>
+<template> 
+  <v-main> 
+     <app-menu/> 
     <div class="text-center">
       <v-dialog v-model="isLoad" persistent width="300">
         <v-card color="primary" dark >
@@ -22,10 +22,10 @@
         <v-card  height="500" width="500"  class="mx-auto"> 
           <v-container fill-height fluid> 
             <v-row align="center" justify="center"> 
-              <v-card-title>¡Hola! Ingresa tu teléfono, e‑mail o usuario</v-card-title>
+              <v-card-title>¡Hola Administrador!<br>Ingresa tu usuario</v-card-title>
                 <v-container style="width:90%" class="my-10 mx-auto">
                   <v-text-field  @keyup.enter.native="comprobarUsuario" v-model="user" 
-                  label="Teléfono, e-mail o usuario" filled rounded dense ></v-text-field>
+                  label="Usuario" filled rounded dense ></v-text-field>
                 </v-container> 
                 <v-btn class="my-5 mx-auto" width="80%" large color="primary" @click="comprobarUsuario" >
                   Continuar
@@ -63,14 +63,13 @@
         </v-card>
       </v-container>
     </div>
-  </v-main> 
+  </v-main>  
 </template>
 
 <script>
   import axios from 'axios'; 
-  import config from '../json/config.json'
-  import AppMenu from '../components/Menu.vue';
-
+  import config from '../../json/config.json' 
+  import AppMenu from '../../components/admin/MenuAdmin.vue'; 
   export default {
     name:"login", 
     data() {
@@ -82,8 +81,9 @@
         showPass :false, 
         msgerror : ""
       }
-    }, components: { 
-      'app-menu': AppMenu, 
+    },
+    components: { 
+        'app-menu': AppMenu, 
     },
     methods:{
       returnUser(){
@@ -97,7 +97,7 @@
           this.msgerror = "Por favor ingresa tu usuario."
         }else{
           this.msgerror = ""
-          this.existeUsuario = await axios.get(config.apiAdempiere + "/user/exist",{params: {value:this.user}})
+          this.existeUsuario = await axios.get(config.apiAdempiere + "/user/existAdmin",{params: {value:this.user}})
                               .then(function (response) 
           { 
             if (response.data.status == "success") {
@@ -121,40 +121,45 @@
         }else{
           try {
             this.msgerror = ""
-            let resuser = await axios.post(config.apiAdempiere + "/user/login",{user:this.user,password:this.password })
-            .then(function (response){ 
+            let resuser = await axios.post(config.apiAdempiere + "/user/loginAdmin"
+              ,{
+                user:this.user,password:this.password
+              }
+            ).then(function (response){ 
               return response;
             })
             .catch(function (response){
               console.log(response);
               return {status:"error",token:null,user:{"value":""}};
             }); 
+            console.log(resuser);
             if (resuser.data.status == "success" && resuser.data.token != undefined) { 
               this.msgerror = ""; 
               this.$cookie.set('token',resuser.data.token);  
               this.$cookie.set('isLogged','true');  
-              location.href = "/";
+              this.$router.push('/shop/admin'+config.matchAdmin+'/HomeAdmin');
             }else{
               this.msgerror = "La contraseña es incorrecta";
             }
           } catch (error) {
+            console.log(error);
             this.msgerror = "Existe un error, Intentalo más tarde.";
           } 
         }
       }
     },  
-    async mounted() {
+    async mounted() {    
       window.scrollTo(0,0);
     },
     async created(){ 
-        let userObj = await axios.get(config.apiAdempiere + "/user/userByToken", 
+        let userObj = await axios.get(config.apiAdempiere + "/user/userByTokenAdmin", 
         {
           'headers': { 'token': this.$cookie.get('token') }
         })
         .then(res=>{return res.data;})
         .catch(err=>{return err;});    
         if (userObj.status == "success") {
-          this.$router.push('/shop/Account');
+          this.$router.push('/shop/admin'+config.matchAdmin+'/HomeAdmin');
         }else{
           let inputCar = document.getElementById("cantidadInCar");
           if (inputCar != null) {

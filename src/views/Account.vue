@@ -1,5 +1,6 @@
 <template>
   <v-main>
+    <app-menu/>
     <v-container class="my-6"> 
        <div class="text-center">
           <v-dialog v-model="isLoad" persistent width="300">
@@ -48,6 +49,8 @@
 <script>
   import axios from 'axios'; 
   import config from '../json/config.json'
+  import AppMenu from '../components/Menu.vue';
+
   export default {
     name:"account", 
     data() {
@@ -59,6 +62,9 @@
     },
     methods:{ 
     },  
+    components: { 
+      'app-menu': AppMenu, 
+    },
     async mounted() {    
       window.scrollTo(0,0);
     },
