@@ -1,11 +1,26 @@
 <template>
-  <v-container class="mx-auto text-center" style="min-height:706px;">
-    <br><br><br>
-    <img width="280" src="../../public/error.gif">
-    <p style="font-size: 2em;color :#909090">  
-      <strong>La página que buscas no esta disponible.</strong> 
-    </p>
-  </v-container>
+  <div>
+    <app-menu/> 
+    <v-container class="mx-auto text-center" style="min-height:706px;">
+      <br><br><br>
+      <!-- width="280" -->
+      <img  src="https://www.karmaestudio.com/wp-content/uploads/2015/01/Mantenimiento-paginas-web.png">
+      <p style="font-size: 2em;color :#909090">  
+        <strong>La página que buscas aún no esta disponible.</strong> 
+      </p>
+    </v-container>
+  </div>
 </template> 
-<script>
-</script>
+<script> 
+import AppMenu from '../components/Menu.vue';
+
+export default { 
+  data() {
+    return {  
+    }; 
+  }, 
+  components: {  
+    'app-menu': AppMenu, 
+  }
+}
+</script> 

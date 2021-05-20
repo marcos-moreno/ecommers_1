@@ -12,13 +12,18 @@
             </v-dialog> 
         </div>
     </v-container>
-    <v-alert v-if="msgError!=''" border="right" colored-border type="error" elevation="2">
-        {{msgError}}
-    </v-alert>
+ 
+    <v-container> 
+        <v-btn  v-if="isCrud" icon color="blue" @click="returnTable()"> <v-icon>mdi-arrow-left</v-icon>volver</v-btn>
+        <v-divider class="my-2"></v-divider>
+        <v-alert v-if="msgError!=''" border="right" colored-border type="error" elevation="2">
+            {{msgError}}
+        </v-alert>
+    </v-container> 
 
     <v-container v-if="!isCrud"> 
         <template> 
-            <div class="my-2">
+            <div>
                 <v-btn color="primary" @click="refresh()" label="refresh" fab  small  dark ><v-icon>mdi-cached</v-icon></v-btn>
             </div>
             <v-card>
@@ -43,14 +48,31 @@
         </template>
     </v-container> 
 
-    <v-container v-if="isCrud">  
-        <v-btn  icon color="blue" @click="isCrud = false"> <v-icon>mdi-arrow-left</v-icon>volver</v-btn>
-        <form class="my-8"> 
+    <v-container v-if="isCrud">   
+        <form >   
+            <v-alert v-if="solicitud.resultAD!= undefined && solicitud.resultAD !={}" border="top" colored-border type="info" elevation="2">
+                <div v-if="solicitud.resultAD!= undefined">
+                    <div v-if="solicitud.resultAD.data!= undefined">
+                        <div v-if="solicitud.resultAD.data.msg">
+                            {{solicitud.resultAD.data.msg}}
+                        </div>
+                    </div> 
+                </div>
+            </v-alert> 
+
             <v-chip  class="ma-2" color="primary" outlined pill>
                 <v-icon left>mdi-label</v-icon>
                 <span>Folio:</span>
                 <strong>{{solicitud.folio}}</strong>&nbsp; 
-            </v-chip> 
+            </v-chip>   
+
+            <v-chip class="ma-2" color="green"  text-color="white">
+                <v-icon left>
+                   mdi-star
+                </v-icon>
+                {{valorEstadoSolicitud}} 
+            </v-chip>
+
             <v-select class="my-5" v-model="solicitud.tipoSolicitante.tipo" :items="tiposSolicitantes" 
                 :error-messages="error.tipoSolicitante.tipo" label="*Tipo de Solicitante" required>
             </v-select>
@@ -94,7 +116,7 @@
                     </v-text-field>
                 </v-col>
                 <v-col>
-                    <v-text-field name="email" id="email" v-model="solicitud.email" :error-messages="error.email"  label="*E-mail" required
+                    <v-text-field name="email" id="email" v-model="solicitud.email" :error-messages="error.email"  label="*Correo Electrónico" required
                         @input="validaEmail()" @blur="validaEmail()" style="width:500px" >
                     </v-text-field>
                 </v-col>
@@ -130,7 +152,7 @@
                 </v-col>
                 <v-col>
                     <v-text-field name="pais" id="pais" v-model="solicitud.pais" 
-                        :error-messages="error.pais"  label="pais" disabled
+                        :error-messages="error.pais"  label="País" disabled
                         style="width:400px">
                     </v-text-field>
                 </v-col>
@@ -172,17 +194,16 @@
                 </v-col>
             </v-row> 
 
-
             <div class="my-10">
                 <v-btn class="ma-2" color="primary" @click="registrar()">
                     <v-icon left dark>mdi-checkbox-marked-circle</v-icon>
-                    Aprovar Solicitud
+                    Aprobar Solicitud
                 </v-btn> 
                 <v-btn class="ma-2" color="error" @click="registrar()">
                     <v-icon left dark>mdi-cancel</v-icon>
                     Rechazar Solicitud
                 </v-btn>
-            </div> 
+            </div>
         </form>
     </v-container>  
     </div>
@@ -203,7 +224,7 @@ export default {
         email: { required, email },
         select: { required }, 
     },
-    data: () => ({ 
+    data: () => ({
         preRegistros:[],
         search: '',
         headers: [
@@ -285,14 +306,34 @@ export default {
     async created(){ 
        this.getCollections();
     },
-    computed: {},
+    computed: {
+        valorEstadoSolicitud: function (){
+            switch (this.solicitud.estado_solicitud) {
+                case "SE":
+                    return "El socio de Negocio ya existe.";
+                case "SD":
+                    return "El RFC corresponde a más de un socio de Negocio.";
+                case "ARH":
+                    return "En espera de alta del empleado.";
+                case "AU":
+                    return "Registro Completo.";
+                default:
+                    return "No hay proceso";
+            }
+            
+        }
+    },
     methods: {
+        returnTable(){
+            this.isCrud = false;
+            this.msgError = "";
+        },
         async getCollections(){
             this.isLoad = true;
             this.preRegistros = await axios.get(config.apiAdempiere + "/preregistro/getByFilter",
             { headers:{token: this.$cookie.get('token')}, data:{filer: {}}})
             .then(res=>{return res.data;})
-            .catch(err=>{return err;});  
+            .catch(err=>{return err;});
             if (this.preRegistros.status == "success") {
                 this.preRegistros = this.preRegistros.data;
                 for (let index = 0; index < this.preRegistros.length; index++) {
@@ -311,6 +352,7 @@ export default {
             this.getCollections();
         },
         crud(item){
+            this.msgError = "";
             this.isCrud = true;
             this.solicitud = item;
             console.log(JSON.stringify(this.solicitud));
@@ -320,7 +362,7 @@ export default {
             } 
         },
         approved(item){
-            console.log(item);
+            console.log(item._id);
         },reject(item){
             console.log(item);
         },async validarCp(){
@@ -358,7 +400,7 @@ export default {
                 this.isLoad = false;
             }
         },   
-        validaNombre(){ 
+        validaNombre(){
             if (this.solicitud.nombreSolicitante != "" && this.solicitud.nombreSolicitante.length > 10) {
                 this.error.nombreSolicitante = "";
                 return true;
@@ -439,13 +481,13 @@ export default {
             let valido = true;   
             if (this.solicitud.requiredFactura) {
                 if (this.solicitud.tipoSolicitante.rfcColborador == "" || this.solicitud.tipoSolicitante.rfcColborador.length < 13) {
-                    this.error.tipoSolicitante.rfcColborador = "Para la facturación debé ser válido tu RFC";
+                    this.error.tipoSolicitante.rfcColborador = "Para la facturación debé ser válido el RFC";
                     valido = false;
                 } else {
                     this.error.tipoSolicitante.rfcColborador = "";
                 }
                 if (this.solicitud.direccion == "" || this.solicitud.direccion.length < 10) {
-                    this.error.direccion = "Para la facturación tu dirección debé ser válida";
+                    this.error.direccion = "Para la facturación la dirección debé ser válida";
                     valido = false;
                 } else {
                     this.error.direccion = "";
@@ -471,48 +513,23 @@ export default {
                 valido = false;
             }  
             if (valido) {
-                console.log(JSON.stringify(this.solicitud));
+                this.msgError = "";  
                 this.isLoad = true;
-                // const result = await axios.post(config.apiAdempiere + "/preregistro/add_pre",this.solicitud
-                // ,{headers:{}})
-                // .then(res=>{  
-                //     return res.data;
-                // }).catch(err=>{
-                //     console.log(err); 
-                //     return false;
-                // });
-                let result = false;
-                if (result!=false) { 
-                    if (result.status == "success") {
-                        this.solicitud = result.data;
-                        this.isRegistrado = true;
-                    } else {
-                        try { 
-                            if (result.data.code == "11000" ) {
-                                console.log(result.data.keyValue);
-                                console.log(result.data.keyValue.numeroCelular);
-                                console.log(result.data.keyValue['tipoSolicitante.rfcColborador']);
-                                console.log(result.data.keyValue.email);
-                                if (result.data.keyValue.numeroCelular != undefined) {
-                                    this.msgError = "Parece que ya hay una solicitud con este Número Celular, por favor verificalo."; 
-                                }
-                                if (result.data.keyValue['tipoSolicitante.rfcColborador'] != undefined) {
-                                    this.msgError = "Parece que ya hay una solicitud con este RFC de solicitante, por favor verificalo."; 
-                                }
-                                if (result.data.keyValue.email != undefined) {
-                                    this.msgError = "Parece que ya hay una solicitud con este Email de solicitante, por favor verificalo."; 
-                                }
-                            }else{
-                                this.msgError = result.data; 
-                            } 
-                        } catch (error) {
-                            console.log(error);
-                            this.msgError = "Existe un error desconocido, intentalo más tarde.";
-                        } 
-                    }
-                }else{
-                    this.msgError = "Existe un error, Intentalo más tarde."; 
+                const result = await axios.post(config.apiAdempiere + "/preregistro/insercbpartner",this.solicitud
+                ,{headers:{ 'token': this.$cookie.get('token') }})
+                .then(res=>{  
+                    return res.data;
+                }).catch(err=>{
+                    console.log(err); 
+                    return false;
+                });
+                if (result.status == "success") {
+                    this.solicitud = result.data;
+                    this.solicitud.tipoSolicitante = this.solicitud.tipoSolicitante[0];
+                } else {
+                    this.msgError = result.data;
                 }
+                console.log(result); 
                 window.scrollTo(0,0);
                 this.isLoad = false; 
             }else{

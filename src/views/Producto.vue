@@ -27,7 +27,7 @@
       <v-row v-if="agregado==false" no-gutters >
         <v-col>
           <v-card  >  
-          <center> 
+          <center>  
             <v-img width="400px" v-if="producto.img=='/noImg.png' || isMobile()"  :src="producto.img"></v-img>
             <zoom-on-hover :scale="2"  v-else width="400px" :img-normal="producto.img">
             </zoom-on-hover> 
@@ -102,10 +102,30 @@
                     {{msgErro}}
                   </v-alert>
                 </v-col>
-              </v-row>
+              </v-row> 
+            
             </v-container> 
           </template> 
-        </v-col>  
+        </v-col> 
+         
+        <v-row class="my-5" v-if="producto.elements!=null&&producto.elements!=''">
+          <v-card
+              class="mx-auto"
+              outlined
+            > 
+              <v-list-item three-line>
+                <v-list-item-content>
+                  <div class="overline mb-4">
+                    Descripción del producto
+                  </div> 
+                  <v-list-item-subtitle  v-html="producto.elements"></v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-avatar tile size="80" color="grey">
+                  <v-img width="400px" :src="producto.img"></v-img>
+                </v-list-item-avatar>
+              </v-list-item>  
+            </v-card> 
+        </v-row>  
       </v-row> 
       <v-row v-else no-gutters class="my-12 mx-auto">
           <v-container  style="min-height:556px;"  >
@@ -298,6 +318,7 @@ export default {
         }).catch(function (response){  
           return response;
         }); 
+        console.log(this.producto);
         if (this.producto.status == "success") {
           this.producto = this.producto.data; 
           if (this.producto.length > 0) {

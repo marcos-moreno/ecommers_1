@@ -10,7 +10,7 @@
               <input disabled style="color:#fff;border:none;width:50px;" id="cantidadInCar"/>
               </div>
           </v-btn>
-        </v-toolbar-title>   
+        </v-toolbar-title>
         <v-toolbar-title v-if="isLogged" > 
           <div class="text-center">
             <v-menu v-model="menuAccount" :close-on-content-click="false" :nudge-width="200" offset-x>
@@ -85,11 +85,11 @@
                     <v-list-item-title>Iniciar Sesión</v-list-item-title>
                   </v-list-item> 
 
-                  <v-list-item @click="menu('/shop/pregistro')">
+                  <v-list-item @click="menu('/shop/register')">
                     <v-list-item-icon>
                       <v-icon>mdi-pencil</v-icon>
                     </v-list-item-icon>
-                    <v-list-item-title>Pre-Registro</v-list-item-title>
+                    <v-list-item-title>PRE-REGISTRO</v-list-item-title>
                   </v-list-item> 
                   
                 </v-card>

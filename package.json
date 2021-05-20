@@ -12,6 +12,7 @@
     "core-js": "^3.6.5",
     "jspdf": "^2.3.1",
     "jspdf-autotable": "^3.5.14",
+    "validate-rfc": "^1.0.4",
     "vue": "^2.6.11",
     "vue-cookie": "^1.1.4",
     "vue-paypal-checkout": "^3.2.0",
