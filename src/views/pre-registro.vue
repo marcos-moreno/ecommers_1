@@ -14,8 +14,8 @@
             <v-dialog v-model="dialog" width="500"> 
                 <v-card>
                     <v-card-title class="headline grey lighten-2">
-                        Terminos y condiciones
-                    </v-card-title> 
+                        Términos y condiciones
+                    </v-card-title>
                     <v-card-text>
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                     </v-card-text>
@@ -30,7 +30,7 @@
             </v-dialog>  
         </div>
         <v-alert v-if="!isRegistrado" text dense color="teal" class="my-2" icon="mdi-clock-fast" border="left"> 
-            Completa tu PRE-REGISTRO, esta sujeto a una aprobación por parte de Refividrio.
+            Completa tu PRE-REGISTRO, está sujeto a una aprobación por parte de Refividrio.
         </v-alert>
         <v-alert v-if="msgError!=''" border="right" colored-border type="error" elevation="2">
             {{msgError}}
@@ -162,9 +162,9 @@
 
                     <v-divider class="my-10"></v-divider>
                     <v-checkbox @change="validaTerminos()" v-model="terminos" :error-messages="error.terminosError" 
-                        label="*Acepto los terminos y condiciones" required>
+                        label="*Acepto los términos y condiciones" required>
                     </v-checkbox>
-                    <a href="#" @click="dialog=true" >Leer terminos y condiciones</a>
+                    <a href="#" @click="dialog=true" >Leer términos y condiciones</a>
                     <br>
                     <v-btn class="my-10 mr-4" @click="registrar()">Registrar</v-btn> 
                 </form>
@@ -237,11 +237,12 @@
         </div>
         <v-container v-else style="min-height:600px" > 
             <v-alert type="success" text class="my-10"  border="left">
-                ¡Gracias por registrarse!
+                ¡Gracias por tu solicitud!
                 Tu PRE-REGISTRO esta listo, nosotros te informaremos sobre el estatus de tu solicitud 
-                en un périodo máximo de 2 días hábiles.
-                <br> TU FOLIO DE SOLICITUD: {{solicitud.folio}}
-                <br>Para cualquier duda o aclaración comunicate al télefono +521 55 51757108
+                en un périodo máximo de 3 días hábiles (no olvides revisar también tu bandeja de correo no deseado).
+                <br>*En caso de no recibir la información en el plazo máximo favor de contactarnos vía WhatsApp.
+                <br>Para cualquier duda o aclaración comunicate al télefono 5551757108
+                <br>FOLIO DE SOLICITUD: {{solicitud.folio}}
             </v-alert> 
             <div class="my-7">
                 Si tu comprobante no se descargo en automático
@@ -255,16 +256,14 @@
                     <tr><td>Folio : <strong>{{solicitud.folio}}</strong></td></tr>
                     <tr><td>Tipo de Solicitante : {{solicitud.tipoSolicitante[0].tipo}}</td></tr>
                     <tr><td>Solicitante : {{solicitud.nombreSolicitante}}</td></tr>
+                    <tr><td>RFC : {{ solicitud.tipoSolicitante[0].rfcColborador}}</td></tr>
                     <tr v-if="solicitud.montPreAprobed > 0" ><td>Crédito PRE-APROBADO : {{formatMXN(solicitud.montPreAprobed)}}</td></tr>
                     <tr><td>Celular : {{solicitud.numeroCelular}}</td></tr>
                     <tr><td>Correo Electrónico : {{solicitud.email}}</td></tr>
-                    <tr><td>RFC : {{ solicitud.tipoSolicitante[0].rfcColborador}}</td></tr>
-                    <tr><td></td></tr>
-
-                    <tr  v-if="solicitud.tipoSolicitante.tipo == 'Distribuidor'">
+                    <tr v-if="solicitud.tipoSolicitante.tipo == 'Distribuidor' ||solicitud.tipoSolicitante.tipo == 'Recomendado por Familiar/Amigo'  "><td></td></tr>
+                    <tr v-if="solicitud.tipoSolicitante.tipo == 'Distribuidor'">
                         <td>Razon Social : {{solicitud.tipoSolicitante[0].razonSocial}}</td>
                     </tr>
-                    
                     <tr v-if="solicitud.tipoSolicitante.tipo == 'Recomendado por Familiar/Amigo'">
                         <td>
                             Referencia : {{solicitud.tipoSolicitante[0].personaReferencia}}
@@ -279,16 +278,15 @@
                         <td>
                             Parentezco : {{solicitud.tipoSolicitante[0].parentezcoReferencia}}
                         </td>
-                    </tr>
-                    <tr><td><center><strong>DATOS DE FACTURACIÓN</strong></center></td></tr>
-                    <tr><td>Uso de CFDI : {{searchUSOCFDI(solicitud.UsoCFDI)}}</td></tr>
-                    <tr><td>RFC : {{ solicitud.tipoSolicitante[0].rfcColborador}}</td></tr>
-                    <tr><td>Calle y Número : {{solicitud.direccion}}</td></tr>
+                    </tr> 
+                    <tr v-if="solicitud.requiredFactura"><td><center><strong>DATOS DE FACTURACIÓN</strong></center></td></tr>
+                    <tr v-if="solicitud.requiredFactura"><td>Uso de CFDI : {{searchUSOCFDI(solicitud.UsoCFDI)}}</td></tr>
+                    <tr v-if="solicitud.requiredFactura"><td>Calle y Número : {{solicitud.direccion}}</td></tr>
                     <!-- <tr><td>Ciudad : {{ solicitud.ciudad}}</td></tr>  -->
-                    <tr><td>Colonia : {{ solicitud.asentamiento}}</td></tr>  
-                    <tr><td>Municipio : {{ solicitud.municipio}}</td></tr>
-                    <tr><td>Estado : {{ solicitud.estado}}</td></tr>  
-                    <tr><td>Código Postal : {{solicitud.cp}}</td></tr> 
+                    <tr v-if="solicitud.requiredFactura"><td>Colonia : {{ solicitud.asentamiento}}</td></tr>  
+                    <tr v-if="solicitud.requiredFactura"><td>Municipio : {{ solicitud.municipio}}</td></tr>
+                    <tr v-if="solicitud.requiredFactura"><td>Estado : {{ solicitud.estado}}</td></tr>  
+                    <tr v-if="solicitud.requiredFactura"><td>Código Postal : {{solicitud.cp}}</td></tr> 
                 </tbody>
                 </template>
             </v-simple-table>
@@ -604,6 +602,7 @@ export default {
                     if (resMountPre.status == "success") { 
                         if (resMountPre.data.length > 0) {
                             this.solicitud.montPreAprobed = resMountPre.data[0].so_creditlimit;
+                            console.log(this.solicitud.montPreAprobed);
                         }  
                     }else{ 
                         this.solicitud.montPreAprobed = 0;
@@ -618,7 +617,7 @@ export default {
         },validaTerminos(){
             let valido = true;
             if (this.terminos == false) {
-                this.error.terminosError = "Es necesario que aceptes los terminos y licencias.";
+                this.error.terminosError = "Es necesario que aceptes los términos y licencias.";
                 valido =false;
             } else {
                 this.error.terminosError = "";
@@ -690,9 +689,9 @@ export default {
                             }
                             if (result.data.errors.numeroCelular != undefined) {
                                 if (result.data.errors.numeroCelular.kind == "unique") {
-                                    this.msgError = "Parece que ya hay una solicitud con este télefono celular, por favor verificalo."; 
+                                    this.msgError = "Parece que ya hay una solicitud con este celular, por favor verificalo."; 
                                 }else{
-                                    this.msgError = "Parece que ya hay una ERROR con este télefono celular, por favor verificalo."; 
+                                    this.msgError = "Parece que ya hay una ERROR con este celular, por favor verificalo."; 
                                 }
                                 this.isLoad = false;
                                 window.scrollTo(0,0);
@@ -783,20 +782,20 @@ export default {
            var doc = new jsPDF('p', 'pt',[700, 380]);
             var img = new Image()
             img.src = '/refividrio.png';   
-            doc.addImage(img,'png', 90, 10, 0, 0);   
+            doc.addImage(img,'png', 95, 10, 0, 0);   
             doc.setTextColor(0, 106, 164 );
             doc.setFontSize(10);
-            doc.text(120,100,'¡GRACIAS POR REGISTRARTE!')
-            doc.text(70,110,'Te enviaremos un correo cuando se complete tu registro.')
-
+            doc.text(110,110,'¡GRACIAS POR TU SOLICITUD!')
+            doc.text(64,120,'Te enviaremos un correo cuando se complete tu registro.')
+            doc.text(112,130,'¡El momento de crecer es ahora!') 
             let bodyTBL= [
-                     ['Folio : ' , this.solicitud.folio]
-                    ,['Fecha de Solicitud : ' , this.formatDate(this.solicitud.created_at)]
+                    //  ['Folio : ' , this.solicitud.folio]
+                    ['Fecha de Solicitud : ' , this.formatDate(this.solicitud.created_at)]
                     ,['Tipo de Solicitante : ',this.solicitud.tipoSolicitante[0].tipo]
                     ,['Solicitante : ' ,this.solicitud.nombreSolicitante] 
+                    ,['RFC : ' ,this.solicitud.tipoSolicitante[0].rfcColborador] 
                     ,['Celular : ',this.solicitud.numeroCelular]
                     ,['Correo Electrónico : ',this.solicitud.email]
-                    ,['RFC : ' ,this.solicitud.tipoSolicitante[0].rfcColborador] 
                 ];  
                 if (this.solicitud.montPreAprobed > 0) {
                     bodyTBL.push(  
@@ -815,28 +814,36 @@ export default {
                         ,['Parentezco : ' ,this.solicitud.tipoSolicitante[0].parentezcoReferencia]  
                     );
                 } 
-                bodyTBL.push(  
-                    ['Uso de CFDI : ' ,this.searchUSOCFDI(this.solicitud.UsoCFDI)]
-                    ,['RFC : ',this.solicitud.tipoSolicitante[0].rfcColborador] 
-                    ,['Calle y Número : ' , this.solicitud.direccion] 
-                    ,['Colonia : ' , this.solicitud.asentamiento] 
-                    // ,['Ciudad : ' , this.solicitud.ciudad]  
-                    ,['Municipio : ' , this.solicitud.municipio] 
-                    ,['Estado : ' , this.solicitud.estado]  
-                    ,['Código Postal : ' , this.solicitud.cp]  
-                );
+                if (this.solicitud.requiredFactura) {
+                    bodyTBL.push(  
+                        ['Uso de CFDI : ' ,this.searchUSOCFDI(this.solicitud.UsoCFDI)] 
+                        ,['Calle y Número : ' , this.solicitud.direccion] 
+                        ,['Colonia : ' , this.solicitud.asentamiento] 
+                        // ,['Ciudad : ' , this.solicitud.ciudad]  
+                        ,['Municipio : ' , this.solicitud.municipio] 
+                        ,['Estado : ' , this.solicitud.estado]  
+                        ,['Código Postal : ' , this.solicitud.cp]  
+                    );
+                }
+
+            var header = function () {
+                doc.setFontSize(10); 
+                doc.setTextColor(176, 176, 176 );
+                doc.text("SOLICITUD DE DISTRIBUIDOR",110, 90);
+            };
             doc.autoTable({
                 columnStyles: {europe: { halign: 'center' }},
-                margin: { top: 120 }, 
-                head: [[ 'SOLICITUD DE DISTRIBUIDOR',""]],
+                margin: { top: 140 }, 
+                head: [['Folio : ' , this.solicitud.folio]],
                 body: bodyTBL
+                ,didDrawPage: header
                 }, 
             );
             let finalY = doc.lastAutoTable.finalY;
             doc.setFontSize(8);
-            doc.text(45, finalY+18,'Para cualquier duda o aclaración comunicate al télefono +521 55 51757108')
-            doc.setFontSize(9);
-            doc.text(45, finalY+28,'Las compras en línea estarán disponibles \na partir del 14 de JUNIO del 2021.')
+            doc.text(45, finalY+18,'Para cualquier duda o aclaración comunicate al télefono 5551757108.')
+            doc.setFontSize(8);
+            doc.text(45, finalY+28,'Las compras en línea estarán disponibles a partir del 14 de JUNIO del 2021.')
             doc.save('pre-registro.pdf'); 
         }
         ,formatMXN(value) {
