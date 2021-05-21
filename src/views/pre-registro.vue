@@ -783,7 +783,7 @@ export default {
         acuse(){  
            var doc = new jsPDF('p', 'pt',[700, 380]);
             var img = new Image()
-            img.src = '/refividrioR.png';   
+            img.src = '/refivid.png';   
             doc.addImage(img,'png', 95, 10, 0, 0);   
             doc.setTextColor(0, 106, 164 );
             doc.setFontSize(10);
