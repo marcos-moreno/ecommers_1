@@ -416,6 +416,7 @@ export default {
         },
         refresh(){
             this.getCollections();
+            this.filtrarRegistros();
         },
         async crud(item){
             this.msgError = "";
