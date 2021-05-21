@@ -6,7 +6,7 @@ Vue.use(VueRouter)
 
 const routes = [
    { path: '/', redirect: 'shop',}
-// /*
+/*
   ,{ path: '/shop/',redirect: '/shop/Home',  }
   ,{ path: '/shop/Home', name: 'Home',component: () => import('../views/Home.vue')}
   ,{ path: '/shop/Buy', name: 'Buy',component: () => import('../views/Buy.vue')}
@@ -17,14 +17,14 @@ const routes = [
   ,{ path: '/shop/Logout/',name: 'Logout',props: true,component: () => import('../components/Logout.vue')}
   ,{ path: '/shop/shopingcar/',name: 'Shopingcar',props: true,component: () => import('../views/Shopingcar.vue')}
   ,{ path: '/shop/purchases/',name: 'Purchases',props: true,component: () => import('../views/Purchases.vue')}
-// */
+*/
   ,{ path: '/shop/register/',name: 'preRegistro',props: true,component: () => import('../views/pre-registro.vue')}
   
   // Admin
   ,{ path: '/shop/admin'+config.matchAdmin+'/login',name: 'LoginAdmin',props: true,component: () => import('../views/admin/LoginAdmin.vue')}
   ,{ path: '/shop/admin'+config.matchAdmin+'/HomeAdmin',name: 'HomeAdmin',props: true,component: () => import('../views/admin/HomeAdmin.vue')}
 
-  //Generic 
+  //Generic
   ,{ path: '/:pathMatch(.*)*',name: 'Not Found',component: () => import('../components/NotFound.vue')}
   
 ]

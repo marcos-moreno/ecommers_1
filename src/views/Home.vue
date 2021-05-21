@@ -166,8 +166,7 @@ export default {
       });   
       this.lengthPaginator = Math.ceil(this.productos.length/this.totalPage); 
     }
-    ,async paginator(){  
-      console.log(this.page);
+    ,async paginator(){   
       this.isLoad = true; 
       this.productosPaginator = [];
       let fin = ((this.page * (this.totalPage )) -1) > (this.productos.length -1) ? (this.productos.length -1):((this.page * (this.totalPage )) -1);  

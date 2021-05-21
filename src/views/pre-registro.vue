@@ -604,7 +604,7 @@ export default {
                     if (resMountPre.status == "success") { 
                         if (resMountPre.data.length > 0) {
                             this.solicitud.montPreAprobed = resMountPre.data[0].so_creditlimit;
-                            console.log(this.solicitud.montPreAprobed);
+                            // console.log(this.solicitud.montPreAprobed);
                         }  
                     }else{ 
                         this.solicitud.montPreAprobed = 0;
@@ -670,8 +670,7 @@ export default {
                         this.solicitud = result.data;
                         this.isRegistrado = true;
                         this.acuse();
-                    } else {
-                        console.log(result);
+                    } else { 
                         try {
                             if (result.data == "rfcDuplicado") {
                                 this.msgError = "Parece que ya hay una solicitud con este RFC de solicitante, por favor verificalo."; 
