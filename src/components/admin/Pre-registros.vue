@@ -23,8 +23,18 @@
 
     <v-container v-if="!isCrud"> 
         <template> 
-            <div>
-                <v-btn color="primary" @click="refresh()" label="refresh" fab  small  dark ><v-icon>mdi-cached</v-icon></v-btn>
+            <div> 
+                <v-row>
+                    <v-col>
+                        <v-btn color="primary" @click="refresh()" label="refresh" fab  small  dark ><v-icon>mdi-cached</v-icon></v-btn>
+                    </v-col>
+                    <v-col>
+                        <v-select class="my-5" v-model="filterStatus" :items="statusSolicitud" item-text="nombre"
+                            :error-messages="error.filterStatus" label="Estatus de solicitud" item-value="code"
+                            @change="filtrarRegistros()" >
+                        </v-select>
+                    </v-col>
+                </v-row> 
             </div>
             <v-card>
                 <v-card-title>
@@ -35,7 +45,7 @@
                     no-data-text="No hay datos disponibles"
                     no-results-text="No hay coincidencias de tu busqueda."
                     :footer-props="{'items-per-page-options': [20,30,40,50]}"
-                    :headers="headers" :items="preRegistros" :search="search">
+                    :headers="headers" :items="preRegistrosFiltrado" :search="search">
                     <template v-slot:[`item.actions`]="{ item }">
                         <center>
                             <v-icon color="green darken-2" medium @click="crud(item)">
@@ -192,14 +202,32 @@
                          label="Calle y Número">
                     </v-text-field> 
                 </v-col>
+            </v-row>  
+            <v-row>
+                <v-col>
+                    <v-text-field name="montPreAprobed" id="montPreAprobed" 
+                        @blur="formatMoney"  
+                        v-model="solicitud.montPreAprobed" :error-messages="error.montPreAprobed"
+                        onkeydown="javascript: return (event.key == '$'||event.key == ','||event.key == 'ArrowRight'||event.key == 'ArrowLeft'||event.key == '.'||event.key == 'Backspace'||event.key < 48 || event.key > 57) ? true : false"
+                        type="text" label="Monto PRE-APROBADO" style="width:400px">
+                    </v-text-field>
+                </v-col> 
+                <!-- <v-col>
+                    <v-text-field name="password" id="password"
+                         v-model="solicitud.direccion" 
+                         :error-messages="error.direccion" 
+                         style="width:400px"
+                         label="Password">
+                    </v-text-field> 
+                </v-col> -->
             </v-row> 
 
             <div class="my-10">
-                <v-btn class="ma-2" color="primary" @click="registrar()">
+                <v-btn class="ma-2" color="primary" @click="approved()">
                     <v-icon left dark>mdi-checkbox-marked-circle</v-icon>
                     Aprobar Solicitud
                 </v-btn> 
-                <v-btn class="ma-2" color="error" @click="registrar()">
+                <v-btn class="ma-2" color="error" @click="reject()">
                     <v-icon left dark>mdi-cancel</v-icon>
                     Rechazar Solicitud
                 </v-btn>
@@ -214,6 +242,7 @@ import { validationMixin } from 'vuelidate'
 import { required, maxLength, email,minLength } from 'vuelidate/lib/validators'
 import axios from 'axios'; 
 import config from '../../json/config.json';  
+const validateRfc = require('validate-rfc');
 
 export default {
     mixins: [validationMixin],
@@ -225,7 +254,16 @@ export default {
         select: { required }, 
     },
     data: () => ({
+        filterStatus:'PA',
+        statusSolicitud:[
+            {nombre:'Pendiente de Autorizar',code:'PA'},
+            {nombre:'Socio Autorizado',code:'AU'},
+            {nombre:'Empleado No Registrado en AD',code:'ARH'},
+            {nombre:'Más de un registro (Socio o Usuario)',code:'SD'},
+            {nombre:'Socio de Negocio Existente',code:'SE'},
+        ],
         preRegistros:[],
+        preRegistrosFiltrado:[],
         search: '',
         headers: [
           { text: 'Folio', value: 'folio' },
@@ -239,6 +277,7 @@ export default {
           { text: 'Tipo', value: "tipoSolicitante.tipo" },
           { text: 'RFC', value: 'tipoSolicitante.rfcColborador' },
           { text: 'E-mail', value: 'email' },
+          { text: 'Estado', value: 'estado_solicitud' },
           { text: 'Actions', value: 'actions', sortable: false },
         ],
         snackbar : true,
@@ -246,35 +285,34 @@ export default {
         isCrud:false,
         usosCFDI:[], 
         asentamientos:[], 
-        solicitud: {
-            cp:"",
-            estado:"",
-            ciudad:"",
-            municipio:"",
-            pais:"",
-            asentamiento : "",
-            folio:"No creado",
-            tipoSolicitante:{
-                tipo:"",
-                razonSocial:"",
-                personaReferencia:"",
-                celularReferencia:"",
-                parentezcoReferencia:"",
-                rfcColborador:""
-            },
-            nombreSolicitante:"",
-            numeroCelular:"",
-            email:"",
-            requiredFactura:false, 
-            direccion:"",
-            UsoCFDI:"", 
-        }, 
+        solicitud: { 
+                cp:"",
+                estado:"",
+                ciudad:"",
+                municipio:"",
+                pais:"",
+                asentamiento : "",
+                folio:"No creado",
+                tipoSolicitante:{
+                    tipo:"",
+                    razonSocial:"",
+                    personaReferencia:"",
+                    celularReferencia:"",
+                    parentezcoReferencia:"",
+                    rfcColborador:""
+                },
+                nombreSolicitante:"",
+                numeroCelular:"",
+                email:"",
+                requiredFactura:false, 
+                direccion:"",
+                UsoCFDI:"", 
+                montPreAprobed:0,
+                ApprovedCredit:false
+            }, 
         error: {
             cp:"",
             estado:"",
-            ciudad:"",
-            municipio:"",
-            pais:"",
             asentamiento : "",
             tipoSolicitante:{
                 tipo:"",
@@ -288,8 +326,7 @@ export default {
             numeroCelular:"",
             email:"",
             requiredFactura:false,
-            direccion:"",
-            terminosError:"", 
+            direccion:"", 
             UsoCFDI:""
         },
         isLoad:false,
@@ -298,13 +335,13 @@ export default {
             'Recomendado por Familiar/Amigo',
             'Colaborador Refividrio',
         ],
-        tipoSolicitanteValido : false,
-        terminos: false,
+        tipoSolicitanteValido : false, 
         dialog : false
     }),components: { 
     },
     async created(){ 
-       this.getCollections();
+       await this.getCollections();
+       this.filtrarRegistros();
     },
     computed: {
         valorEstadoSolicitud: function (){
@@ -324,6 +361,35 @@ export default {
         }
     },
     methods: {
+        filtrarRegistros(){
+            this.preRegistrosFiltrado = [];
+            for (let index = 0; index < this.preRegistros.length; index++) {
+                const element = this.preRegistros[index];
+                if (element.estado_solicitud == this.filterStatus) {
+                    this.preRegistrosFiltrado.push(element);
+                }
+            } 
+        },
+        keyhander: function(event) {
+            console.log(event);
+            if (event.key == "+")
+            { 
+                event.preventDefault();
+            }
+        },
+        formatMXN(value) {
+            var formatter = new Intl.NumberFormat('en-ES', {style: 'currency', currency: 'USD',});
+            return formatter.format(value);
+        },
+        formatMoney(){ 
+            let i = 0;
+            while(isNaN(this.solicitud.montPreAprobed)||i==20) {
+                this.solicitud.montPreAprobed = this.solicitud.montPreAprobed.replace('$', '');
+                this.solicitud.montPreAprobed = this.solicitud.montPreAprobed.replace(',', '');
+                i++;
+            }
+            this.solicitud.montPreAprobed = this.formatMXN(this.solicitud.montPreAprobed);
+        },
         returnTable(){
             this.isCrud = false;
             this.msgError = "";
@@ -351,27 +417,110 @@ export default {
         refresh(){
             this.getCollections();
         },
-        crud(item){
+        async crud(item){
             this.msgError = "";
             this.isCrud = true;
-            this.solicitud = item;
-            console.log(JSON.stringify(this.solicitud));
+            this.solicitud = item; 
             this.asentamientos = []; 
+            this.formatMoney(); 
             if (this.solicitud.asentamiento != "" && this.solicitud.asentamiento != undefined) {
                 this.asentamientos.push({"asentamiento":this.solicitud.asentamiento});
-            } 
+            }
         },
-        approved(item){
-            console.log(item._id);
+        async approved(){
+             this.msgError = "";
+            let valido = true; 
+            
+            if(!this.validaDireccion())
+                valido = false;  
+            if (!this.validaNombre()) {
+                valido = false;
+            }
+            if (!this.validaCelular()) {
+                valido = false;
+            } 
+            if (!this.validaEmail()) {
+                valido = false;
+            } 
+            if (!this.validaRFC()) {
+                 valido = false;
+            }
+            if (!await this.validarCp()) {
+                 valido = false;
+            }   
+            let i = 0;
+            while(isNaN(this.solicitud.montPreAprobed)||i==20) {
+                this.solicitud.montPreAprobed = this.solicitud.montPreAprobed.replace('$', '');
+                this.solicitud.montPreAprobed = this.solicitud.montPreAprobed.replace(',', '');
+                i++;
+            }
+            this.solicitud.ApprovedCredit = false;
+            if (parseInt(this.solicitud.montPreAprobed) > 0) {
+                this.solicitud.ApprovedCredit = true;
+            }
+            // console.log(JSON.stringify(this.solicitud));
+            // valido = false;
+            if (valido) {
+                this.isLoad = true;  
+                const result = await axios.post(config.apiAdempiere + "/preregistro/insercbpartner",this.solicitud
+                ,{headers:{ 'token': this.$cookie.get('token') }})
+                .then(res=>{  
+                    return res.data;
+                }).catch(err=>{
+                    console.log(err); 
+                    return false;
+                });
+                if (result.status == "success") {
+                    this.solicitud = result.data;
+                    this.solicitud.tipoSolicitante = this.solicitud.tipoSolicitante[0];
+                } else {
+                    this.msgError = result.data;
+                }
+                if (result!=false) { 
+                    if (result.status == "success") {
+                        this.solicitud = result.data;
+                        this.isRegistrado = true;
+                    } else {
+                        console.log(result);
+                        try {
+                            if (result.data == "rfcDuplicado") {
+                                this.msgError = "Parece que ya hay una solicitud con este RFC de solicitante, por favor verificalo."; 
+                                this.isLoad = false;
+                                window.scrollTo(0,0);
+                                return;
+                            } 
+                        } catch (error) {
+                            console.log(error);
+                            this.msgError = "Existe un error desconocido, intentalo más tarde.";
+                        } 
+                    }
+                }else{
+                    this.msgError = "Existe un error, Intentalo más tarde."; 
+                }
+                window.scrollTo(0,0);
+                this.isLoad = false; 
+            }else{ 
+               if (this.msgError == "") {
+                   this.msgError = "Completa todos los datos";
+               }
+               window.scrollTo(0,0);
+            } 
         },reject(item){
             console.log(item);
         },async validarCp(){
+         this.msgError = "";
             this.asentamientos = [];
             this.solicitud.estado = "";
             this.solicitud.ciudad = "";
             this.solicitud.municipio = "";
             this.solicitud.pais = "";
-            if (this.solicitud.cp != "" && this.solicitud.cp.length==5) { 
+            this.error.cp = "";
+            
+            if (this.solicitud.cp != "") {
+                if (this.solicitud.cp.length!=5){
+                    this.error.cp = "El Código Postal ingresado es Inválido.";
+                    return false;
+                }
                 this.isLoad = true;
                 let uriCp = `https://api-sepomex.hckdrk.mx/query/info_cp/${this.solicitud.cp}?token=3bda8a59-91e8-4b44-a534-1761a6e60335`;
                 await axios.get(uriCp)
@@ -389,18 +538,110 @@ export default {
                     } catch (error) {
                         document.getElementById("cp").blur();
                         this.msgError = "Existe un error con tu Código Postal.";
+                        this.error.cp = "Existe un error con este Código Postal.";
                         console.log(error);
                     } 
-                }).catch(err=>{
-                    document.getElementById("cp").blur();
+                }).catch(err=>{ 
                     console.log(err);
+                    document.getElementById("cp").blur(); 
                     this.msgError = "El Código Postal ingresado es Inválido.";
+                    this.error.cp = "El Código Postal ingresado es Inválido.";
                     window.scrollTo(0,0);
-                });
+                });  
                 this.isLoad = false;
+                return true; 
+            }else{
+                if (this.solicitud.requiredFactura) {
+                    this.error.cp = "Para la facturación es necesario El Código Postal";
+                    return false;
+                }else{
+                    return true;
+                } 
             }
-        },   
-        validaNombre(){
+        },validaDireccion(){
+            let valido = true;
+            if (this.solicitud.requiredFactura) {  
+                if (this.solicitud.direccion == "" || this.solicitud.direccion.length < 10) {
+                    this.error.direccion = "Para la facturación tu Calle y Número debén ser válidos";
+                    valido = false;
+                } else {
+                    this.error.direccion = "";
+                }
+                if (this.solicitud.cp == "" || this.solicitud.cp.length != 5) {
+                    this.error.cp = "Para la facturación tu C.P. debé ser válido";
+                    valido = false;
+                } else {
+                    this.error.cp = "";
+                }  
+                if (this.solicitud.asentamiento == "" || this.solicitud.asentamiento.length < 5) {
+                    this.error.asentamiento = "Para la facturación tu Colonia debé ser válido";
+                    valido = false;
+                } else {
+                    this.error.asentamiento = "";
+                } 
+                if (this.solicitud.UsoCFDI == "" || this.solicitud.UsoCFDI.length < 2) {
+                    this.error.UsoCFDI = "Para la facturación el uso de CFDI debé ser válido";
+                    valido = false;
+                } else {
+                    this.error.UsoCFDI = "";
+                }
+            }else{
+                this.error.tipoSolicitante.rfcColborador = "";
+                this.error.direccion = "";
+                this.error.UsoCFDI = "";
+                this.error.asentamiento = "";
+                this.error.cp = "";
+            } 
+            return valido;
+        },  
+        validaRFC(){  
+            if (this.solicitud.tipoSolicitante.tipo == "Colaborador Refividrio") { 
+                const rfcRespuesta = validateRfc(this.solicitud.tipoSolicitante.rfcColborador.trim());
+                if(rfcRespuesta.isValid)
+                {
+                   if(rfcRespuesta.type == "person")
+                    {
+                        this.error.tipoSolicitante.rfcColborador="";
+                        this.solicitud.tipoSolicitante.rfcColborador = rfcRespuesta.rfc;
+                        return true;
+                    }else{
+                        this.error.tipoSolicitante.rfcColborador='Tu RFC debé ser de tipo "Persona Física"';
+                        return false;
+                    } 
+                }else{
+                    this.error.tipoSolicitante.rfcColborador="Es necesario que ingreses un RFC válido.";
+                    return false;
+                } 
+            } 
+            if (this.solicitud.tipoSolicitante.requiredFactura) { 
+                const rfcRespuesta = validateRfc(this.solicitud.tipoSolicitante.rfcColborador.trim());
+                if(rfcRespuesta.isValid)
+                {
+                    this.error.tipoSolicitante.rfcColborador="";
+                    this.solicitud.tipoSolicitante.rfcColborador = rfcRespuesta.rfc;
+                    return true;
+                }else{
+                    this.error.tipoSolicitante.rfcColborador="Es necesario que ingreses un RFC válido.";
+                    return false;
+                }
+            } else {
+                if (this.solicitud.tipoSolicitante.rfcColborador != "") {
+                    const rfcRespuesta = validateRfc(this.solicitud.tipoSolicitante.rfcColborador.trim());
+                    if(rfcRespuesta.isValid)
+                    {
+                        this.error.tipoSolicitante.rfcColborador="";
+                        this.solicitud.tipoSolicitante.rfcColborador = rfcRespuesta.rfc;
+                        return true;
+                    }else{
+                        this.error.tipoSolicitante.rfcColborador="Es necesario que ingreses un RFC válido o dejes el campo vacío.";
+                        return false;
+                    }
+                }
+                 
+            } 
+                 
+        },
+        validaNombre(){ 
             if (this.solicitud.nombreSolicitante != "" && this.solicitud.nombreSolicitante.length > 10) {
                 this.error.nombreSolicitante = "";
                 return true;
@@ -410,6 +651,7 @@ export default {
             } 
         },
         validaCelular(){
+            this.solicitud.numeroCelular = this.solicitud.numeroCelular.replace(".","").replace(",","");
             if(this.solicitud.numeroCelular == "" || this.solicitud.numeroCelular.length != 10){
                 this.error.numeroCelular = "Celular Requerido, 10 digitos";
                 return false;
@@ -424,118 +666,10 @@ export default {
                 this.error.email = "";
                 return true;
             }else{
-                this.error.email = "Email Requerido";
+                this.error.email = "Correo Electrónico Requerido";
                 return false;
             } 
-        },
-        validaTipoSolicitante(){
-            let valido=true;
-            switch (this.solicitud.tipoSolicitante.tipo) {
-                case 'Distribuidor':
-                    if (this.solicitud.tipoSolicitante.razonSocial != "" && this.solicitud.tipoSolicitante.razonSocial.trim().length > 5) {
-                        this.error.tipoSolicitante.razonSocial="";
-                    }else{
-                        valido = false;
-                        this.error.tipoSolicitante.razonSocial="Es necesario que ingreses tu Razón Social.";
-                    }
-                    break;
-                case 'Recomendado por Familiar/Amigo':
-                    if (this.solicitud.tipoSolicitante.personaReferencia != "" && this.solicitud.tipoSolicitante.personaReferencia.trim().length > 5) {
-                        this.error.tipoSolicitante.personaReferencia="";
-                    }else{
-                        valido = false;
-                        this.error.tipoSolicitante.personaReferencia="Es necesario que ingreses a tu referencia.";
-                    }
-
-                    if (this.solicitud.tipoSolicitante.celularReferencia != "" && this.solicitud.tipoSolicitante.celularReferencia.trim().length == 10) {
-                        this.error.tipoSolicitante.celularReferencia="";
-                    }else{
-                        valido = false;
-                        this.error.tipoSolicitante.celularReferencia="Es necesario que ingreses el Celular de tu referencia.";
-                    }
-
-                    if (this.solicitud.tipoSolicitante.parentezcoReferencia != "" && this.solicitud.tipoSolicitante.parentezcoReferencia.trim().length > 2) {
-                        this.error.tipoSolicitante.parentezcoReferencia="";
-                    }else{
-                        valido = false;
-                        this.error.tipoSolicitante.parentezcoReferencia="Es necesario que ingreses tu Parentezco.";
-                    }
-                    break;
-                case 'Colaborador Refividrio':
-                    if (this.solicitud.tipoSolicitante.rfcColborador != "" && this.solicitud.tipoSolicitante.rfcColborador.trim().length == 13) {
-                        this.error.tipoSolicitante.rfcColborador="";
-                    }else{
-                        valido = false;
-                        this.error.tipoSolicitante.rfcColborador="Es necesario que ingreses tu RFC.";
-                    }
-                    break;
-                default:
-                    break;
-            } 
-            if (valido) {
-              this.tipoSolicitanteValido = true;   
-            }
-        },
-        async registrar() {
-            this.msgError = "";
-            let valido = true;   
-            if (this.solicitud.requiredFactura) {
-                if (this.solicitud.tipoSolicitante.rfcColborador == "" || this.solicitud.tipoSolicitante.rfcColborador.length < 13) {
-                    this.error.tipoSolicitante.rfcColborador = "Para la facturación debé ser válido el RFC";
-                    valido = false;
-                } else {
-                    this.error.tipoSolicitante.rfcColborador = "";
-                }
-                if (this.solicitud.direccion == "" || this.solicitud.direccion.length < 10) {
-                    this.error.direccion = "Para la facturación la dirección debé ser válida";
-                    valido = false;
-                } else {
-                    this.error.direccion = "";
-                }
-                if (this.solicitud.UsoCFDI == "" || this.solicitud.UsoCFDI.length < 2) {
-                    this.error.UsoCFDI = "Para la facturación el uso de CFDI debé ser válido";
-                    valido = false;
-                } else {
-                    this.error.UsoCFDI = "";
-                }
-            }else{
-                this.error.tipoSolicitante.rfcColborador = "";
-                this.error.direccion = "";
-                this.error.UsoCFDI = "";
-            }
-            if (!this.validaNombre()) {
-                valido = false;
-            }
-            if (!this.validaCelular()) {
-                valido = false;
-            }
-            if (!this.validaEmail()) {
-                valido = false;
-            }  
-            if (valido) {
-                this.msgError = "";  
-                this.isLoad = true;
-                const result = await axios.post(config.apiAdempiere + "/preregistro/insercbpartner",this.solicitud
-                ,{headers:{ 'token': this.$cookie.get('token') }})
-                .then(res=>{  
-                    return res.data;
-                }).catch(err=>{
-                    console.log(err); 
-                    return false;
-                });
-                if (result.status == "success") {
-                    this.solicitud = result.data;
-                    this.solicitud.tipoSolicitante = this.solicitud.tipoSolicitante[0];
-                } else {
-                    this.msgError = result.data;
-                }
-                console.log(result); 
-                window.scrollTo(0,0);
-                this.isLoad = false; 
-            }else{
-               console.log("Ingresa Todos los Datos"); 
-            } 
-        },
+        },  
         formatDate(dates) {
             if (dates === undefined)return "Error de Fecha" 
             try {

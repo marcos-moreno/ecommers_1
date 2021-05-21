@@ -345,7 +345,8 @@ export default {
                 requiredFactura:false, 
                 direccion:"",
                 UsoCFDI:"", 
-                montPreAprobed:0
+                montPreAprobed:0,
+                ApprovedCredit:false
             }, 
         error: {
             cp:"",
@@ -522,6 +523,7 @@ export default {
             this.resetSolicitud();
         },  
         validaNombre(){ 
+            this.solicitud.nombreSolicitante = this.solicitud.nombreSolicitante.trim();
             if (this.solicitud.nombreSolicitante != "" && this.solicitud.nombreSolicitante.length > 10) {
                 this.error.nombreSolicitante = "";
                 return true;
@@ -650,7 +652,7 @@ export default {
             }
             if (!await this.validarCp()) {
                  valido = false;
-            }  
+            } 
             if (valido) { 
                 this.isLoad = true;
                 this.solicitud.estado_solicitud = "PA";
@@ -716,16 +718,17 @@ export default {
         },validaDireccion(){
             let valido = true;
             if (this.solicitud.requiredFactura) {
-                if (this.solicitud.tipoSolicitante.rfcColborador != "" 
-                    && (this.solicitud.tipoSolicitante.rfcColborador.trim().length == 13 
-                        ||
-                        this.solicitud.tipoSolicitante.rfcColborador.trim().length == 12
-                    )) {
-                    this.error.tipoSolicitante.rfcColborador="";
-                }else{
-                    valido = false;
-                    this.error.tipoSolicitante.rfcColborador="Para la facturación debé ser válido tu RFC 12-13 Digitos.";
-                } 
+                // if (this.solicitud.tipoSolicitante.rfcColborador != "" 
+                //     && (this.solicitud.tipoSolicitante.rfcColborador.trim().length == 13 
+                //         ||
+                //         this.solicitud.tipoSolicitante.rfcColborador.trim().length == 12
+                //     )) {
+                //     this.error.tipoSolicitante.rfcColborador="";
+                // }else{
+                //     valido = false;
+                //     this.error.tipoSolicitante.rfcColborador="Para la facturación debé ser válido tu RFC 12-13 Digitos.";
+                // }
+                this.solicitud.direccion = this.solicitud.direccion.trim();
                 if (this.solicitud.direccion == "" || this.solicitud.direccion.length < 10) {
                     this.error.direccion = "Para la facturación tu Calle y Número debén ser válidos";
                     valido = false;
