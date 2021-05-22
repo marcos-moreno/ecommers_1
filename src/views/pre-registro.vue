@@ -164,7 +164,10 @@
                     </v-checkbox>
                     <a href="#" @click="dialog=true" >Leer el aviso de privacidad</a>
                     <br>
-                    <v-btn class="my-10 mr-4" @click="registrar()">Registrar</v-btn> 
+                    <v-btn class="my-10 mr-4" color="primary" @click="registrar()">
+                        Registrar
+                        <v-icon size="17">mdi-checkbox-marked-circle</v-icon>
+                    </v-btn> 
                 </form>
             </v-container>
 
@@ -234,7 +237,7 @@
                     </v-row> 
                 </div> 
                 <v-btn  class="my-10 mr-4" color="primary" dark  @click="nextTipoSolicitante()">
-                    Continuar <v-icon>mdi-arrow-right</v-icon>
+                    Continuar <v-icon size="17">mdi-arrow-right</v-icon>
                 </v-btn>
             </v-container>
         </div>
