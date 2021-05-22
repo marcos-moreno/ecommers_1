@@ -160,7 +160,7 @@
 
                     <v-divider class="my-10"></v-divider>
                     <v-checkbox @change="validaTerminos()" v-model="terminos" :error-messages="error.terminosError" 
-                        label="He leído y acepto la política de privacidad" required>
+                        label="He leído y acepto el aviso de privacidad" required>
                     </v-checkbox>
                     <a href="#" @click="dialog=true" >Leer el aviso de privacidad</a>
                     <br>
@@ -627,7 +627,7 @@ export default {
         },validaTerminos(){
             let valido = true;
             if (this.terminos == false) {
-                this.error.terminosError = "Es necesario que aceptes la política de privacidad.";
+                this.error.terminosError = "Es necesario que aceptes el aviso de privacidad.";
                 valido =false;
             } else {
                 this.error.terminosError = "";
