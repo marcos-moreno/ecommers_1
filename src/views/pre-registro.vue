@@ -11,14 +11,12 @@
                 </v-card-text>
                 </v-card> 
             </v-dialog>
-            <v-dialog v-model="dialog" width="500"> 
+            <v-dialog v-model="dialog" width="900"> 
                 <v-card>
-                    <v-card-title class="headline grey lighten-2">
-                        Términos y condiciones
+                    <v-card-title class="justify-center headline grey lighten-2">
+                        AVISO DE PRIVACIDAD
                     </v-card-title>
-                    <v-card-text>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                    </v-card-text>
+                    <aviso-privacidad/>
                     <v-divider></v-divider>
                     <v-card-actions>
                     <v-spacer></v-spacer>
@@ -29,7 +27,7 @@
                 </v-card>
             </v-dialog>  
         </div>
-        <v-alert v-if="!isRegistrado" text dense color="teal" class="my-2" icon="mdi-clock-fast" border="left"> 
+        <v-alert v-if="!isRegistrado" dense text type="success" class="my-2" icon="mdi-clock-fast" border="left"> 
             Completa tu PRE-REGISTRO, está sujeto a una aprobación por parte de Refividrio.
         </v-alert>
         <v-alert v-if="msgError!=''" border="right" colored-border type="error" elevation="2">
@@ -162,18 +160,21 @@
 
                     <v-divider class="my-10"></v-divider>
                     <v-checkbox @change="validaTerminos()" v-model="terminos" :error-messages="error.terminosError" 
-                        label="*Acepto los términos y condiciones" required>
+                        label="He leído y acepto la política de privacidad" required>
                     </v-checkbox>
-                    <a href="#" @click="dialog=true" >Leer términos y condiciones</a>
+                    <a href="#" @click="dialog=true" >Leer el aviso de privacidad</a>
                     <br>
                     <v-btn class="my-10 mr-4" @click="registrar()">Registrar</v-btn> 
                 </form>
             </v-container>
 
             <v-container  class="my-10" v-else style="min-height:600px" > 
-                <v-select v-model="solicitud.tipoSolicitante.tipo" :items="tiposSolicitantes" @change="changeTipoSolicitante()"
-                    :error-messages="error.tipoSolicitante.tipo" label="*Tipo de Solicitante" required>
+
+                <v-select prepend-icon="mdi-account"  
+                    v-model="solicitud.tipoSolicitante.tipo" :items="tiposSolicitantes" @change="changeTipoSolicitante()"
+                    :error-messages="error.tipoSolicitante.tipo" label="Tipo de Solicitante" required>
                 </v-select>
+
                 <div v-if="solicitud.tipoSolicitante.tipo=='Recomendado por Familiar/Amigo'">
                     <v-row>
                         <v-col>
@@ -232,10 +233,12 @@
                         </v-col> 
                     </v-row> 
                 </div> 
-                <v-btn class="my-10 mr-4" small color="primary" dark  @click="nextTipoSolicitante()">Continuar</v-btn>
+                <v-btn  class="my-10 mr-4" color="primary" dark  @click="nextTipoSolicitante()">
+                    Continuar <v-icon>mdi-arrow-right</v-icon>
+                </v-btn>
             </v-container>
         </div>
-        <v-container v-else style="min-height:600px" > 
+        <v-container v-else style="min-height:700px" > 
             <v-alert type="success" text class="my-10"  border="left">
                 ¡Gracias por tu solicitud!
                 Tu PRE-REGISTRO esta listo, nosotros te informaremos sobre el estatus de tu solicitud 
@@ -305,6 +308,7 @@ import config from '../json/config.json';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import AppMenu from '../components/Menu.vue'; 
+import AvisoPrivacidadpr from '../components/AvisoPrivacidadpr.vue'; 
 const validateRfc = require('validate-rfc');
 
 export default {
@@ -379,6 +383,7 @@ export default {
         dialog : false
     }),components: { 
         'app-menu': AppMenu, 
+        'aviso-privacidad' :AvisoPrivacidadpr
     },
     async created(){  
         // this.acuse();
@@ -594,32 +599,32 @@ export default {
                     break;
             } 
             return valido;
-        },async nextTipoSolicitante(){ 
-            if (this.solicitud.tipoSolicitante.tipo == "Colaborador Refividrio") {
+        },async nextTipoSolicitante(){  
+            this.isLoad = true;
+            if (this.validaTipoSolicitante()) {
                 try {
-                     const resMountPre = await axios.get(config.apiAdempiere + "/preregistro/montPreAproved"
+                    const resMountPre = await axios.get(config.apiAdempiere + "/preregistro/montPreAproved"
                     ,{headers: {},params: {rfc: this.solicitud.tipoSolicitante.rfcColborador}})
                     .then(res=>{return res.data;})
-                    .catch(err=>{return err;});  
+                    .catch(err=>{return err;});
                     if (resMountPre.status == "success") { 
                         if (resMountPre.data.length > 0) {
-                            this.solicitud.montPreAprobed = resMountPre.data[0].so_creditlimit;
-                            // console.log(this.solicitud.montPreAprobed);
-                        }  
-                    }else{ 
+                            this.solicitud.montPreAprobed = resMountPre.data[0].monto;
+                            this.solicitud.nombreSolicitante = resMountPre.data[0].name; 
+                        }
+                    }else{
                         this.solicitud.montPreAprobed = 0;
-                    } 
+                    }  
                 } catch (error) {
                     console.log(error);
                 } 
-            } 
-            if (this.validaTipoSolicitante()) {
-              this.tipoSolicitanteValido = true;   
+                this.tipoSolicitanteValido = true;
             }
+            this.isLoad = false;
         },validaTerminos(){
             let valido = true;
             if (this.terminos == false) {
-                this.error.terminosError = "Es necesario que aceptes los términos y licencias.";
+                this.error.terminosError = "Es necesario que aceptes la política de privacidad.";
                 valido =false;
             } else {
                 this.error.terminosError = "";
