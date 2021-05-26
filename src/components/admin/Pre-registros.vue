@@ -88,7 +88,7 @@
                ID USUARIO: {{solicitud.ad_user_id}} 
             </v-chip>
 
-            <v-chip v-if="solicitud.c_bpartner_id!=undefined" class="ma-2" color="primary"  text-color="white">
+            <v-chip class="ma-2" color="primary"  text-color="white">
                 <v-icon left>
                    mdi-star
                 </v-icon>
