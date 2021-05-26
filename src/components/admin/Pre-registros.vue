@@ -60,13 +60,11 @@
 
     <v-container v-if="isCrud">   
         <form >   
-            <v-alert v-if="solicitud.resultAD!= undefined && solicitud.resultAD !={}" border="top" colored-border type="info" elevation="2">
-                <div v-if="solicitud.resultAD!= undefined">
-                    <div v-if="solicitud.resultAD.data!= undefined">
-                        <div v-if="solicitud.resultAD.data.msg">
-                            {{solicitud.resultAD.data.msg}}
-                        </div>
-                    </div> 
+            <v-alert v-if="solicitud.resultAD!= undefined && solicitud.resultAD !={}" 
+                border="top" colored-border type="info" elevation="2">
+                <div> 
+                    <!-- {{solicitud.resultAD.data.msg}} -->
+                    {{valorEstadoSolicitud}}  
                 </div>
             </v-alert> 
 
@@ -76,11 +74,25 @@
                 <strong>{{solicitud.folio}}</strong>&nbsp; 
             </v-chip>   
 
-            <v-chip class="ma-2" color="green"  text-color="white">
+            <v-chip v-if="solicitud.c_bpartner_id!=undefined" class="ma-2" color="primary"  text-color="white">
                 <v-icon left>
                    mdi-star
                 </v-icon>
-                {{valorEstadoSolicitud}} 
+                ID SOCIO: {{solicitud.c_bpartner_id}} 
+            </v-chip> 
+
+            <v-chip v-if="solicitud.ad_user_id!=undefined" class="ma-2" color="primary"  text-color="white">
+                <v-icon left>
+                   mdi-star
+                </v-icon>
+               ID USUARIO: {{solicitud.ad_user_id}} 
+            </v-chip>
+
+            <v-chip v-if="solicitud.c_bpartner_id!=undefined" class="ma-2" color="primary"  text-color="white">
+                <v-icon left>
+                   mdi-star
+                </v-icon>
+                Solicitud: {{formatDate(solicitud.created_at)}} a las {{formatTime(solicitud.created_at)}}
             </v-chip>
 
             <v-select class="my-5" v-model="solicitud.tipoSolicitante.tipo" :items="tiposSolicitantes" 
@@ -148,9 +160,7 @@
                         item-value="value" :error-messages="error.UsoCFDI"  style="width:500px"
                     ></v-select> 
                 </v-col> 
-            </v-row>  
-
-           
+            </v-row>    
             <v-row>
                 <v-col>
                     <!-- <v-btn @click="validarCp()">valida CP</v-btn> -->
@@ -256,6 +266,7 @@ export default {
     data: () => ({
         filterStatus:'PA',
         statusSolicitud:[
+            {nombre:'Todo',code:'all'},
             {nombre:'Pendiente de Autorizar',code:'PA'},
             {nombre:'Socio Autorizado',code:'AU'},
             {nombre:'Empleado No Registrado en AD',code:'ARH'},
@@ -340,6 +351,7 @@ export default {
     }),components: { 
     },
     async created(){ 
+       await this.validaLogin();
        await this.getCollections();
        this.filtrarRegistros();
     },
@@ -349,7 +361,7 @@ export default {
                 case "SE":
                     return "El socio de Negocio ya existe.";
                 case "SD":
-                    return "El RFC corresponde a más de un socio de Negocio.";
+                    return "El RFC corresponde a más de un Usuario.";
                 case "ARH":
                     return "En espera de alta del empleado.";
                 case "AU":
@@ -362,6 +374,10 @@ export default {
     },
     methods: {
         filtrarRegistros(){
+            if (this.filterStatus == 'all') {
+                this.preRegistrosFiltrado = this.preRegistros;
+                return; 
+            }
             this.preRegistrosFiltrado = [];
             for (let index = 0; index < this.preRegistros.length; index++) {
                 const element = this.preRegistros[index];
@@ -406,16 +422,15 @@ export default {
                     this.preRegistros[index].tipoSolicitante = this.preRegistros[index].tipoSolicitante[0];
                 }
             }else
-                this.preRegistros = []; 
-            
+                this.preRegistros = [];  
             this.usosCFDI = await axios.get(config.apiAdempiere + "/preregistro/get_uso_cfdi",{})
             .then(res=>{return res.data;})
             .catch(err=>{return err;});
             this.usosCFDI.status == "success"?this.usosCFDI = this.usosCFDI.data:this.usosCFDI = [];
             this.isLoad = false;
         },
-        refresh(){
-            this.getCollections();
+        async refresh(){
+            await this.getCollections();
             this.filtrarRegistros();
         },
         async crud(item){
@@ -459,18 +474,20 @@ export default {
             if (parseInt(this.solicitud.montPreAprobed) > 0) {
                 this.solicitud.ApprovedCredit = true;
             }
-            // console.log(JSON.stringify(this.solicitud));
+            console.log(this.solicitud);
             // valido = false;
             if (valido) {
                 this.isLoad = true;  
                 const result = await axios.post(config.apiAdempiere + "/preregistro/insercbpartner",this.solicitud
                 ,{headers:{ 'token': this.$cookie.get('token') }})
                 .then(res=>{  
+                    console.log(res);
                     return res.data;
                 }).catch(err=>{
                     console.log(err); 
                     return false;
                 });
+                console.log(result);
                 if (result.status == "success") {
                     this.solicitud = result.data;
                     this.solicitud.tipoSolicitante = this.solicitud.tipoSolicitante[0];
@@ -681,6 +698,21 @@ export default {
                 return "Error de Fecha";
             } 
         }, 
+        formatTime(dates) { 
+        const hours = ('0' + (new Date(Date.parse(dates))).getHours()).slice(-2)
+        const minutes = ('0' + (new Date(Date.parse(dates))).getMinutes()).slice(-2)
+        return `${hours}:${minutes} hrs.`
+        },
+        async validaLogin(){
+            this.user = await axios.get(config.apiAdempiere + "/user/userByTokenAdmin", 
+            {
+                'headers': { 'token': this.$cookie.get('token') }
+            }).then(res=>{return res.data;})
+            .catch(err=>{return err;});
+            if(this.user.status == "unauthorized"){ 
+               this.$router.push('/shop/admin'+config.matchAdmin+'/login');      
+            } 
+        }
     },
   }
 </script>

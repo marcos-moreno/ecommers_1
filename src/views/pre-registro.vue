@@ -421,7 +421,7 @@ export default {
         validaRFC(){  
             if (this.tipoSolicitanteValido == false || this.solicitud.tipoSolicitante.tipo == "Colaborador Refividrio") { 
                 const rfcRespuesta = validateRfc(this.solicitud.tipoSolicitante.rfcColborador.trim());
-                if(rfcRespuesta.isValid)
+                if(rfcRespuesta.isValid  && rfcRespuesta.type != "generic")
                 {
                    if(rfcRespuesta.type == "person")
                     {
@@ -437,9 +437,10 @@ export default {
                     return false;
                 } 
             } 
+            
             if (this.solicitud.tipoSolicitante.requiredFactura) { 
                 const rfcRespuesta = validateRfc(this.solicitud.tipoSolicitante.rfcColborador.trim());
-                if(rfcRespuesta.isValid)
+                if(rfcRespuesta.isValid && rfcRespuesta.type != "generic")
                 {
                     this.error.tipoSolicitante.rfcColborador="";
                     this.solicitud.tipoSolicitante.rfcColborador = rfcRespuesta.rfc;
@@ -462,8 +463,7 @@ export default {
                     }
                 }
                  
-            } 
-                 
+            }      
         },
         resetSolicitud(){
             this.solicitud.tipoSolicitante = { 
@@ -686,28 +686,37 @@ export default {
                                 window.scrollTo(0,0);
                                 return;
                             }
-                            if (result.data.errors.email != undefined) {
-                                if (result.data.errors.email.kind == "unique") {
-                                    this.msgError = "Parece que ya hay una solicitud con este Email de solicitante, por favor verificalo."; 
-                                }else{
-                                    this.msgError = "Parece que ya hay una ERROR con este Email, por favor verificalo."; 
+                            try {
+                                if (result.data.errors.email != undefined) {
+                                    if (result.data.errors.email.kind == "unique") {
+                                        this.msgError = "Parece que ya hay una solicitud con este Email de solicitante, por favor verificalo."; 
+                                    }else{
+                                        this.msgError = "Parece que ya hay una ERROR con este Email, por favor verificalo."; 
+                                    }
+                                    this.isLoad = false;
+                                    window.scrollTo(0,0);
+                                    return;
                                 }
-                                this.isLoad = false;
-                                window.scrollTo(0,0);
-                                return;
-                            }
-                            if (result.data.errors.numeroCelular != undefined) {
-                                if (result.data.errors.numeroCelular.kind == "unique") {
-                                    this.msgError = "Parece que ya hay una solicitud con este celular, por favor verificalo."; 
-                                }else{
-                                    this.msgError = "Parece que ya hay una ERROR con este celular, por favor verificalo."; 
-                                }
-                                this.isLoad = false;
-                                window.scrollTo(0,0);
-                                return;
+                            } catch (error) {
+                                console.log({"if (result.data.errors.email != undefined)":error});
                             } 
+                            try {
+                                if (result.data.errors.numeroCelular != undefined) {
+                                    if (result.data.errors.numeroCelular.kind == "unique") {
+                                        this.msgError = "Parece que ya hay una solicitud con este celular, por favor verificalo."; 
+                                    }else{
+                                        this.msgError = "Parece que ya hay una ERROR con este celular, por favor verificalo."; 
+                                    }
+                                    this.isLoad = false;
+                                    window.scrollTo(0,0);
+                                    return;
+                                } 
+                            } catch (error) {
+                                console.log({"if (result.data.errors.numeroCelular != undefined)":error});
+                            }  
+                            this.msgError = result.data; 
                         } catch (error) {
-                            console.log(error);
+                            console.log({"##":error});
                             this.msgError = "Existe un error desconocido, intentalo más tarde.";
                         } 
                     }
