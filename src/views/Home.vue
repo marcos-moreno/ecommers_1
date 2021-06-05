@@ -149,7 +149,7 @@ export default {
     ,async allProduct(){
       this.productos = [];
       this.productosPaginator = [];
-      let uri = this.isLogged ? config.apiAdempiere + "/productos/allByListPrice_auth" : config.apiAdempiere + "/productos/all";
+      let uri = this.isLogged ? config.apiAdempiere + "/productos/all" : config.apiAdempiere + "/productos/all";
       this.productos = await axios.get(uri
       ,{headers: { 'token': this.$cookie.get('token') },params: {'filter': this.filter === "" ? '' : this.filter}}
       )
@@ -172,9 +172,9 @@ export default {
       let fin = ((this.page * (this.totalPage )) -1) > (this.productos.length -1) ? (this.productos.length -1):((this.page * (this.totalPage )) -1);  
       for (let index = ( ( (this.page -1) * this.totalPage)); index <= fin; index++) {
         let element = this.productos[index];   
-        let img = await axios.get(config.apiAdempiere +"/productos/imgByValue"
-        ,{params: {value:element.value}}
-        )
+
+        let img =  await axios.get(config.apiAdempiere + "/productos/imgByValue"
+                  ,{headers: { 'token': this.$cookie.get('token') },params: {filter: element.value}})
         .then(function (response) { 
           if (response.data.status == "success") {
             return response.data.data[0].img;

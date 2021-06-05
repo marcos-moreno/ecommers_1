@@ -1,67 +1,69 @@
 <template>
   <v-main>
     <app-menu/>
-    <div class="text-center">
-      <v-dialog v-model="isLoad" persistent width="300">
-        <v-card color="primary" dark >
-          <v-card-text>
-            cargando
-            <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
-          </v-card-text>
-        </v-card> 
-      </v-dialog>
-    </div> 
-    <div v-if="!isLoad"> 
-      <v-container v-if="msgerror!=''" class="my-6 grey lighten-5"  >
-        <v-alert  dense  outlined  type="error" > 
-          {{ msgerror }}
-        </v-alert>
-      </v-container>
+    <div v-if="isLoad==false">
+      <div class="text-center">
+        <v-dialog v-model="isLoad" persistent width="300">
+          <v-card color="primary" dark >
+            <v-card-text>
+              cargando
+              <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+            </v-card-text>
+          </v-card> 
+        </v-dialog>
+      </div> 
+      <div v-if="!isLoad"> 
+        <v-container v-if="msgerror!=''" class="my-6 grey lighten-5"  >
+          <v-alert  dense  outlined  type="error" > 
+            {{ msgerror }}
+          </v-alert>
+        </v-container>
 
-      <v-container v-if="existeUsuario==false" class="my-6 grey lighten-5"  >
-        <v-card  height="500" width="500"  class="mx-auto"> 
-          <v-container fill-height fluid> 
-            <v-row align="center" justify="center"> 
-              <v-card-title>¡Hola! Ingresa tu teléfono, e‑mail o usuario</v-card-title>
-                <v-container style="width:90%" class="my-10 mx-auto">
-                  <v-text-field  @keyup.enter.native="comprobarUsuario" v-model="user" 
-                  label="Teléfono, e-mail o usuario" filled rounded dense ></v-text-field>
-                </v-container> 
-                <v-btn class="my-5 mx-auto" width="80%" large color="primary" @click="comprobarUsuario" >
+        <v-container v-if="existeUsuario==false" class="my-6 grey lighten-5"  >
+          <v-card  height="500" width="500"  class="mx-auto"> 
+            <v-container fill-height fluid> 
+              <v-row align="center" justify="center"> 
+                <v-card-title>¡Hola! Ingresa tu teléfono, e‑mail o usuario</v-card-title>
+                  <v-container style="width:90%" class="my-10 mx-auto">
+                    <v-text-field  @keyup.enter.native="comprobarUsuario" v-model="user" 
+                    label="Teléfono, e-mail o usuario" filled rounded dense ></v-text-field>
+                  </v-container> 
+                  <v-btn class="my-5 mx-auto" width="80%" large color="primary" @click="comprobarUsuario" >
+                    Continuar
+                  </v-btn> 
+              </v-row>
+            </v-container>
+          </v-card> 
+        </v-container>
+
+        <v-container v-else class="my-6 grey lighten-5"  >
+          <v-card height="500" width="500"  class="mx-auto"> 
+            <v-btn @click="returnUser" text color="primary" class="my-2" >
+              <v-icon dark left >mdi-arrow-left </v-icon>
+              <span>Regresar</span> 
+            </v-btn>
+
+            <v-container v-if="existeUsuario==true" fill-height fluid> 
+              <v-row align="center" justify="center"> 
+                <v-card-title>¡Muy bien! Ahora Ingresa tu contraseña</v-card-title>
+                <v-container style="width:90%" class="my-2 mx-auto"> 
+                  <v-text-field name="user" prepend-icon="mdi-account" v-model="user" disabled
+                  ></v-text-field> 
+                </v-container>
+                <v-container style="width:90%" class="my-2 mx-auto">
+                  <v-text-field @keyup.enter.native="login" :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
+                      :type="showPass ? 'text' : 'password'" label="Password"
+                      @click:append="showPassw" v-model="password"
+                  ></v-text-field> 
+                </v-container>
+                <v-btn class="my-5 mx-auto" width="80%" large color="primary" @click="login" >
                   Continuar
                 </v-btn> 
-            </v-row>
-          </v-container>
-        </v-card> 
-      </v-container>
-
-      <v-container v-else class="my-6 grey lighten-5"  >
-        <v-card height="500" width="500"  class="mx-auto"> 
-          <v-btn @click="returnUser" text color="primary" class="my-2" >
-            <v-icon dark left >mdi-arrow-left </v-icon>
-            <span>Regresar</span> 
-          </v-btn>
-
-          <v-container v-if="existeUsuario==true" fill-height fluid> 
-            <v-row align="center" justify="center"> 
-              <v-card-title>¡Muy bien! Ahora Ingresa tu contraseña</v-card-title>
-              <v-container style="width:90%" class="my-2 mx-auto"> 
-                 <v-text-field name="user" prepend-icon="mdi-account" v-model="user" disabled
-                ></v-text-field> 
-              </v-container>
-              <v-container style="width:90%" class="my-2 mx-auto">
-                <v-text-field @keyup.enter.native="login" :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
-                    :type="showPass ? 'text' : 'password'" label="Password"
-                    @click:append="showPassw" v-model="password"
-                ></v-text-field> 
-              </v-container>
-              <v-btn class="my-5 mx-auto" width="80%" large color="primary" @click="login" >
-                Continuar
-              </v-btn> 
-            </v-row>
-          </v-container>
-        </v-card>
-      </v-container>
+              </v-row>
+            </v-container>
+          </v-card>
+        </v-container>
+      </div>
     </div>
   </v-main> 
 </template>
@@ -147,6 +149,7 @@
       window.scrollTo(0,0);
     },
     async created(){ 
+        this.isLoad =true;
         let userObj = await axios.get(config.apiAdempiere + "/user/userByToken", 
         {
           'headers': { 'token': this.$cookie.get('token') }
@@ -161,6 +164,7 @@
             inputCar.value = "";
           }
         }
+        this.isLoad =false;
     }
   }
 </script>

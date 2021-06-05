@@ -60,7 +60,8 @@
 
     <v-container v-if="isCrud">   
         <form >   
-            <v-alert v-if="solicitud.resultAD!= undefined && solicitud.resultAD !={}" 
+            <!-- v-if="(solicitud.resultAD!= undefined && solicitud.resultAD !={})|| solicitud.estado_solicitud=='RE' "  -->
+            <v-alert 
                 border="top" colored-border type="info" elevation="2">
                 <div> 
                     <!-- {{solicitud.resultAD.data.msg}} -->
@@ -74,6 +75,22 @@
                 <strong>{{solicitud.folio}}</strong>&nbsp; 
             </v-chip>   
 
+
+
+            <v-chip class="ma-2" color="green"  text-color="white">
+                <v-icon left>
+                   mdi-star
+                </v-icon>
+                Solicitud: {{solicitud.created_atFormat}}
+            </v-chip>
+
+            <v-chip class="ma-2" color="green"  text-color="white">
+                <v-icon left>
+                   mdi-star
+                </v-icon>
+                Max. Respuesta: {{solicitud.created_atFormatLimit}}
+            </v-chip>
+            <br>
             <v-chip v-if="solicitud.c_bpartner_id!=undefined" class="ma-2" color="primary"  text-color="white">
                 <v-icon left>
                    mdi-star
@@ -86,13 +103,6 @@
                    mdi-star
                 </v-icon>
                ID USUARIO: {{solicitud.ad_user_id}} 
-            </v-chip>
-
-            <v-chip class="ma-2" color="primary"  text-color="white">
-                <v-icon left>
-                   mdi-star
-                </v-icon>
-                Solicitud: {{formatDate(solicitud.created_at)}} a las {{formatTime(solicitud.created_at)}}
             </v-chip>
 
             <v-select class="my-5" v-model="solicitud.tipoSolicitante.tipo" :items="tiposSolicitantes" 
@@ -230,14 +240,19 @@
                          label="Password">
                     </v-text-field> 
                 </v-col> -->
-            </v-row> 
-
+            </v-row>  
             <div class="my-10">
-                <v-btn class="ma-2" color="primary" @click="approved()">
+                <v-btn 
+                    v-if="solicitud.estado_solicitud != 'AU' 
+                            && solicitud.estado_solicitud != 'SE' 
+                            && solicitud.estado_solicitud != 'SD'"
+                        class="ma-2" color="primary" @click="approved()">
                     <v-icon left dark>mdi-checkbox-marked-circle</v-icon>
                     Aprobar Solicitud
                 </v-btn> 
-                <v-btn class="ma-2" color="error" @click="reject()">
+                <v-btn 
+                v-if="solicitud.estado_solicitud != 'AU' && solicitud.estado_solicitud != 'RE'"
+                 class="ma-2" color="error" @click="reject()">
                     <v-icon left dark>mdi-cancel</v-icon>
                     Rechazar Solicitud
                 </v-btn>
@@ -252,8 +267,7 @@ import { validationMixin } from 'vuelidate'
 import { required, maxLength, email,minLength } from 'vuelidate/lib/validators'
 import axios from 'axios'; 
 import config from '../../json/config.json';  
-const validateRfc = require('validate-rfc');
-
+const validateRfc = require('validate-rfc'); 
 export default {
     mixins: [validationMixin],
     validations: {
@@ -286,7 +300,8 @@ export default {
           },
           { text: 'Celular', value: 'numeroCelular' },
           { text: 'Tipo', value: "tipoSolicitante.tipo" },
-          { text: 'RFC', value: 'tipoSolicitante.rfcColborador' },
+          { text: 'Fecha Solicitud', value: 'created_atFormat'},
+          { text: 'Max. Respuesta', value: 'created_atFormatLimit'}, 
           { text: 'E-mail', value: 'email' },
           { text: 'Estado', value: 'estado_solicitud' },
           { text: 'Actions', value: 'actions', sortable: false },
@@ -357,15 +372,18 @@ export default {
     },
     computed: {
         valorEstadoSolicitud: function (){
+            console.log(this.solicitud.estado_solicitud);
             switch (this.solicitud.estado_solicitud) {
                 case "SE":
-                    return "El socio de Negocio ya existe.";
+                    return "El socio de Negocio existe.";
                 case "SD":
                     return "El RFC corresponde a más de un Usuario.";
                 case "ARH":
                     return "En espera de alta del empleado.";
                 case "AU":
                     return "Registro Completo.";
+                case "RE":
+                    return "Solicitud Rechazada.";
                 default:
                     return "No hay proceso";
             }
@@ -374,14 +392,16 @@ export default {
     },
     methods: {
         filtrarRegistros(){
-            if (this.filterStatus == 'all') {
-                this.preRegistrosFiltrado = this.preRegistros;
-                return; 
-            }
+            // if (this.filterStatus == 'all') {
+            //     this.preRegistrosFiltrado = this.preRegistros;
+            //     return; 
+            // }^^^^^^^^^^^^
             this.preRegistrosFiltrado = [];
             for (let index = 0; index < this.preRegistros.length; index++) {
-                const element = this.preRegistros[index];
-                if (element.estado_solicitud == this.filterStatus) {
+                let element= this.preRegistros[index];
+                if (element.estado_solicitud == this.filterStatus || this.filterStatus == 'all') {
+                    element.created_atFormat = this.formatDate(element.created_at,0) +' a las' + this.formatTime(element.created_at);
+                    element.created_atFormatLimit =  this.formatDate(element.created_at,3) + ' a las' + this.formatTime(element.created_at);
                     this.preRegistrosFiltrado.push(element);
                 }
             } 
@@ -444,7 +464,7 @@ export default {
             }
         },
         async approved(){
-             this.msgError = "";
+            this.msgError = "";
             let valido = true; 
             
             if(!this.validaDireccion())
@@ -490,7 +510,20 @@ export default {
                 console.log(result);
                 if (result.status == "success") {
                     this.solicitud = result.data;
+                    this.solicitud.montPreAprobed = this.formatMXN(this.solicitud.montPreAprobed);
+                    this.solicitud.created_atFormat = this.formatDate(this.solicitud.created_at,0) +' a las' + this.formatTime(this.solicitud.created_at);
+                    this.solicitud.created_atFormatLimit =  this.formatDate(this.solicitud.created_at,3) + ' a las' + this.formatTime(this.solicitud.created_at);
                     this.solicitud.tipoSolicitante = this.solicitud.tipoSolicitante[0];
+                    if (this.solicitud.resultAD.status == "SE") {
+                        this.msgError = `Parece que este Usuario ya ha sido sincronizado,
+                        se encontró coincidencias con los siguientes registros.
+                        ID USUARIO: ${this.solicitud.resultAD.ad_user_id} 
+                        , ID SOCIO: ${this.solicitud.resultAD.c_bpartner_id}. 
+                        Por favor inactiva estos registros para poder sincronizar de nuevo.
+                        `;
+                        this.isLoad = false;
+                        window.scrollTo(0,0); 
+                    } 
                 } else {
                     this.msgError = result.data;
                 }
@@ -523,8 +556,29 @@ export default {
                }
                window.scrollTo(0,0);
             } 
-        },reject(item){
-            console.log(item);
+        },async reject(){
+            const result =  await axios.put(
+                config.apiAdempiere + "/preregistro/rechazar", 
+            this.solicitud
+            ,{headers:{'token': this.$cookie.get('token')}})
+            .then(res=>{ 
+                return res.data;
+            }).catch(err=>{
+                console.log(err);
+                this.msgError = "Ocurrio un error, intentalo más tarde."; 
+                window.scrollTo(0,0); 
+                return false;
+            });  
+            console.log(result);
+            if(result.status == "success"){ 
+                this.solicitud.estado_solicitud = result.data.estado_solicitud;
+                window.scrollTo(0,0);
+            }else{ 
+                this.msgError = "No realizado."
+                window.scrollTo(0,0); 
+            }
+
+            return result;
         },async validarCp(){
          this.msgError = "";
             this.asentamientos = [];
@@ -634,7 +688,7 @@ export default {
             if (this.solicitud.tipoSolicitante.requiredFactura) { 
                 const rfcRespuesta = validateRfc(this.solicitud.tipoSolicitante.rfcColborador.trim());
                 if(rfcRespuesta.isValid)
-                {
+                { 
                     this.error.tipoSolicitante.rfcColborador="";
                     this.solicitud.tipoSolicitante.rfcColborador = rfcRespuesta.rfc;
                     return true;
@@ -655,9 +709,7 @@ export default {
                         return false;
                     }
                 }
-                 
             } 
-                 
         },
         validaNombre(){ 
             if (this.solicitud.nombreSolicitante != "" && this.solicitud.nombreSolicitante.length > 10) {
@@ -688,20 +740,27 @@ export default {
                 return false;
             } 
         },  
-        formatDate(dates) {
+        formatDate(dates,numDays) {
             if (dates === undefined)return "Error de Fecha" 
             try {
-                 var month= ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Nobiembre","Diciembre"];  
-                return `${(new Date(Date.parse(dates))).getDate()} de ${month[(new Date(Date.parse(dates))).getMonth()-1]} del ${(new Date(Date.parse(dates))).getFullYear()}`
+                var month= ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Nobiembre","Diciembre"];  
+                let date = new Date(Date.parse(dates)); 
+                if (numDays > 0) date = this.addDays(date, numDays); 
+                return `${date.getDate()} de ${month[date.getMonth()]} del ${date.getFullYear()}`;
             } catch (error) {
                 console.log(error);
                 return "Error de Fecha";
-            } 
+            }
         }, 
+        addDays(date, days) {
+            var result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        },
         formatTime(dates) { 
-        const hours = ('0' + (new Date(Date.parse(dates))).getHours()).slice(-2)
-        const minutes = ('0' + (new Date(Date.parse(dates))).getMinutes()).slice(-2)
-        return `${hours}:${minutes} hrs.`
+            const hours = ('0' + (new Date(Date.parse(dates))).getHours()).slice(-2)
+            const minutes = ('0' + (new Date(Date.parse(dates))).getMinutes()).slice(-2)
+            return `${hours}:${minutes} hrs.`
         },
         async validaLogin(){
             this.user = await axios.get(config.apiAdempiere + "/user/userByTokenAdmin", 

@@ -19,6 +19,7 @@
     </template>
     <v-container class="my-12" v-if="shopingcarlength > 0">
       <div class="mb-16" no-gutters v-for="producto in productos" :key="producto.value" >
+      
       <v-card class="mx-auto" >
         <v-row>
           <v-col cols="12" sm="6" md="8" >
@@ -27,14 +28,17 @@
                 <v-img width="90" :src="producto.img" ></v-img>  
               </v-col> 
               <v-col >
-                <a class="font" style="color :#909090" @click="seeProduct(producto.value)" text color="primary" >
-                  <strong>{{producto.name}}</strong><br>{{producto.value}}
-                </a> 
+                <div class="my-50"> 
+                  <a style="color :#4E4E4E;font-size:1em;" 
+                      @click="seeProduct(producto.value)" text color="primary" >
+                    <strong>{{producto.name}}</strong> 
+                  </a> 
+                </div>
+                <p class="font" style="font-size: 0.8em;" text color="primary" > 
+                  {{producto.value}}
+                </p> 
               </v-col> 
-            </v-row> 
-            <v-row no-gutters  justify="center" >
-              <v-btn text color="primary" class="my-10" @click="eliminarProducto(producto)" > Eliminar </v-btn>
-            </v-row> 
+            </v-row>  
           </v-col> 
           <v-col sm="6" md="4"> 
             <v-row no-gutters>
@@ -45,29 +49,40 @@
                   prepend-icon="mdi-minus" @click:prepend="qtyMovement(producto,'-')" 
                   v-on:keyup="qtyMovement(producto,'0')" @click="qtyMovement(producto,'0')" 
                   onkeydown="javascript: return event.keyCode == 69 ? false : true" 
-                ></v-text-field>  
-                <p class="subtitle-2 text-center">{{producto.mex_quantytotal}} disponible</p>
+                  style="min-width: 120px;height: 50px;font-size: .9em;"
+                ></v-text-field>   
+                 <p class="font-weight-thin-black text-center" style="font-size: 0.85em;">
+                  {{producto.mex_quantytotal}} disponible
+                </p>
               </v-col> 
-              <v-col>
-                <div class="font-black text-center" style=" font-size: 0.8em;">${{producto.l0}} c/u.</div>
-                <p class="font-black text-center" style=" font-size: 1.8em;">{{ formatMXN(producto.price) }}</p>
-              </v-col> 
-            </v-row>  
-            <v-row no-gutters v-if="producto.mex_quantytotal < producto.cantidad">
-              <v-col>      
-                <div class="font-weight-thin-black" style="font-size: 0.8em; color:#F72D04"> 
-                  <div v-if="((producto.mex_quantytotal - producto.cantidad)*-1)==1">
-                    No hay stock disponible, se agregará 1 pz en forma de pedido.
-                  </div>
-                  <div v-else>
-                    No hay stock disponible, se agregarán <strong>{{(producto.mex_quantytotal - producto.cantidad)*-1}}</strong> pzs en forma de pedido.
-                  </div>
-                </div>
+              <v-col> 
+                <div class="font-black text-center" style=" font-size: 0.8em;">{{formatMXN(producto.l0)}} c/u.</div>
+                <p class="font-black text-center" style=" font-size: 1.5em;">{{ formatMXN(producto.price) }}</p>
               </v-col> 
             </v-row>   
-          </v-col>
-        </v-row> 
-        </v-card> 
+          </v-col> 
+        </v-row>  
+        <v-row no-gutters>   
+          <v-container >  
+            <v-row>
+              <v-col> 
+                <center><v-btn  text color="primary" @click="eliminarProducto(producto)" >Eliminar</v-btn></center>
+              </v-col>
+              <v-col cols="6"  > 
+                  <div v-if="producto.mex_quantytotal < producto.cantidad" style="font-size: 0.8em; color:#F72D04"> 
+                      <div v-if="((producto.mex_quantytotal - producto.cantidad)*-1)==1">
+                        No hay stock disponible, se agregará 1 pz en forma de pedido.
+                      </div>
+                      <div v-else>
+                        No hay stock disponible, se agregarán <strong>{{(producto.mex_quantytotal - producto.cantidad)*-1}}</strong> pzs en forma de pedido.
+                      </div>
+                  </div> 
+              </v-col>
+            </v-row>
+          </v-container> 
+        </v-row>  
+      </v-card> 
+
       </div>  
         <v-container>
             <v-card class="mx-auto" style="min-height:186px;"> 
@@ -228,8 +243,7 @@ export default {
       } catch (error) { 
         console.log(error);
         producto.cantidad = 1;
-      } 
-        
+      }  
       if (producto.cantidad != "" && this.isInt(producto.cantidad) ) {
         if(parseInt(producto.cantidad) > 0){
           await axios.put(config.apiAdempiere + "/shopingcar/updatebyvalue_auth", 
@@ -239,14 +253,12 @@ export default {
           .catch(err=>{return console.log(err);});     
           producto.price = producto.l0 * parseInt(producto.cantidad);
         } 
-      } 
-
+      }  
       if (!this.validarProductos()) {
         this.msgErro = "La cantidad de algun producto de tu carrito no es válida.";
       }else{
         this.msgErro = "";
-      }
-
+      } 
       this.isLoad = false;  
     }
     ,async validaLogin(){
@@ -266,29 +278,43 @@ export default {
         {
           'headers': { 'token': this.$cookie.get('token') }
         }).then(res=>{return res.data;})
-        .catch(err=>{return err;});   
+        .catch(err=>{return err;}); 
+
         if (productsincar.status == "success") {
           productsincar = productsincar.data;
         }else if(this.user.status == "unauthorized"){  
           productsincar = [];
-        } 
+        }    
         for (let index = 0; index < productsincar.length; index++) { 
-            productsincar[index].price = productsincar[index].l0 * productsincar[index].cantidad; 
+          productsincar[index].price = productsincar[index].l0 * productsincar[index].cantidad;  
+          let img = await axios.get(config.apiAdempiere + "/productos/imgByValue"
+                  ,{headers: { 'token': this.$cookie.get('token') },params: {filter: productsincar[index].value}})
+                  .then(function (response) {  
+                    return response.data.data;
+                  }).catch(function (response){  
+                    console.log(response);
+                    return response;
+                  });  
+          if (img.length == 1) {
+            img = img[0].img;
             productsincar[index].img = 'data:image/jpeg;base64,' + btoa(
-                new Uint8Array(productsincar[index].img.data)
-                .reduce((data, byte) => data + String.fromCharCode(byte), '')
+                new Uint8Array(img.data)
+            .reduce((data, byte) => data + String.fromCharCode(byte), '')
             );  
-        } 
+          }else{ 
+            productsincar[index].img = "/noImg.png";
+          }
+        }
         this.productos = productsincar;
     } 
     ,seeProduct(value){ 
       this.$router.push('/shop/Product/'+value+"/shopingcar/0");
     }
-    ,formatMXN(value) {
-        var formatter = new Intl.NumberFormat('es-MX', {style: 'currency', currency: 'MXN',});
+    ,formatMXN(value) { 
+        var formatter = new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'});
         return formatter.format(value);
-    }  
-  }, 
+    }
+  },
   computed:{ 
       shopingcarlength(){
           return this.productos.length;

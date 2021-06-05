@@ -82,6 +82,7 @@
                             <v-text-field name="rfc" id="rfc" v-model="solicitud.tipoSolicitante.rfcColborador" 
                                 :error-messages="error.tipoSolicitante.rfcColborador" :counter="13" label="RFC"
                                 style="width:400px" @input="validaRFC()" @blur="validaRFC()"
+                                :disabled="solicitud.tipoSolicitante.tipo == 'Colaborador Refividrio'"
                             >
                             </v-text-field>
                         </v-col>
@@ -418,7 +419,7 @@ export default {
             //     console.log(rfcRespuesta);  
             // }
         },
-        validaRFC(){  
+        validaRFC(){
             if (this.tipoSolicitanteValido == false || this.solicitud.tipoSolicitante.tipo == "Colaborador Refividrio") { 
                 const rfcRespuesta = validateRfc(this.solicitud.tipoSolicitante.rfcColborador.trim());
                 if(rfcRespuesta.isValid  && rfcRespuesta.type != "generic")
@@ -436,9 +437,9 @@ export default {
                     this.error.tipoSolicitante.rfcColborador="Es necesario que ingreses un RFC válido.";
                     return false;
                 } 
-            } 
+            }
             
-            if (this.solicitud.tipoSolicitante.requiredFactura) { 
+            if (this.solicitud.tipoSolicitante.requiredFactura) {
                 const rfcRespuesta = validateRfc(this.solicitud.tipoSolicitante.rfcColborador.trim());
                 if(rfcRespuesta.isValid && rfcRespuesta.type != "generic")
                 {
@@ -508,6 +509,7 @@ export default {
                         this.msgError = "Existe un error con tu Código Postal.";
                         this.error.cp = "Existe un error con este Código Postal.";
                         console.log(error);
+                        return false;
                     } 
                 }).catch(err=>{ 
                     console.log(err);
@@ -515,6 +517,7 @@ export default {
                     this.msgError = "El Código Postal ingresado es Inválido.";
                     this.error.cp = "El Código Postal ingresado es Inválido.";
                     window.scrollTo(0,0);
+                    return false;
                 });  
                 this.isLoad = false;
                 return true; 
@@ -554,9 +557,14 @@ export default {
             var regOficial =/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/ ;
             if(regOficial.test(this.solicitud.email)){
                 this.error.email = "";
+                // if (this.solicitud.email.includes('refividrio.com')
+                //     ||this.solicitud.email.includes('rfhoods.com')) {
+                //     this.error.email = "No uses un correo electrónico de la empresa.";
+                //     return false;
+                // }
                 return true;
             }else{
-                this.error.email = "Correo Electrónico Requerido";
+                this.error.email = "Correo Electrónico inválido";
                 return false;
             } 
         },
@@ -783,7 +791,7 @@ export default {
             try {
                  var month= ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio",
                 "Agosto","Septiembre","Octubre","Nobiembre","Diciembre"];  
-                return `${(new Date(Date.parse(dates))).getDate()} de ${month[(new Date(Date.parse(dates))).getMonth()-1]} del ${(new Date(Date.parse(dates))).getFullYear()}`
+                return `${(new Date(Date.parse(dates))).getDate()} de ${month[(new Date(Date.parse(dates))).getMonth()]} del ${(new Date(Date.parse(dates))).getFullYear()}`
             } catch (error) {
                 console.log(error);
                 return "Error de Fecha"

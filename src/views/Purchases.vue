@@ -83,7 +83,7 @@
                                             <v-img class="mx-auto" width="150px" :src="producto.img" ></v-img>
                                         </v-col>
                                         <v-col  cols="12" md="8">
-                                            <div class="my-2" style="font-size: 0.8em;color :#909090">
+                                            <div v-if="producto.prodCompleto.data.length > 0" class="my-2" style="font-size: 0.8em;color :#909090">
                                                 {{producto.prodCompleto.data[0].name.substring(0,45) + "..."}}
                                             </div>  
                                             <v-row>
@@ -184,17 +184,28 @@ export default {
           'headers': { 'token': this.$cookie.get('token') }
         }).then(res=>{return res.data;})
         .catch(err=>{return err;});  
-    
-        if (puchases.status == "success") {
-            console.log(puchases.data);
+        console.log(puchases);
+        if (puchases.status == "success") { 
             this.purchases = puchases.data; 
             for (let ip = 0; ip < this.purchases.length; ip++) {  
                 for (let index = 0; index < this.purchases[ip].productos.length; index++) {   
-                    if (this.purchases[ip].productos[index].prodCompleto.status == "success") {
-                        this.purchases[ip].productos[index].img = 'data:image/jpeg;base64,' + btoa(
-                        new Uint8Array(this.purchases[ip].productos[index].prodCompleto.data[0].img.data)
-                        .reduce((data, byte) => data + String.fromCharCode(byte), '')
-                        ); 
+                    if (this.purchases[ip].productos[index].prodCompleto.status == "success") { 
+                        let img = await axios.get(config.apiAdempiere + "/productos/imgByValue"
+                          ,{headers: { 'token': this.$cookie.get('token') },params: {filter: this.purchases[ip].productos[index].value}})
+                          .then(function (response) {  
+                            return response.data.data;
+                          }).catch(function (response){  
+                            console.log(response);
+                            return response;
+                          });
+                        if (img.length == 1) {
+                          img = img[0].img;
+                          this.purchases[ip].productos[index].img = 'data:image/jpeg;base64,' + btoa(
+                              new Uint8Array(img.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
+                          );  
+                        }else{ 
+                          this.purchases[ip].productos[index].img = "/noImg.png";
+                        }
                     }
                 } 
             }  
@@ -212,7 +223,7 @@ export default {
     formatDate(dates) { 
         var month= ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio",
             "Agosto","Septiembre","Octubre","Nobiembre","Diciembre"];  
-        return `${(new Date(Date.parse(dates))).getDate()} de ${month[(new Date(Date.parse(dates))).getMonth()-1]} del ${(new Date(Date.parse(dates))).getFullYear()}`
+        return `${(new Date(Date.parse(dates))).getDate()} de ${month[(new Date(Date.parse(dates))).getMonth()]} del ${(new Date(Date.parse(dates))).getFullYear()}`
     },
     formatTime(dates) { 
         const hours = ('0' + (new Date(Date.parse(dates))).getHours()).slice(-2)

@@ -1,5 +1,5 @@
 <template>
-  <div> 
+  <div v-if="isLogged"> 
     <app-menu/> 
       <v-toolbar>    
           <v-tabs v-model="tab"
@@ -11,12 +11,12 @@
             <v-tabs v-model="tab" background-color="primary" color="basil" grow dark >
             <v-tab>
               Solicitudes de Proveedor
+            </v-tab> 
+            <v-tab>
+              Clientes
             </v-tab>
             <v-tab>
               Ventas
-            </v-tab>
-            <v-tab>
-              Cuentas Aprovadas {{tab}}
             </v-tab>
             <v-tab>
               Ordenes Pago en Sucursal
@@ -26,6 +26,7 @@
       </v-toolbar> 
     <v-card min-height="800px"> 
       <pre-registros v-if="tab==0" />
+      <accounts v-if="tab==1" />
     </v-card>
    </div>
 </template>  
@@ -35,6 +36,8 @@ import config from '../../json/config.json'
 import axios from 'axios'; 
 import AppMenu from '../../components/admin/MenuAdmin.vue'; 
 import Preregistros from '../../components/admin/Pre-registros.vue'; 
+import Accounts from '../../components/admin/Accounts.vue'; 
+
  
 export default {
   name: "HomeAdmin",  
@@ -56,7 +59,8 @@ export default {
   },
   components: { 
         'app-menu': AppMenu, 
-        'pre-registros' : Preregistros
+        'pre-registros' : Preregistros,
+        'accounts':Accounts
   },methods: { 
     async validaLogin(){
         this.user = await axios.get(config.apiAdempiere + "/user/userByTokenAdmin", 

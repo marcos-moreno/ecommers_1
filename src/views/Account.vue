@@ -22,6 +22,12 @@
                 <v-card-text> 
                   <v-text-field ref="name" v-model="user.username" label="Nombre" required></v-text-field>
                   <v-text-field ref="name" v-model="user.phone2" label="Celular" required></v-text-field>
+                  <v-text-field disabled ref="name" v-model="user.value" label="No. Cliente" required></v-text-field>
+                  <v-text-field disabled ref="name" :value="formatMXN(user.so_creditlimit) + ' MXN'" 
+                   label="Limite de Crédito" required></v-text-field>
+                  <v-text-field disabled ref="name" :value="formatMXN(user.so_creditused) + ' MXN'" 
+                   label="Crédito Usado" required></v-text-field>
+                  <!-- {{user}} -->
                 </v-card-text> 
                 <v-divider class="mt-12"></v-divider> 
               </v-card>
@@ -35,7 +41,8 @@
               <v-card ref="form">
                 <v-card-text> 
                   <v-text-field ref="name" v-model="user.email" label="Email" required></v-text-field>
-                  <v-text-field ref="name" v-model="user.taxid" label="RFC" required></v-text-field>
+                  <v-text-field ref="name" v-if="user.taxid != 'XAXX010101000'" 
+                  v-model="user.taxid" label="RFC" required></v-text-field>
                 </v-card-text> 
                 <v-divider class="mt-12"></v-divider> 
               </v-card>
@@ -61,6 +68,10 @@
       }
     },
     methods:{ 
+      formatMXN(value) {
+            var formatter = new Intl.NumberFormat('en-ES', {style: 'currency', currency: 'USD',});
+            return formatter.format(value);
+      },
     },  
     components: { 
       'app-menu': AppMenu, 
@@ -68,6 +79,7 @@
     async mounted() {    
       window.scrollTo(0,0);
     },
+  
     async created(){
       this.isLoad = true;  
           this.user = await axios.get(config.apiAdempiere + "/user/userByToken", 

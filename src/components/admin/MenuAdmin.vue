@@ -19,7 +19,7 @@
                       <span   class="white--text headline">{{letterAvatar}}</span>
                     </v-avatar> 
                     <v-list-item-action>   
-                      <v-list-item-subtitle>{{user.username}}</v-list-item-subtitle> 
+                      <v-list-item-subtitle>{{user.user}}</v-list-item-subtitle> 
                     </v-list-item-action>
                   </v-list-item>
                 </v-list> 
@@ -28,7 +28,7 @@
                   <v-col>
                     <v-card>
                       <v-card-text> 
-                          {{user.email}} 
+                          {{user.user}} 
                       </v-card-text> 
                     </v-card>
                   </v-col>  
@@ -44,6 +44,7 @@
               </v-card>
             </v-menu>
           </div> 
+          <!-- {{user}} -->
         </v-toolbar-title>  
         <v-toolbar-title v-else > 
             <div class="text-center">
@@ -58,9 +59,7 @@
               </v-menu>
             </div> 
         </v-toolbar-title>  
-      </v-app-bar> 
-
-
+      </v-app-bar>  
       <v-navigation-drawer v-model="drawer" absolute temporary>
         <v-list nav dense >
           <v-list-item-group>

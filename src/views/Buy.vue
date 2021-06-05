@@ -1,4 +1,6 @@
 <template> 
+  <div>
+  <app-menu/>
   <v-container class="grey lighten-5" style="min-height:756px;"  >
     <div class="text-center">
       <v-dialog v-model="isLoad" persistent width="300">
@@ -61,83 +63,81 @@
         </v-card>  
     </v-container>
 
-     <v-container v-if="isPay==true" style="min-height:656px;">
+     <v-container v-if="isPay==true && calculaTotalCar_fn() >= montoMinimoCompra" style="min-height:656px;">
           <v-card style="min-height:186px;"> 
-            <p class="text-center" style="font-size: 2em;color :#909090">  
+            <p class="text-center" style="font-size: 1em;color :#909090">  
              Elige tu método de pago   
             </p>  
             <p class="text-center" style="font-size: 2em;color :#909090">  
-             Total a pagar: {{calculaTotalCar}}
+             Total a pagar:
+              <br><center>{{calculaTotalCar}}</center>
             </p>   
-            <v-container>
-            <v-row dense> 
-                <v-col cols="12">
-                <v-card color="#">
-                  <div class="d-flex flex-no-wrap justify-space-between">
-                    <div>
-                      <v-card-title class="text-h5">Requiero Factura</v-card-title> 
-                      <v-card-subtitle >
-                        <v-row>
-                          <v-col>
-                            <v-switch
-                            v-model="factura" @change="validaFactura"
-                            :label="factura?'Si requiero Factura':'No requiero Factura'"
-                            ></v-switch>
-                          </v-col>
-                          <v-col v-if="!factura">
-                            <v-alert  dense outlined type="warning">
-                              Ya no podrás solicitar una factura de esta compra posteriormente.
-                            </v-alert>
-                          </v-col>
-                        </v-row>
-                      </v-card-subtitle> 
-                    </div> 
-                  </div>
-                </v-card> 
-              </v-col>
+            <v-container >
+              <v-row dense> 
+                  <v-col cols="12">
+                  <v-card color="#">
+                    <div class="d-flex flex-no-wrap justify-space-between">
+                      <div>
+                        <v-card-title class="text-h5">Genera Factura</v-card-title> 
+                        <v-card-subtitle >
+                          <v-row no-gutters>
+                            <v-col cols="6" md="4">
+                              <v-switch disabled v-model="factura" :label="factura?'Si':'No'"></v-switch>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="8" v-if="msgFactura != ''">
+                              <v-alert  dense outlined :type="typeMsgFactura">
+                                {{msgFactura}}
+                              </v-alert>
+                            </v-col>
+                          </v-row>
+                        </v-card-subtitle> 
+                      </div> 
+                    </div>
+                  </v-card> 
+                </v-col>
 
-              <v-col cols="12">
-                <v-card color="#1F7087"  dark v-if="validaCredito" >
-                  <div class="d-flex flex-no-wrap justify-space-between">
-                    <div>
-                      <v-card-title class="text-h5">Crédito Refividrio</v-card-title> 
-                      <v-card-subtitle >Crédito disponible {{formatMXN(creditoDisponible())}}</v-card-subtitle>
-                      <v-card-actions>
-                        <v-radio-group  v-model="methodPay"> 
-                          <v-radio @click="changeMethodPay()" label="Crédito Refividrio" value="CRE" ></v-radio>
-                        </v-radio-group>
-                      </v-card-actions>
-                    </div> 
-                    <v-avatar class="ma-3" size="65" tile >
-                      <v-img src="../../public/tdc.png" ></v-img>
-                    </v-avatar>
-                  </div>
-                </v-card> 
-              </v-col>
-              <v-col cols="12">
-                <v-card color="#4E7394" dark>
-                  <div class="d-flex flex-no-wrap justify-space-between">
-                    <div>
-                      <v-card-title class="text-h5">Pago en Sucursal</v-card-title>
-                      <v-card-subtitle >
-                        Tu compra no se reservará hasta que acredites tu pago, la existencia podría cambiar.
-                      </v-card-subtitle>
-                      <v-card-actions>
-                        <v-radio-group v-model="methodPay"> 
-                          <v-radio @click="changeMethodPay()" label="Pago en efectivo en Sucursal" value="EFE"  ></v-radio>
-                        </v-radio-group>
-                      </v-card-actions>
-                    </div> 
-                    <v-avatar class="ma-3" size="55" tile >
-                      <v-img src="../../public/tienda.png" ></v-img>
-                    </v-avatar>
-                  </div>
-                </v-card> 
-              </v-col>
-            </v-row>
+                <v-col cols="12">
+                  <v-card color="#1F7087"  dark v-if="validaCredito" >
+                    <div class="d-flex flex-no-wrap justify-space-between">
+                      <div>
+                        <v-card-title class="text-h5">Crédito Refividrio</v-card-title> 
+                        <v-card-subtitle >Crédito disponible {{formatMXN(creditoDisponible())}}</v-card-subtitle>
+                        <v-card-actions>
+                          <v-radio-group  v-model="methodPay"> 
+                            <v-radio @click="changeMethodPay()" label="Crédito Refividrio" value="CRE" ></v-radio>
+                          </v-radio-group>
+                        </v-card-actions>
+                      </div> 
+                      <v-avatar class="ma-3" size="60" tile >
+                        <v-img src="../../public/tdc.png" ></v-img>
+                      </v-avatar>
+                    </div>
+                  </v-card> 
+                </v-col>
+                <v-col cols="12">
+                  <v-card color="#4E7394" dark>
+                    <div class="d-flex flex-no-wrap justify-space-between">
+                      <div>
+                        <v-card-title class="text-h5">Pago en Sucursal</v-card-title>
+                        <v-card-subtitle >
+                          Tu compra no se reservará hasta que acredites tu pago, la existencia podría cambiar.
+                        </v-card-subtitle>
+                        <v-card-actions>
+                          <v-radio-group v-model="methodPay"> 
+                            <v-radio @click="changeMethodPay()" label="Pago en efectivo en Sucursal" value="EFE"  ></v-radio>
+                          </v-radio-group>
+                        </v-card-actions>
+                      </div> 
+                      <v-avatar class="ma-3" size="55" tile >
+                        <v-img src="../../public/tienda.png" ></v-img>
+                      </v-avatar>
+                    </div>
+                  </v-card> 
+                </v-col>
+              </v-row>
             </v-container>  
 
-            <v-container @click="enaContinueMPay=true" >
+            <v-container>
               <v-row dense> 
                 <v-col cols="12">
                   <v-card color="#C3DDF5">
@@ -147,18 +147,19 @@
                         <v-card-subtitle >
                           Tu pago se acredita al momento.
                         </v-card-subtitle>    
-                         <!-- env="sandbox"  -->
+                         <!-- env="sandbox"  
+                            :items="payProducts"
+                         -->
                           <PayPal 
                             :amount="total"
                             currency="MXN" 
-                            :client="credentials" 
-                            :items="payProducts"
+                            :client="credentials"  
                             env="sandbox"
                             v-on:payment-authorized="paymentAuthorized"
                             v-on:payment-completed="paymentCompleted"
                             v-on:payment-cancelled="paymentCancelled"
                             :button-style="paypalStyle"
-                            ></PayPal> 
+                            ></PayPal>  
                       </div> 
                       <v-avatar class="ma-3" size="55" tile >
                         <v-img src="../../public/paypal.png" ></v-img>
@@ -179,8 +180,19 @@
         </v-card>    
       </v-container> 
 
-
-   
+      <v-container v-if="calculaTotalCar_fn() < montoMinimoCompra"  style="min-height:656px;"  >
+        <div>
+          <v-card  style="min-height:286px;"> 
+              <center>
+                <img class="my-5" src="../../public/carrito-de-compras.svg" width="100px" />
+              </center>
+              <p class="text-center" style="font-size: 1.5em;color :#909090">  
+               La compra mínima es por el monto de<br> {{formatMXN(montoMinimoCompra)}} MXN
+               <br>El costo de tu carrito es de <br>{{calculaTotalCar}} MXN
+              </p> 
+          </v-card> 
+        </div>  
+      </v-container> 
     </template>
 
     <v-container v-if="shopingcarlength == 0 && isLoad == false && this.saleOrder.status_pay != 'pagado'"  style="min-height:656px;"  >
@@ -194,6 +206,7 @@
     </v-container>
 
   </v-container>  
+  </div>  
 </template>
 
 <style scoped>
@@ -202,16 +215,21 @@
   }
 </style> 
 
-<script>
+<script> 
 import config from '../json/config.json'
 import axios from 'axios'; 
 import PayPal from 'vue-paypal-checkout'
-
+const validateRfc = require('validate-rfc');  
+import AppMenu from '../components/Menu.vue';
+import jsPDF from 'jspdf';
 export default {
   name: "appBuy",
   data() {
     return { 
       sucursalSelec : 0 
+      ,montoMinimoCompra : 50
+      ,msgFactura : ''
+      ,typeMsgFactura : ''
       ,productos : []
       ,isLogged : false
       ,user : {}
@@ -240,37 +258,38 @@ export default {
       ,factura:false
     }; 
   }, 
-  async created() { 
+  async created() {
+    window.scrollTo(0,0);
     this.isLoad = true;  
     await this.validaLogin();
     if (this.isLogged) {
       await this.allSucursales();
       await this.allProductinCar();
       for (let index = 0; index < this.productos.length; index++) { 
-        this.payProducts.push(
-          {"name": this.productos[index].name
-            ,"description": this.productos[index].value
-            ,"quantity": this.productos[index].cantidad.toString()
-            ,"price": parseFloat(this.productos[index].l0).toFixed(2).toString()
-            ,"currency": "MXN" 
-          });
+          let Qtyordenada = 0;
+          if ((this.productos[index].mex_quantytotal - this.productos[index].cantidad) < 0) {
+            Qtyordenada =  (this.productos[index].mex_quantytotal - this.productos[index].cantidad) * -1;
+          }
           this.saleOrder.productos.push(
           {
-            "quantity": this.productos[index].cantidad.toString()
-            ,"price": parseFloat(this.productos[index].l0).toFixed(2)
+            "quantity": this.productos[index].cantidad
+            ,"price": parseFloat(this.productos[index].l0)
             ,"total": (
-                        parseFloat(this.productos[index].l0).toFixed(2) 
-                          * 
-                        parseFloat(this.productos[index].cantidad).toFixed(2)
-                      ).toFixed(2)
-            ,"m_product_id":this.productos[index].m_product_id 
+                        parseFloat(this.productos[index].l0)
+                          *
+                        this.productos[index].cantidad
+                      )
+            ,"m_product_id":this.productos[index].m_product_id
+            ,"cantidadExistente": this.productos[index].mex_quantytotal
+            ,"cantidadOrdenada": Qtyordenada
             ,"value":this.productos[index].value  
+            ,"name":this.productos[index].name  
           });
-      } 
-      this.total = this.totalCarNet().toString();
+      }   
+      this.total = this.calculaTotalCar_fn().toFixed(2).toString();
       this.saleOrder.c_bpartner_id = this.user.c_bpartner_id;
       this.saleOrder.ad_user_id = this.user.ad_user_id;
-      this.saleOrder.grandtotal = this.totalCarNet();
+      this.saleOrder.grandtotal = this.calculaTotalCar_fn().toFixed(2);
       this.saleOrder.status_entrega = "pendiente";  
       this.saleOrder.m_pricelist_id = this.user.m_pricelist_id;
     }else{
@@ -279,16 +298,10 @@ export default {
     this.isLoad = false;  
     this.isPay = true; 
   }
-  ,methods: {
-    validaFactura(){
-      if(this.factura == false){
-        this.methodPay = 0;
-        this.enaContinueMPay = true; 
-      }
-    },
-    async confirmarCompra(){ 
+  ,methods: { 
+    async confirmarCompra(){
       if (this.sucursalSelec > 0) {
-        this.isLoad = true; 
+        this.isLoad = true;
         this.saleOrder.ad_org_recpt_id = this.sucursalSelec;
         if (this.methodPay  == "CRE" || this.methodPay  == "EFE") {
           const resIns = await this.insertSaleOrder()
@@ -302,7 +315,7 @@ export default {
         this.sucursalSelec = 0;
       }
     },
-    async updateSaleOrder(){  
+    async updateSaleOrder(){ 
       const result =  await axios.put(config.apiAdempiere + "/saleorder/updatebyID_auth", 
                                       this.saleOrder
                                       ,{headers:{'token': this.$cookie.get('token')}}
@@ -318,6 +331,8 @@ export default {
     },
     async insertSaleOrder(){
       this.saleOrder.isfactura = this.factura;  
+      this.saleOrder.emailClient = this.user.email;  
+      this.saleOrder.nombre_cliente = this.user.cpname;  
       const result = await axios.post(
         config.apiAdempiere + "/saleorder/add_auth_with_ad", 
         this.saleOrder
@@ -330,12 +345,18 @@ export default {
         return false;
       });  
       if(result.status == "success"){ 
-        this.saleOrder = result.data; 
-        // console.log(result.data);
+        this.saleOrder = result.data;  
+        console.log("RESULTADO DE LA ORDEN:");
+        console.log(this.saleOrder);
         this.emptyCar();
         return true;
       }else{ 
-        this.msgError = result.data;
+        window.scrollTo(0,0);
+        if (result.data == "Error Interno") {
+          this.msgError = "Existe un error, por favor Comuníquese con el soporte al número: 55 51757108";
+        }else{
+          this.msgError = result.data;
+        } 
         return false; 
       }   
     },
@@ -369,21 +390,80 @@ export default {
     paymentCompleted: async function (data) {
       if (data.state == "approved") {
         this.isLoad = true;
-        this.saleOrder.paymentCompleted = data;
+        this.saleOrder.paymentCompleted = data; 
         this.saleOrder.status_pay = "pagado"; 
         this.methodPay = "paypal";
-        const OSInsert = await this.insertSaleOrder();
-        if (this.saleOrder._id != "" && OSInsert) {
-          this.msgSucces = "Pago Procesado Exitosamente, cadena del comprobante: " +this.saleOrder._id;
-          this.changeMethodPay();
-          this.isPay = false;
-          this.isSucursal = true;
+        try {
+          const OSInsert = await this.insertSaleOrder(); 
+          if (this.saleOrder._id != "" && OSInsert) {
+            this.msgSucces = "Pago Procesado Exitosamente";
+            this.changeMethodPay();
+            this.isPay = false;
+            this.isSucursal = true;
+            window.scrollTo(0,0);
+          }
+        } catch (error) {
+          console.log(error);
         }
+        this.acuse();
         this.isLoad = false;
       } else {
         this.msgError = "El pago no se pudo completar";
         console.log(data);
       } 
+    },
+    acuse(){
+        let data =  this.saleOrder.paymentCompleted;   
+        var doc = new jsPDF('p', 'pt',[500, 380]);
+        var img = new Image()
+        img.src = '/refivid.png'; 
+        doc.addImage(img,'png', 150, 18, 0, 0);   
+
+        var img2 = new Image()
+        img2.src = '/paypal.png'; 
+        img2.width = "10px";
+        doc.addImage(img2,'png', 80, 18, 55, 55);    
+
+        doc.setTextColor(0,106,164);
+        doc.setFontSize(11);
+        doc.text(64,120,`Estimado/a ${data.payer.payer_info.first_name} ${data.payer.payer_info.last_name}`);
+        doc.text(64,140,`Ha enviado un pago por importe de ${data.transactions[0].amount.total} MXN a `);
+        doc.text(112,165,'¡Muchas gracias por tu pago!');
+
+        doc.setTextColor(0,0,0);
+        doc.setFontSize(10);
+        doc.text(64,190,`Esta transacción puede tardar unos momentos en aparecer`);
+        doc.text(64,200,`en su cuenta.`);
+
+        doc.setFontSize(10);
+        doc.setTextColor(129, 129, 129); 
+        doc.text(64,240,`Orden:`);
+        doc.text(160,240,`${this.saleOrder.documentno}`);
+        doc.text(64,260,`Id. de transacción:`);
+        doc.text(160,260,`${data.transactions[0].related_resources[0].sale.id}`);
+        doc.text(64,280,`Estado:`);
+        doc.text(160,280,`${data.transactions[0].related_resources[0].sale.state=='completed'?'COMPLETO':data.transactions[0].related_resources[0].sale.state}`);
+       
+        doc.text(64,300,`Modo transferencia:`);
+        doc.text(160,300,`${data.transactions[0].related_resources[0].sale.payment_mode=='INSTANT_TRANSFER'?'TRANSFERENCIA INSTANTÁNEA':data.transactions[0].related_resources[0].sale.payment_mode}`);
+      
+        doc.text(64,320,`Id. de la compra:`);
+        doc.text(160,320,`${this.saleOrder._id}`);
+
+        doc.text(64,340,`Fecha transacción:`);
+        doc.text(160,340,`${this.formatDate(data.transactions[0].related_resources[0].sale.create_time)} ${this.formatTime(data.transactions[0].related_resources[0].sale.create_time)}
+        `); 
+        doc.save(`comprobante de pago${data.transactions[0].related_resources[0].sale.id}.pdf`); 
+    },
+    formatDate(dates) { 
+        var month= ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio",
+            "Agosto","Septiembre","Octubre","Nobiembre","Diciembre"];  
+        return `${(new Date(Date.parse(dates))).getDate()} de ${month[(new Date(Date.parse(dates))).getMonth()]} del ${(new Date(Date.parse(dates))).getFullYear()}`
+    },
+    formatTime(dates) { 
+        const hours = ('0' + (new Date(Date.parse(dates))).getHours()).slice(-2)
+        const minutes = ('0' + (new Date(Date.parse(dates))).getMinutes()).slice(-2)
+        return `${hours}:${minutes}`
     },
     async emptyCar(){
       for (let index = 0; index < this.productos.length; index++) {
@@ -409,12 +489,13 @@ export default {
       if ((this.saleOrder.method_pay == "paypal" && this.saleOrder.status_pay == "pagado" )
             || this.saleOrder.method_pay  == "CRE" 
             || this.saleOrder.method_pay  == "EFE" 
-      ) {
+      ){
         if (this.saleOrder.method_pay  == "EFE" ) {
           this.sucursalSelec = "";
         }
         this.isPay = false;
         this.isSucursal = true;
+        window.scrollTo(0,0);
       }else{
         this.enaContinueMPay = true; 
       }
@@ -424,7 +505,7 @@ export default {
       for (let index = 0; index < this.productos.length; index++) {
         try {
           const element = this.productos[index];
-          total += parseFloat(element.cantidad) * parseFloat(element.l0);
+          total += (parseInt(element.cantidad) * parseFloat(element.l0));
         } catch (error) { 
           return null;
         } 
@@ -446,6 +527,17 @@ export default {
         .catch(err=>{return err;});    
         if (this.user.status == "success") {
           this.user = this.user.user; 
+          const rfcRespuesta = validateRfc(this.user.taxid)
+          if(rfcRespuesta.isValid && rfcRespuesta.type != "generic"){
+            this.factura = true;
+            this.msgFactura = `Esta compra generará una factura al RFC ${this.user.taxid}`;
+            this.typeMsgFactura = 'info';
+          }else{
+            this.factura = false;
+            this.msgFactura = `Esta compra NO generará factura, en caso 
+            de requerirla ponte en contacto con tu agente de ventas o al número 5551757108.`;
+            this.typeMsgFactura = 'warning';
+          } 
           this.isLogged = true;
         }else if(this.user.status == "unauthorized"){ 
           this.isLogged = false;
@@ -463,7 +555,7 @@ export default {
         }else if(this.user.status == "unauthorized"){  
           productsincar = [];
         }  
-        this.productos = productsincar;
+        this.productos = productsincar;  
     },
     async allSucursales(){
         this.sucursales = await axios.get(config.apiAdempiere + "/sucursal/get_auth", 
@@ -475,24 +567,18 @@ export default {
     ,formatMXN(value) {
         var formatter = new Intl.NumberFormat('es-MX', {style: 'currency', currency: 'MXN',});
         return formatter.format(value);
-    },totalCarNet(){
-        let total = 0;
-        for (let index = 0; index < this.productos.length; index++) {
-          const element = this.productos[index];
-          total += element.cantidad * element.l0;
-        }
-        return parseFloat(total).toFixed(2);
-    },
+    }, 
     creditoDisponible(){
       return parseFloat(this.user.so_creditlimit) - parseFloat(this.user.so_creditused);
     }
   },  
   components: {
       PayPal
+      ,AppMenu
   }
   ,computed: {
-    validaCredito(){
-      if (this.user.socreditstatus == "O") {
+    validaCredito(){ 
+      if (this.user.socreditstatus != "S") { 
         try {
           if (this.creditoDisponible() > this.calculaTotalCar_fn()) {
             return true;
@@ -509,6 +595,5 @@ export default {
       return this.formatMXN(this.calculaTotalCar_fn());
     },
   }
-  
 }
 </script>

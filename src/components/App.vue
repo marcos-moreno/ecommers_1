@@ -72,7 +72,7 @@
     <v-main class="grey lighten-2">
       <v-container>
         <v-row>
-            <products-index/>
+            <!-- <products-index/> -->
         </v-row>
       </v-container>
     </v-main>
@@ -83,19 +83,19 @@
 </template>
 
 <script>
- import ProductsIndex from './components/ProductsIndex';
- import AppSlider from './components/Slider'; 
- import AppFooter from './components/Footer.vue';
- import AppMenu from './components/Menu.vue';
+//  import ProductsIndex from './components/ProductsIndex';
+//  import AppSlider from './components/Slider'; 
+//  import AppFooter from './components/Footer.vue';
+//  import AppMenu from './components/Menu.vue';
 
-  export default {
-    components: {
-      'products-index': ProductsIndex,
-     'app-footer': AppFooter,
-      'app-menu':AppMenu,
-      'app-slider': AppSlider,
-    }
-  }
+//   export default {
+//     components: {
+//       // 'products-index': ProductsIndex,
+//      'app-footer': AppFooter,
+//       'app-menu':AppMenu,
+//       'app-slider': AppSlider,
+//     }
+//   }
   // 'app-slider': AppSlider, 
    //   'app-footer': AppFooter,
 </script>

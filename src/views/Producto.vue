@@ -1,7 +1,7 @@
 <template>
 <div>
 <app-menu/>
- <v-container class="grey lighten-5">
+ <v-container class="grey lighten-5" style="min-height:656px;">
     <div class="text-center"> 
       <v-dialog v-model="isLoad" persistent width="300">
          <v-card color="primary" dark >
@@ -49,7 +49,7 @@
               <tbody>
                 <tr>
                   <td>{{producto.mex_quantytotal}}</td>
-                  <td>${{producto.l0}}</td>
+                  <td>{{formatMXN(producto.l0)}}</td>
                   <td>{{producto.unidad}}</td>
                   <td>{{producto.value}}</td>
                 </tr>
@@ -116,13 +116,15 @@
               <v-list-item three-line>
                 <v-list-item-content>
                   <div class="overline mb-4">
-                    Descripción del producto
-                  </div> 
-                  <v-list-item-subtitle  v-html="producto.elements"></v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-avatar tile size="80" color="grey">
-                  <v-img width="400px" :src="producto.img"></v-img>
-                </v-list-item-avatar>
+                    <strong>Descripción del producto</strong>
+                  </div>
+                  <!-- <div class="overline mb-4">
+                    <v-img width="150px"  :src="producto.img"></v-img>
+                  </div> -->
+                  <div class="overline mb-4">
+                    <p class="text-sm-left overline mb-4" v-html="producto.elements"></p> 
+                  </div>
+                </v-list-item-content> 
               </v-list-item>  
             </v-card> 
         </v-row>  
@@ -309,28 +311,43 @@ export default {
     },
     async getProduct(){
       try {
-        let uri = this.isLogged ? "/productos/productByValue_auth" : "/productos/productByValue";
+        let uri = "/productos/all";
         uri = config.apiAdempiere + uri; 
         this.producto = await axios.get(uri
-        ,{headers: { 'token': this.$cookie.get('token') },params: {value: this.value}})
+        ,{headers: { 'token': this.$cookie.get('token') },params: {filter: this.value}})
         .then(function (response) { 
           return response.data;
         }).catch(function (response){  
           return response;
-        }); 
-        console.log(this.producto);
+        });  
         if (this.producto.status == "success") {
-          this.producto = this.producto.data; 
+            this.producto = this.producto.data;   
           if (this.producto.length > 0) {
-            this.producto = this.producto[0]; 
-            if (this.producto.img  != null && this.producto.img  != "null") {
-              this.producto.img = 'data:image/jpeg;base64,' + 
-              btoa(new Uint8Array(this.producto.img.data).reduce((data,byte)=>data+String.fromCharCode(byte),'')); 
-            }else{
-              this.producto.img = "/noImg.png";
-            } 
+              this.producto = this.producto[0];  
+              try {
+                let img = await axios.get(config.apiAdempiere + "/productos/imgByValue"
+                      ,{headers: { 'token': this.$cookie.get('token') },params: {filter: this.value}})
+                      .then(function (response) {  
+                        return response.data.data;
+                      }).catch(function (response){  
+                        console.log(response);
+                        return response;
+                      }); 
+                    if (img.length == 1) {
+                      img = img[0].img;
+                      this.producto.img = 'data:image/jpeg;base64,' + btoa(
+                          new Uint8Array(img.data)
+                      .reduce((data, byte) => data + String.fromCharCode(byte), '')
+                      );  
+                    }else{ 
+                      this.producto.img = "/noImg.png";
+                    }
+                 
+              } catch (error) {
+                 this.producto.img = "/noImg.png";
+              } 
             this.productoEncontrado = true; 
-          } 
+          }  
         } else {
           this.productoEncontrado = false; 
         } 

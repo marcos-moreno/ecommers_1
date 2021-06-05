@@ -1,18 +1,24 @@
--- FUNCTION: adempiere.rf_insercbpartner_ecomers(json)
+-- FUNCTION: adempiere.rf_order_ecomers(integer, integer, integer, numeric, character varying, integer, json)
 
--- DROP FUNCTION adempiere.rf_insercbpartner_ecomers(json,boolean)
+-- DROP FUNCTION adempiere.rf_order_ecomers(integer, integer, integer, numeric, character varying, integer, json);
 
-CREATE OR REPLACE FUNCTION adempiere.rf_insercbpartner_ecomers(
-	jsoncbpartner json,isLocation boolean)
-    RETURNS TABLE(c_bpartner_id integer, ad_user_id integer,c_bpartner_location_id integer, status character varying, data json) 
+CREATE OR REPLACE FUNCTION adempiere.rf_order_ecomers(
+	vidlistaprecios integer,
+	vad_org_id integer,
+	vid_alm integer,
+	vgrandtotal numeric,
+	vorderecommrs character varying,
+	vidsocio integer,
+	product_collection json)
+    RETURNS TABLE(c_order_id integer, documentno character varying) 
     LANGUAGE 'plpgsql'
 
     COST 100
     VOLATILE 
     ROWS 1000
-AS $BODY$
-DECLARE 
- 
+AS $BODY$ 
+
+ DECLARE   
  vIdOrder INTEGER =0;
  vidsocioOriginal INTEGER =0;
  vFechaDoc DATE DEFAULT NULL;    
@@ -31,378 +37,130 @@ DECLARE
 vIdOrderline INTEGER DEFAULT 0; 
 vline INTEGER = 10; 
 vc_uom_id INTEGER DEFAULT 0;
---Valores de la linea 
-res_employee INTEGER DEFAULT 0; 
-vc_bpartner_id INTEGER DEFAULT 0; 
-vad_user_id INTEGER DEFAULT 0; 
-resultData CHARACTER VARYING;
-estateResult CHARACTER VARYING; 
+--Valores de la linea
+vtotallines numeric = ROUND((vgrandtotal/1.16)::numeric,2);
 
-objCBpartner RECORD;
-objTipoSolicitante RECORD;
-JSONtypeSoli json;
+reg_product RECORD;
 
---Variables de un uso
-vc_location_id INTEGER DEFAULT 0;
+cur_products CURSOR
+	FOR SELECT * FROM json_to_recordset(product_collection) as x
+	(m_product_id numeric, total numeric, price numeric, quantity numeric);
 
-vFechaHoy TIMESTAMP;
-vIdSocio INTEGER;
-vCodigoSocio INTEGER;
-vc_bpartner_location_id INTEGER DEFAULT 0;
+BEGIN
+  SET search_path to adempiere;
+  
+  
+	-- vIDListaPrecios = (SELECT m_pricelist_id FROM c_bpartner WHERE  c_bpartner_id = vIDSocio limit 1);
+	vIDDirSocio = (SELECT MAX(c_bpartner_location_id)  FROM c_bpartner_location WHERE c_bpartner_id = vIDSocio AND isactive = 'Y' AND ad_client_id = 1000000);
 
-BEGIN 
-	SET search_path to adempiere;
-	vFechaHoy = CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp);
-	 
---Convert JSON TO RECORD
-	SELECT * into objCBpartner FROM json_to_recordset(JSONcbpartner) as x
+	vIdOrder = (SELECT adempiere.nextidfunc(232, 'N'));
+	vFechaDoc = NOW()::DATE;  
+  
+  
+	vTipoDoc = 1000857; -- <-- Orden estandar --- ORDEN DIRECTA --> 1000856
+	  
+	vPrefijoDoc = (SELECT  prefix FROM C_DocType doc INNER JOIN AD_Sequence  seq ON seq.AD_Sequence_ID=  doc.docnosequence_id   WHERE C_DocType_id = vTipoDoc);
+	
+	vConsecDoc = (SELECT DocNoSequence_ID FROM  C_DocType WHERE C_DocType_ID = vTipoDoc);
+
+	vNodcument = vPrefijoDoc || adempiere.nextidfunc(vConsecDoc, 'N');
+ 	
+	
+	   INSERT INTO C_Order 
+		(
+			c_order_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby, 
+			issotrx, documentno, docstatus, docaction, processing, processed, 
+			c_doctype_id, c_doctypetarget_id, description, isapproved, iscreditapproved, 
+
+			isdelivered, isinvoiced, isprinted, istransferred, isselected, salesrep_id, 
+			dateordered, datepromised, dateacct, c_bpartner_id, c_bpartner_location_id, 
+			isdiscountprinted, c_currency_id, paymentrule, c_paymentterm_id, invoicerule, 
+
+			deliveryrule, freightcostrule, freightamt, deliveryviarule, chargeamt, priorityrule, 
+			totallines, grandtotal, m_warehouse_id, m_pricelist_id, istaxincluded, posted, 
+			sendemail, copyfrom, isselfservice, c_conversiontype_id, bill_bpartner_id, bill_location_id, 
+			isdropship, volume, weight, amounttendered, amountrefunded, processedon, printformattype
+
+			,generatelist,rf_printletterorder,dopricing,isbillingdate
+		)
+
+		VALUES (
+			vIdOrder,1000000,vad_org_id,'Y',now()::DATE,1000035,now()::DATE,1000035,
+			'Y', vNodcument,'DR','CO','N','N',
+			--0,
+			vTipoDoc,vTipoDoc,'E-COMMERS INTERNO Id. VENTA: ' || vOrderEcommrs,'Y','N',
+
+			'N','N','N','N','N',1000035,
+			vFechaDoc,vFechaDoc,vFechaDoc,vIDSocio,vIDDirSocio, --Fechas y Socio
+			'Y',vIDMoneda,'P',(SELECT C_PaymentTerm_ID FROM C_BPartner WHERE c_bpartner_id = vIDSocio Limit 1),'I', --Moneda, Dias Credito
+
+			'A','I',0,'D',0,5,
+			vTotalLines,vGrandTotal,vid_alm,vIDListaPrecios,'N','N', --Almacen,ListaDePrecios
+			'N','N','N',114,vIDSocio,vIDDirSocio, --Socio
+			'N',0,0,'0.0','0.0',0,'N'
+
+			,'N','N','N','N'
+		);
+ 		--ORDEN 
+		 
+ 	INSERT INTO C_OrderTax
 	(
-		folio CHARACTER VARYING,_id CHARACTER VARYING,"tipoSolicitante" json,"nombreSolicitante" CHARACTER VARYING
-		,"numeroCelular" CHARACTER VARYING,email CHARACTER VARYING,"requiredFactura" BOOLEAN,direccion CHARACTER VARYING
-		,"UsoCFDI" CHARACTER VARYING,created_at CHARACTER VARYING,cp CHARACTER VARYING,estado CHARACTER VARYING,ciudad CHARACTER VARYING
-		,municipio CHARACTER VARYING,pais CHARACTER VARYING,asentamiento CHARACTER VARYING, "montPreAprobed" NUMERIC,
-		c_bpartner_id INTEGER
+		c_order_id, c_tax_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby, 
+		taxbaseamt, taxamt, processed, istaxincluded
+	)
+	VALUES 
+	(
+		vIdOrder,1000001,1000000,vad_org_id,'Y',now()::DATE,1009429,now()::DATE,1009429,
+		vTotalLines,ROUND((vgrandtotal-(vgrandtotal/1.16))::numeric,2),'Y','N'
 	);
 
-	JSONtypeSoli = objCBpartner."tipoSolicitante";
-	SELECT * into objTipoSolicitante FROM json_to_recordset(JSONtypeSoli) as xs
-	  (
-		 _id CHARACTER VARYING,tipo CHARACTER VARYING,razonSocial CHARACTER VARYING
-		,"personaReferencia" CHARACTER VARYING,"celularReferencia" CHARACTER VARYING
-		,"parentezcoReferencia" CHARACTER VARYING,"rfcColborador" CHARACTER VARYING
-	  );
---//Convert JSON TO RECORD
-	  
--- 	raise notice '1: %',objCBpartner;
--- 	raise notice '2: %', objTipoSolicitante; 
--- 	raise notice '3: %', objTipoSolicitante.tipo; 
-
-
--- 	Validar que no exista el usuario
-	IF isLocation = false THEN
-		SELECT 
-			COUNT(*) OVER (PARTITION BY u.AD_CLIENT_ID ),cp.c_bpartner_id,u.ad_user_id  INTO res_employee,vc_bpartner_id,vad_user_id
-		FROM adempiere.AD_User u
-		INNER JOIN adempiere.C_BPartner cp ON cp.C_BPartner_ID = u.C_BPartner_ID 
-		AND IsCustomer = 'Y'
-		WHERE 
-			u.isActive = 'Y' 
-			AND UPPER(TaxID) = UPPER(objTipoSolicitante."rfcColborador")
-			OR  UPPER(BPName) = UPPER(objTipoSolicitante."rfcColborador") 
-		ORDER BY cp.created ASC;
-		IF res_employee > 0 THEN
-			RETURN QUERY 
-			SELECT  vc_bpartner_id,vad_user_id,vc_bpartner_location_id,'SE'::character varying,'{"estado":"SE","msg":"El cliente es un usuario existente"}'::json;
-			RETURN;
-		ELSE
-			res_employee = 0;vc_bpartner_id=0;vad_user_id=0;
-		END IF;
-	END IF;
--- 	Validar que no exista el usuario
-
-
-
-	IF isLocation = false THEN
-	-- 	Colaborador Refividrio 
-		IF objTipoSolicitante.tipo = ('Colaborador Refividrio')::CHARACTER VARYING
-		THEN
-
-			SELECT 
-				COUNT(*) OVER (PARTITION BY TaxID),cp.c_bpartner_id,u.ad_user_id INTO res_employee,vc_bpartner_id,vad_user_id
-			FROM adempiere.AD_User u
-			INNER JOIN adempiere.C_BPartner cp ON cp.C_BPartner_ID = u.C_BPartner_ID AND IsEmployee = 'Y'
-			WHERE u.isActive = 'Y' AND TaxID = objTipoSolicitante."rfcColborador";-- 'MOGM980711CX5'
-
-			raise notice '4: %', CONCAT(res_employee,' ',vc_bpartner_id,'  ',vad_user_id); 
-
-			IF res_employee = 1 THEN
-				IF objCBpartner."requiredFactura" THEN 
-					UPDATE adempiere.AD_User usAPD SET 
-						PasswordInfo = '$2b$10$7qXuRIJjog6jYPjiBiBS4OkEtUzCZ3rf0XGbXBWYIS2WXdLsup9g6'
-						,Phone2 = objCBpartner."numeroCelular"
-						,EMail= objCBpartner.email
-						,IsWebstoreUser = 'Y'
-						,isActive = 'Y'
-						,isLoginUser = 'Y'
-					WHERE  usAPD.AD_User_id = vad_user_id;
-
-					UPDATE adempiere.C_BPartner cbUPD SET  
-							IsCustomer = 'Y'
-							,SO_CreditLimit = 0.0
-							,DeliveryViaRule = 'D'
-							,PaymentRule = 'P'
-							,C_PaymentTerm_ID = 1000005
-					WHERE  cbUPD.C_BPartner_id = vc_bpartner_id;
-
-					IF objCBpartner."montPreAprobed" > 0 
-					THEN 
-						UPDATE adempiere.C_BPartner cbUPD  SET   
-							SO_CreditLimit = objCBpartner."montPreAprobed"
-						WHERE  cbUPD.C_BPartner_id = vc_bpartner_id; 
-					END IF;
-
-					UPDATE adempiere.C_BPartner_Location cbUPD SET isActive = 'N'
-					WHERE cbUPD.C_BPartner_ID=vc_bpartner_id AND cbUPD.isActive = 'Y';
-
-					vc_location_id = (SELECT adempiere.nextidfunc(60, 'N'));
-					INSERT INTO adempiere.c_location(
-						c_location_id, ad_client_id, ad_org_id, isactive, created, createdby, 
-						updated, updatedby,
-						address1, address2, city, postal,
-						c_country_id,
-						c_region_id, 
-						regionname, address3)
-					VALUES ( 
-						vc_location_id, 1000000, 0, 'Y',CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp),1000035
-						,CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp),1000035
-						,objCBpartner.direccion,objCBpartner.asentamiento,objCBpartner.ciudad,objCBpartner.cp
-						,247,
-						(SELECT c_region_id FROM adempiere.C_region 
-							WHERE description LIKE '%'|| translate(objCBpartner.estado,'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜ','aeiouAEIOUaeiouAEIOU') ||'%' 
-							AND c_country_id =247
-						),(SELECT name FROM adempiere.C_region 
-							WHERE description LIKE '%'|| translate(objCBpartner.estado,'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜ','aeiouAEIOUaeiouAEIOU') ||'%' 
-							AND c_country_id =247)
-						,objCBpartner.municipio);
-					vc_bpartner_location_id = (SELECT adempiere.nextidfunc(208, 'N'));
-					INSERT INTO adempiere.c_bpartner_location(
-						c_bpartner_location_id, ad_client_id, ad_org_id, isactive, created, createdby,
-						updated, updatedby,name, isbillto, isshipto, ispayfrom, isremitto,
-						phone2, c_bpartner_id,c_location_id, email)
-					VALUES (vc_bpartner_location_id, 1000000, 0, 'Y', CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp),1000035
-							,CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp),1000035,objCBpartner.municipio,'Y','Y', 'Y', 'Y'
-							,objCBpartner."numeroCelular",vc_bpartner_id,vc_location_id,objCBpartner.email);
-					resultData = '{"estado":"AU","msg":"Usuario del empleado Creado"}';
-					estateResult = 'success';
-				ELSE
-					vc_bpartner_id = null;
-					vad_user_id = null;
-					resultData = '{"estado":"CREATED_CM","msg":"Crear Socio de Negocio (cliente mostrador)"}';
-					estateResult = 'error';
-				END IF;
-			END IF;
-
-			IF res_employee > 1 THEN
-				IF objCBpartner."requiredFactura" THEN
-					vc_bpartner_id = null;
-					vad_user_id = null;
-					resultData = '{"estado":"SD","msg":"El empleado tiene mas de un Usuario Asignado"}';
-					estateResult = 'error';
-				ELSE
-					vc_bpartner_id = null;
-					vad_user_id = null;
-					resultData = '{"estado":"CREATED_CM","msg":"Crear Socio de Negocio (cliente mostrador)"}';
-					estateResult = 'error';
-				END IF; 
-			END IF;
-
-			-- Si el empleado no Existe pero se encuentra en los pre aprobados y no quiere factura se retorna la indicacion para
-			-- insertar un Cliente Mostrador, si requiere factura es necesaria la alta del empleado de RH
-	-- 		(SELECT COUNT(*) FROM adempiere.RF_CreditsProposalClients 
-	--                 WHERE UPPER(rfcprov) = UPPER('MOGM980711CX&') AND isActive = 'Y' LIMIT 1) 
-			IF res_employee = 0 OR res_employee IS NULL THEN 
-				IF (SELECT COUNT(*) FROM adempiere.RF_CreditsProposalClients 
-					WHERE UPPER(rfcprov) = UPPER(objTipoSolicitante."rfcColborador") AND isActive = 'Y' LIMIT 1) > 0 
-				THEN
-					IF objCBpartner."requiredFactura" THEN
-						vc_bpartner_id = null;
-						vad_user_id = null;
-						resultData = '{"estado":"CREATED_CFAC","msg":"Crear Socio de Negocio (RFC origen, Facturación)"}';
-						estateResult = 'error';
-					ELSE
-						vc_bpartner_id = null;
-						vad_user_id = null;
-						resultData = '{"estado":"CREATED_CM","msg":"Crear Socio de Negocio (cliente mostrador)"}';
-						estateResult = 'error';
-					END IF; 
-				ELSE
-					vc_bpartner_id = null;
-					vad_user_id = null;
-					resultData = '{"estado":"ARH","msg":"El empleado no esta registrado, por favor solicita el alta a RH."}';
-					estateResult = 'error'; 
-				END IF;  
-			END IF;
-		END IF;
-	--fin Colaborador Refividrio
-
-		IF (objTipoSolicitante.tipo=('Distribuidor')::CHARACTER VARYING) OR (objTipoSolicitante.tipo = ('Recomendado por Familiar/Amigo')::CHARACTER VARYING) THEN
-
-			SELECT 
-				COUNT(*) OVER (PARTITION BY TaxID),cp.c_bpartner_id,u.ad_user_id INTO res_employee,vc_bpartner_id,vad_user_id
-			FROM adempiere.AD_User u
-			INNER JOIN adempiere.C_BPartner cp ON cp.C_BPartner_ID = u.C_BPartner_ID AND IsCustomer = 'Y'
-			WHERE u.isActive = 'Y' AND TaxID = objTipoSolicitante."rfcColborador";
-
-			IF res_employee = 1 THEN
-				IF objCBpartner."requiredFactura" THEN
-					UPDATE adempiere.AD_User usAPD SET 
-						PasswordInfo = '$2b$10$7qXuRIJjog6jYPjiBiBS4OkEtUzCZ3rf0XGbXBWYIS2WXdLsup9g6'
-						,Phone2 = objCBpartner."numeroCelular"
-						,EMail= objCBpartner.email
-						,IsWebstoreUser = 'Y'
-						,isActive = 'Y'
-						,isLoginUser = 'Y'
-					WHERE  usAPD.AD_User_id = vad_user_id;
-
-					UPDATE adempiere.C_BPartner cbUPD SET  
-							IsCustomer = 'Y'
-							,SO_CreditLimit = 0.0
-							,DeliveryViaRule = 'D'
-							,PaymentRule = 'P'
-							,C_PaymentTerm_ID = 1000005
-					WHERE  cbUPD.C_BPartner_id = vc_bpartner_id;
-
-					IF objCBpartner."montPreAprobed" > 0 
-					THEN 
-						UPDATE adempiere.C_BPartner cbUPD  SET   
-							SO_CreditLimit = objCBpartner."montPreAprobed"
-						WHERE  cbUPD.C_BPartner_id = vc_bpartner_id; 
-					END IF;
-
-					UPDATE adempiere.C_BPartner_Location cbUPD SET isActive = 'N'
-					WHERE cbUPD.C_BPartner_ID=vc_bpartner_id AND cbUPD.isActive = 'Y';
-
-					vc_location_id = (SELECT adempiere.nextidfunc(60, 'N'));
-					INSERT INTO adempiere.c_location(
-						c_location_id, ad_client_id, ad_org_id, isactive, created, createdby, 
-						updated, updatedby,
-						address1, address2, city, postal,
-						c_country_id,
-						c_region_id, 
-						regionname, address3)
-					VALUES ( 
-						vc_location_id, 1000000, 0, 'Y',CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp),1000035
-						,CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp),1000035
-						,objCBpartner.direccion,objCBpartner.asentamiento,objCBpartner.ciudad,objCBpartner.cp
-						,247,
-						(SELECT c_region_id FROM adempiere.C_region 
-							WHERE description LIKE '%'|| translate(objCBpartner.estado,'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜ','aeiouAEIOUaeiouAEIOU') ||'%' 
-							AND c_country_id =247
-						),(SELECT name FROM adempiere.C_region 
-							WHERE description LIKE '%'|| translate(objCBpartner.estado,'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜ','aeiouAEIOUaeiouAEIOU') ||'%' 
-							AND c_country_id =247)
-						,objCBpartner.municipio);
-						
-					vc_bpartner_location_id = (SELECT adempiere.nextidfunc(208, 'N'));
-					INSERT INTO adempiere.c_bpartner_location(
-						c_bpartner_location_id, ad_client_id, ad_org_id, isactive, created, createdby,
-						updated, updatedby,name, isbillto, isshipto, ispayfrom, isremitto,
-						phone2, c_bpartner_id,c_location_id, email)
-					VALUES (vc_bpartner_location_id, 1000000, 0, 'Y', CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp),1000035
-							,CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp),1000035,objCBpartner.municipio,'Y','Y', 'Y', 'Y'
-							,objCBpartner."numeroCelular",vc_bpartner_id,vc_location_id,objCBpartner.email);
-					resultData = '{"estado":"AU","msg":"Cliente Existente, Usuario Creado"}';
-					estateResult = 'success';
-				ELSE
-					vc_bpartner_id = null;
-					vad_user_id = null;
-					resultData = '{"estado":"CREATED_CM","msg":"Crear Socio de Negocio (cliente mostrador)"}';
-					estateResult = 'error';
-				END IF;  
-			END IF;
-
-			IF res_employee = 0 OR res_employee IS NULL THEN 
-				vc_bpartner_id = null;
-				vad_user_id = null;
-				IF (SELECT COUNT(*) FROM adempiere.RF_CreditsProposalClients
-					WHERE UPPER(rfcprov) = UPPER(objTipoSolicitante."rfcColborador") AND isActive = 'Y') > 0 
-				THEN
-					IF objCBpartner."requiredFactura" THEN
-						resultData = '{"estado":"CREATED_CFAC","msg":"Crear Socio de Negocio (RFC origen, Facturación)"}';
-						estateResult = 'error';
-					ELSE
-						resultData = '{"estado":"CREATED_CM","msg":"Crear Socio de Negocio (cliente mostrador)"}';
-						estateResult = 'error';
-					END IF; 
-				ELSE
-					resultData = '{"estado":"RE","msg":"El Socio no esta en ADempiere."}';
-					estateResult = 'error'; 
-				END IF;  
-			END IF;
-		END IF;
-	ELSE 
-			vc_location_id = (SELECT adempiere.nextidfunc(60, 'N'));
-			IF objCBpartner."requiredFactura" THEN 
-				INSERT INTO adempiere.c_location(
-					c_location_id, ad_client_id, ad_org_id, isactive, created, createdby, 
-					updated, updatedby,
-					address1, address2, city, postal,
-					c_country_id,
-					c_region_id, 
-					regionname, address3)
-				VALUES ( 
-					vc_location_id, 1000000, 0, 'Y',CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp),1000035
-					,CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp),1000035
-					,objCBpartner.direccion,objCBpartner.asentamiento,objCBpartner.ciudad,objCBpartner.cp
-					,247,
-					(SELECT c_region_id FROM adempiere.C_region 
-						WHERE description LIKE '%'|| translate(objCBpartner.estado,'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜ','aeiouAEIOUaeiouAEIOU') ||'%' 
-						AND c_country_id =247
-					),(SELECT name FROM adempiere.C_region 
-						WHERE description LIKE '%'|| translate(objCBpartner.estado,'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜ','aeiouAEIOUaeiouAEIOU') ||'%' 
-						AND c_country_id =247)
-					,objCBpartner.municipio);
-			ELSE
-				INSERT INTO adempiere.c_location(
-					c_location_id, ad_client_id, ad_org_id, isactive, created, createdby, 
-					updated, updatedby,address1, address2, city, postal,c_country_id,address3)
-				VALUES ( 
-					vc_location_id, 1000000, 0, 'Y',CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp),1000035
-					,CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp),1000035
-					,'*','*','*','*',247,'*');
-			END IF;
+	OPEN cur_products;
+	LOOP 
+      FETCH cur_products INTO reg_product; 
+      EXIT WHEN NOT FOUND;
+		
+		 RAISE NOTICE 'Calling####(%)',  reg_product;
+		 vc_uom_id = (SELECT c_uom_id FROM m_product WHERE m_product_id = reg_product.m_product_id);
+		 vIdOrderline = (SELECT adempiere.nextidfunc(233, 'N')); 
+    	 INSERT INTO C_OrderLine
+				(c_orderline_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby, c_order_id, 
+				 line, c_bpartner_id, c_bpartner_location_id, dateordered, datepromised, m_product_id, 
+				 m_warehouse_id, c_uom_id, qtyordered, qtyreserved, qtydelivered, qtyinvoiced, 
+				 
+				 c_currency_id,
+				 pricelist,
+				 priceactual, 
+				 pricelimit, 
+				 linenetamt, 
+				 discount, freightamt, 
+				 c_tax_id, m_attributesetinstance_id, isdescription, processed, qtyentered, 
+				 priceentered, pricecost, qtylostsales, rramt, isconsumesforecast, createfrom, createshipment, pickedqty)
+			VALUES 
+			(
+				vIdOrderline,1000000,vad_org_id,'Y',now()::DATE,1000035,now()::DATE,1000035,vIdOrder, --vIdOrder
+				vline,vIDSocio,vIDDirSocio,vFechaDoc,vFechaDoc,reg_product.m_product_id, --linea,socio,locationID,fecha,fecha,m_product_id
+				vid_alm,vc_uom_id,reg_product.quantity,0,0,0, --Almacen,unidadMedida,cantidad
 				
-			vc_bpartner_location_id = (SELECT adempiere.nextidfunc(208, 'N'));
-			INSERT INTO adempiere.c_bpartner_location(
-				c_bpartner_location_id, ad_client_id, ad_org_id, isactive, created, createdby,
-				updated, updatedby,name, isbillto, isshipto, ispayfrom, isremitto,
-				phone2, c_bpartner_id,c_location_id, email)
-			VALUES (vc_bpartner_location_id, 1000000, 0, 'Y', CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp),1000035
-					,CAST((to_char(current_timestamp, 'YYYY-MM-DD 00:00:00')) AS timestamp),1000035,'*','Y','Y', 'Y', 'Y'
-					,objCBpartner."numeroCelular",objCBpartner.c_bpartner_id,vc_location_id,objCBpartner.email);
-			resultData = '{"estado":"CREATED DIR","msg":"Dirección Creada RecordID:' || vc_location_id || '"}';
-			estateResult = 'success';
-	END IF;
-	/*
-	SE = Socio de Negocio Existente <= opercacion abortada.
-	SD = Socio de Negocio con más de un CB_partner <= opercacion abortada.
-	ARH = Empleado No Registrado <= opercacion abortada.
-	AU = Socio Autorizado 
+				vIDMoneda --Moneda,PrecioLista
+				,ROUND((reg_product.price/1.16)::numeric,2)
+				,ROUND((reg_product.price/1.16)::numeric,2)
+				,ROUND((reg_product.price/1.16)::numeric,2)
+				,ROUND((reg_product.total/1.16)::numeric,2)
+				,'0.0',0, 
+
+				1000001,0,'N','N', reg_product.quantity , --Impuesto,attributos,CANTIDAD
+
+				ROUND((reg_product.price/1.16)::numeric,2) ,0,0,0,'N','N','N',0 --PRECIO
+			); 
+			vline = vline + 10;
+    END LOOP;
 	
-	SELECT * FROM adempiere.rf_insercbpartner_ecomers('
-	[{
-		"folio":1000212
-		,"montPreAprobed":"5000.00"
-		,"_id":"60a6db87d33cdf0cbd54c3ea"
-		,"cp":"55067"
-		,"estado":"México"
-		,"ciudad":"Ecatepec de Morelos"
-		,"municipio":"Ecatepec de Morelos"
-		,"pais":"México"
-		,"asentamiento":"Ciudad Cuauhtémoc Sección Geo 2000"
-		,"tipoSolicitante":
-			[{
-				"_id":"60a6db87d33cdf0cbd54c3eb"
-				,"tipo":"Colaborador Refividrio"
-				,"razonSocial":"","personaReferencia":""
-				,"celularReferencia":""
-				,"parentezcoReferencia":""
-				,"rfcColborador":"MOGM980711CX5"
-			}]
-		,"nombreSolicitante":"MARCOS GUILLLERMO MORENO GARCIA"
-		,"numeroCelular":"5539373022"
-		,"email":"marcos.moreno.gm@gmail.com"
-		,"requiredFactura":true
-		,"direccion":"MIXTLACIHUATL MZ 6 LT 7"
-		,"UsoCFDI":"G01","estado_solicitud":"PA"
-		,"created_at":"2021-05-20T21:58:31.453Z","__v":0
-		,"ApprovedCredit":true
-	}]')
-*/
-	RETURN QUERY 
- 	SELECT  vc_bpartner_id,vad_user_id,vc_bpartner_location_id,estateResult,resultData::json;
-END
+    CLOSE cur_products;
+  	
+	RETURN QUERY
+  		SELECT  vIdOrder,vNodcument;
+END;
 $BODY$;
 
-ALTER FUNCTION adempiere.rf_insercbpartner_ecomers(json,boolean)
+ALTER FUNCTION adempiere.rf_order_ecomers(integer, integer, integer, numeric, character varying, integer, json)
     OWNER TO postgres;
