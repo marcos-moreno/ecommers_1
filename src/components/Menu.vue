@@ -48,11 +48,18 @@
                   <v-list-item-title>Mis Compras</v-list-item-title>
                 </v-list-item>
 
-                <v-list-item @click="menu('/shop/Login')">
+                <v-list-item @click="menu('/shop/Account')">
                   <v-list-item-icon>
                     <v-icon>mdi-account</v-icon>
                   </v-list-item-icon>
                   <v-list-item-title>Mis datos</v-list-item-title>
+                </v-list-item>
+
+                <v-list-item @click="menu('/shop/ChangePassword')">
+                  <v-list-item-icon>
+                    <v-icon>mdi-lock</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title>Cambiar Contraseña</v-list-item-title>
                 </v-list-item>
 
                 <v-list-item @click="menu('/shop/Logout')">

@@ -17,6 +17,10 @@
         <v-tab>Compras ({{purchasesLength}})</v-tab> 
       </v-tabs>
     </template>
+
+
+
+    
     <v-container class="my-12" v-if="purchasesLength > 0">
       <template>
         <v-item-group multiple>

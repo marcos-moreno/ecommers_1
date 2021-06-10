@@ -19,6 +19,7 @@
           </v-alert>
         </v-container>
 
+      <div v-if="isChangePassword ==false">
         <v-container v-if="existeUsuario==false" class="my-6 grey lighten-5"  >
           <v-card  height="500" width="500"  class="mx-auto"> 
             <v-container fill-height fluid> 
@@ -38,7 +39,7 @@
 
         <v-container v-else class="my-6 grey lighten-5"  >
           <v-card height="500" width="500"  class="mx-auto"> 
-            <v-btn @click="returnUser" text color="primary" class="my-2" >
+            <v-btn @click="returnUser()" text color="primary" class="my-2" >
               <v-icon dark left >mdi-arrow-left </v-icon>
               <span>Regresar</span> 
             </v-btn>
@@ -52,7 +53,7 @@
                 </v-container>
                 <v-container style="width:90%" class="my-2 mx-auto">
                   <v-text-field @keyup.enter.native="login" :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
-                      :type="showPass ? 'text' : 'password'" label="Password"
+                      :type="showPass ? 'text' : 'password'" label="Contraseña"
                       @click:append="showPassw" v-model="password"
                   ></v-text-field> 
                 </v-container>
@@ -60,13 +61,83 @@
                   Continuar
                 </v-btn> 
               </v-row>
-            </v-container>
+            </v-container> 
           </v-card>
         </v-container>
+      </div>
+<!--   -->
+        <v-container v-if="isChangePassword"   class="my-6 grey lighten-5"  >
+          <!--  height="500"  -->
+          <v-card width="500"  class="mx-auto"> 
+            <v-btn @click="returnUser()" text color="primary" class="my-2" >
+              <v-icon dark left >mdi-arrow-left </v-icon>
+              <span>Regresar</span> 
+            </v-btn>  
+
+            <v-container v-if="codeValid==false" fill-height fluid>  
+               <v-row align="center" justify="center"> 
+                  <v-card-title>Código de seguridad</v-card-title>
+                  <v-card-subtitle>Para continuar ingresa el código de seguridad que te hicimos llegar a tu correo electrónico</v-card-subtitle>
+                  <v-container style="width:90%" class="my-10 mx-auto">
+                    <v-text-field  type="number"  class="centered-input text--darken-3 mt-3" 
+                     @keyup.enter.native="comprobarCodigo" v-model="codeSecurity" 
+                      label="Código de seguridad" filled rounded dense 
+                      onkeydown="javascript: return event.keyCode == 69 ? false : true"
+                    ></v-text-field>
+                  </v-container>
+                  <v-btn :disabled="codeSecurity.length != 6" class="my-5 mx-auto" width="80%" large color="primary" @click="comprobarCodigo" >
+                    Continuar
+                  </v-btn> 
+              </v-row>
+            </v-container> 
+ 
+            <v-container v-if="codeValid"  fill-height fluid>  
+               <v-row align="center" justify="center"> 
+                  <v-card-title>¡Excelente!, ahora Ingresa tu nueva contraseña</v-card-title> 
+                  <v-container style="width:90%" class="my-10 mx-auto">
+                    
+                  <v-container style="width:90%" class="my-2 mx-auto">
+                    <v-text-field :append-icon="showPasswC1 ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="showPasswC1 ? 'text' : 'password'" label="Contraseña" v-model="password1"
+                        @click:append="showPasswC1 == true ? showPasswC1 = false : showPasswC1 = true;"
+                        onkeydown="javascript: return event.keyCode == 32 ? false : true"
+                    ></v-text-field> 
+                  </v-container>
+
+                  <v-container style="width:90%" class="my-2 mx-auto">
+                    <v-text-field :append-icon="showPasswC2 ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="showPasswC2 ? 'text' : 'password'" label="Repite tu contraseña"
+                        @click:append="showPasswC2 == true ? showPasswC2 = false : showPasswC2 = true;"
+                        v-model="password2"
+                        onkeydown="javascript: return event.keyCode == 32 ? false : true"
+                    ></v-text-field> 
+                  </v-container>
+
+                  </v-container>
+                  <v-btn class="my-5 mx-auto" width="80%" 
+                    large color="primary" @click="comprobarPasswords" >
+                    Cambiar Contraseña
+                  </v-btn> 
+              </v-row>
+            </v-container> 
+
+          </v-card>
+        </v-container> 
+
       </div>
     </div>
   </v-main> 
 </template>
+
+<style lang="scss">
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+    }
+
+    input[type=number] { -moz-appearance:textfield; }
+</style>
 
 <script>
   import axios from 'axios'; 
@@ -82,14 +153,96 @@
         password:"",
         existeUsuario : false,
         showPass :false, 
-        msgerror : ""
+        msgerror : "",
+        isChangePassword:false,
+        codeSecurity:"",
+        codeValid:"",
+        passwordValidos:false,
+        showPasswC1 :false, 
+        showPasswC2 :false, 
+        password1:"",
+        password2:"",
+        tokenTemporal : ""
       }
     }, components: { 
       'app-menu': AppMenu, 
     },
     methods:{
+      async comprobarPasswords(){
+        if (this.password1.toUpperCase() == "REFIVIDRIO") {
+          this.msgerror = "No puedes usar esta contraseña";
+          return false;
+        }
+        if (this.password1 === this.password2) {
+          if (this.password1.length < 8) {
+            this.msgerror = "La contraseña debé contener mínimo 8 caracteres"; 
+            return false;
+          }
+        }else{
+          this.msgerror = "Las contraseñas no coinciden";
+          return false;
+        }
+        this.msgerror = "";
+        this.isLoad = true; 
+        let resuser = await axios.put(
+          config.apiAdempiere + "/user/changePasswordUser"
+          ,{password:this.password1,isActivate:true}
+          ,{headers:{'token': this.tokenTemporal}})
+        .then(function (response){ 
+          return response.data;
+        })
+        .catch(function (response){
+          console.log(response);
+          return false;
+        }); 
+        if (resuser==false) {
+          this.msgerror = "Ocurrio un error, intentalo más tarde.";
+        } else {
+          if (resuser.status == "success") {
+             this.msgerror = "";
+             alert("Cambio de contraseña correcto, es necesario reiniciar tu sesión.");
+             this.returnUser();
+          }else{
+             this.msgerror = "Ocurrio un error, contraseña no actualizada.";
+          }
+        } 
+        this.isLoad = false;
+      },
+      async comprobarCodigo(){
+        this.isLoad =true; 
+        let resuser = await axios.get(config.apiAdempiere + "/user/validCodSeg"
+          ,{headers: { 'token': this.tokenTemporal }
+          ,params: {code:this.codeSecurity}} 
+        ).then(function (response){return response; })
+        .catch(function (response){console.log(response);return false;});
+        this.codeValid = false;
+        if (!resuser) {
+          this.msgerror = "Ocurrio un error, intenta recargar esta página";
+        }else{
+          if (resuser.data.status == "success" && resuser.data.data == true){
+            this.msgerror = "";
+            this.codeValid = true;
+          } else {
+            this.msgerror = "El código de seguridad es incorrecto";
+          }
+        }
+        this.isLoad =false;  
+      },
       returnUser(){
         this.existeUsuario = false;
+        this.codeValid = false;
+        this.isChangePassword = false;
+        this.tokenTemporal = "";
+        this.user = "";
+        this.password = "";
+        this.isChangePassword=false,
+        this.codeSecurity= "";
+        this.codeValid= "";
+        this.passwordValidos= false;
+        this.showPasswC1= false;
+        this.showPasswC2= false;
+        this.password1= "";
+        this.password2= "";
       },
       showPassw(){ 
         this.showPass == true ? this.showPass = false : this.showPass = true;
@@ -130,12 +283,19 @@
             .catch(function (response){
               console.log(response);
               return {status:"error",token:null,user:{"value":""}};
-            }); 
-            if (resuser.data.status == "success" && resuser.data.token != undefined) { 
-              this.msgerror = ""; 
-              this.$cookie.set('token',resuser.data.token);  
-              this.$cookie.set('isLogged','true');  
-              location.href = "/";
+            });
+
+            if (resuser.data.status == "success") { 
+              if (resuser.data.user.requires_password_change) {
+                this.isChangePassword = true;
+                this.tokenTemporal = resuser.data.token; 
+              }else{ 
+                this.isChangePassword = false;
+                this.msgerror = "";
+                this.$cookie.set('token',resuser.data.token);  
+                this.$cookie.set('isLogged','true');  
+                location.href = "/";
+              }
             }else{
               this.msgerror = "La contraseña es incorrecta";
             }
@@ -144,10 +304,13 @@
           } 
         }
       }
+      ,getRandomInt() {
+        return Math.floor(Math.random() * (9 - 0)) + 0;
+      },
     },  
     async mounted() {
-      window.scrollTo(0,0);
-    },
+      window.scrollTo(0,0); 
+    }, 
     async created(){ 
         this.isLoad =true;
         let userObj = await axios.get(config.apiAdempiere + "/user/userByToken", 
@@ -155,7 +318,8 @@
           'headers': { 'token': this.$cookie.get('token') }
         })
         .then(res=>{return res.data;})
-        .catch(err=>{return err;});    
+        .catch(err=>{return err;}); 
+        console.log(userObj);   
         if (userObj.status == "success") {
           this.$router.push('/shop/Account');
         }else{

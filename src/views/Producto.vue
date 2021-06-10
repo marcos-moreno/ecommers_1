@@ -118,11 +118,8 @@
                   <div class="overline mb-4">
                     <strong>Descripción del producto</strong>
                   </div>
-                  <!-- <div class="overline mb-4">
-                    <v-img width="150px"  :src="producto.img"></v-img>
-                  </div> -->
-                  <div class="overline mb-4">
-                    <p class="text-sm-left overline mb-4" v-html="producto.elements"></p> 
+                  <div >
+                    <p v-html="producto.elements"></p>  
                   </div>
                 </v-list-item-content> 
               </v-list-item>  

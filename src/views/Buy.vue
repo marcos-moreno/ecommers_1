@@ -22,7 +22,7 @@
       </v-alert>
 
       <v-container v-if="isSucursal" style="min-height:656px;">
-        <v-card style="min-height:186px;">  
+        <v-card style="min-height:186px;">
           <v-btn class="text-center" color="primary" text  @click="returnPago"
             v-if="saleOrder.method_pay != 'paypal' && saleOrder.status_pay != 'pagado'"> 
             <v-icon>mdi-arrow-left</v-icon>Cambiar forma de pago
@@ -31,7 +31,7 @@
             ¿Dónde recolectarás tu compra?
           </p>  
           <v-img class="mx-auto text-center" width="70" src="../../public/tienda.png" ></v-img> 
-          <v-radio-group v-model="sucursalSelec">  
+          <v-radio-group @change="movementSuc()" v-model="sucursalSelec">  
             <v-simple-table class="my-15" >
               <template v-slot:default>
                 <tbody> 
@@ -51,6 +51,27 @@
                 </tbody>
               </template>
             </v-simple-table> 
+
+              <v-container fluid> 
+                <hr>
+                <v-radio-group v-model="diarecoleccion" >  
+                  <v-row no-gutters>
+                    <v-col v-for="dia in diasEntrega" :key="dia.fecha" cols="12" sm="4">
+                       <v-card class="mx-auto" max-width="344" outlined >
+                        <v-list-item three-line>
+                          <v-list-item-content> 
+                            <v-list-item-title class="text-h5 mb-1">
+                              <v-radio :label="dia.valor" :value="dia" ></v-radio> 
+                            </v-list-item-title> 
+                          </v-list-item-content> 
+                        </v-list-item> 
+                      </v-card>
+                    </v-col>
+                  </v-row> 
+                </v-radio-group>
+
+              </v-container>
+
             <br><br><br>
             <v-row>  
               <v-col class="mx-auto text-center"> 
@@ -63,14 +84,14 @@
         </v-card>  
     </v-container>
 
-     <v-container v-if="isPay==true && calculaTotalCar_fn() >= montoMinimoCompra" style="min-height:656px;">
+    <v-container v-if="isPay==true && calculaTotalCar_fn() >= montoMinimoCompra" style="min-height:656px;">
           <v-card style="min-height:186px;"> 
             <p class="text-center" style="font-size: 1em;color :#909090">  
              Elige tu método de pago   
             </p>  
             <p class="text-center" style="font-size: 2em;color :#909090">  
              Total a pagar:
-              <br><center>{{calculaTotalCar}}</center>
+              <br><center>{{formatMXN(calculaTotalCar_fn())}}</center>
             </p>   
             <v-container >
               <v-row dense> 
@@ -120,7 +141,7 @@
                       <div>
                         <v-card-title class="text-h5">Pago en Sucursal</v-card-title>
                         <v-card-subtitle >
-                          Tu compra no se reservará hasta que acredites tu pago, la existencia podría cambiar.
+                          Tendrás 10 días como máximo para acreditar tu pago.
                         </v-card-subtitle>
                         <v-card-actions>
                           <v-radio-group v-model="methodPay"> 
@@ -151,7 +172,7 @@
                             :items="payProducts"
                          -->
                           <PayPal 
-                            :amount="total"
+                            :amount="calculaTotalCar_fn().toString()"
                             currency="MXN" 
                             :client="credentials"  
                             env="sandbox"
@@ -227,6 +248,8 @@ export default {
   data() {
     return { 
       sucursalSelec : 0 
+      ,diarecoleccion : ""
+      ,diasEntrega : []
       ,montoMinimoCompra : 50
       ,msgFactura : ''
       ,typeMsgFactura : ''
@@ -238,8 +261,7 @@ export default {
       ,isPay : false
       ,methodPay : 0
       ,isSucursal : false
-      ,enaContinueMPay : true 
-      ,total : ""
+      ,enaContinueMPay : true  
       ,credentials: {
         sandbox: 'AW5asrqUKWfdNKSSMapnfEqBmXDOAqZ1r_BbfqOZbHDOukjMKDvNtqm5JGovrOzoG8xDan2kBXJbbZfT',
         production: 'AbEpHVkInyW2GzxG2fWPaLwvikiDqD2zh08oTUzEKuUsoq9Aq-OSybEHv2d1aQsH5CjbJglP3xnPY29S'
@@ -259,12 +281,14 @@ export default {
     }; 
   }, 
   async created() {
+       
     window.scrollTo(0,0);
     this.isLoad = true;  
     await this.validaLogin();
     if (this.isLogged) {
       await this.allSucursales();
-      await this.allProductinCar();
+      await this.allProductinCar(); 
+ 
       for (let index = 0; index < this.productos.length; index++) { 
           let Qtyordenada = 0;
           if ((this.productos[index].mex_quantytotal - this.productos[index].cantidad) < 0) {
@@ -285,11 +309,10 @@ export default {
             ,"value":this.productos[index].value  
             ,"name":this.productos[index].name  
           });
-      }   
-      this.total = this.calculaTotalCar_fn().toFixed(2).toString();
+      }    
       this.saleOrder.c_bpartner_id = this.user.c_bpartner_id;
-      this.saleOrder.ad_user_id = this.user.ad_user_id;
-      this.saleOrder.grandtotal = this.calculaTotalCar_fn().toFixed(2);
+      this.saleOrder.ad_user_id = this.user.ad_user_id; 
+      this.saleOrder.grandtotal = this.calculaTotalCar_fn(); 
       this.saleOrder.status_entrega = "pendiente";  
       this.saleOrder.m_pricelist_id = this.user.m_pricelist_id;
     }else{
@@ -299,9 +322,73 @@ export default {
     this.isPay = true; 
   }
   ,methods: { 
+    async movementSuc(){ 
+      this.isLoad = true;
+      let sucursal = {};
+      for (let index = 0; index < this.sucursales.length; index++) {
+          const element = this.sucursales[index];  
+          if(element.ad_org_id == this.sucursalSelec)
+            sucursal = element;
+      }   
+      this.diasEntrega = [];
+      this.diasEntrega = await axios.get(config.apiAdempiere + "/sucursal/get_dias_entrega"
+        ,{headers: { 'token': this.$cookie.get('token') },params: sucursal}
+      ).then(res=>{ 
+        return res.data.data;
+      }).catch(err=>{return err;});
+      this.isLoad = false; 
+      // console.log( this.diasEntrega );
+
+      // this.diasEntrega = await axios.get(config.apiAdempiere + "/sucursal/get_dias_entrega", 
+      //   {
+      //     'headers': { 'token': this.$cookie.get('token') }
+      //   }
+      //   ).then(res=>{console.log(res);return res.data.data;})
+      //   .catch(err=>{return err;});
+      
+      // this.diasEntrega = [];
+      // var days = ["Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sabado"];
+      // var month= ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Nobiembre","Diciembre"];  
+      // for (let index = 0; index < this.sucursales.length; index++) {
+      //   const element = this.sucursales[index];  
+      //   if(element.ad_org_id == this.sucursalSelec){  
+      //     let diaquellega =new Date(); // this.addDays(new Date(), 1);   
+      //     if (diaquellega.getDay() == (element.diaruta - 1) || diaquellega.getDay() == (element.diaruta) ) {
+      //       while (diaquellega.getDay() != (element.diaruta + 1) ) {
+      //           diaquellega = this.addDays(diaquellega, 1);
+      //       } 
+      //     } 
+      //     if (element.isruta) {
+      //       while (diaquellega.getDay() != (element.diaruta ) ) {
+      //           diaquellega = this.addDays(diaquellega, 1);
+      //       } 
+      //     } 
+      //     diaquellega = this.addDays(diaquellega, 1);
+      //     while (diaquellega.getDay() == 0 || diaquellega.getDay() == 6) {
+      //          diaquellega = this.addDays(diaquellega, 1);
+      //     }
+      //     let date = diaquellega;
+      //     this.diasEntrega.push({"valor":` ${days[date.getDay()]} ${ date.getDate()} de ${month[date.getMonth()]} del ${date.getFullYear()}`,"date":date}); 
+      //     for (let index = 1; index < 3; index++) { 
+      //       date = this.addDays(date, 1); 
+      //       while (date.getDay() == 0 || date.getDay() == 6) {
+      //             date = this.addDays(date, 1); 
+      //       }  
+      //       this.diasEntrega.push({"valor":` ${days[date.getDay()]} ${ date.getDate()} 
+      //       de ${month[date.getMonth()]} del ${date.getFullYear()}`,"date":date}); 
+      //     }
+      //   } 
+      // }  
+    },
+    addDays(date, days) {
+      var result = new Date(date);
+      result.setDate(result.getDate() + days);
+      return result;
+    },
     async confirmarCompra(){
       if (this.sucursalSelec > 0) {
         this.isLoad = true;
+        this.saleOrder.fechaprometida = this.diarecoleccion.date; 
         this.saleOrder.ad_org_recpt_id = this.sucursalSelec;
         if (this.methodPay  == "CRE" || this.methodPay  == "EFE") {
           const resIns = await this.insertSaleOrder()
@@ -315,11 +402,9 @@ export default {
         this.sucursalSelec = 0;
       }
     },
-    async updateSaleOrder(){ 
+    async updateSaleOrder(){  
       const result =  await axios.put(config.apiAdempiere + "/saleorder/updatebyID_auth", 
-                                      this.saleOrder
-                                      ,{headers:{'token': this.$cookie.get('token')}}
-                                    )
+                                      this.saleOrder,{headers:{'token': this.$cookie.get('token')}})
       .then(res=>{ 
         if(res.data.data.status != "success")return true; else return false;
       }).catch(err=>{
@@ -333,6 +418,7 @@ export default {
       this.saleOrder.isfactura = this.factura;  
       this.saleOrder.emailClient = this.user.email;  
       this.saleOrder.nombre_cliente = this.user.cpname;  
+      
       const result = await axios.post(
         config.apiAdempiere + "/saleorder/add_auth_with_ad", 
         this.saleOrder
@@ -343,14 +429,14 @@ export default {
         console.log(err);
         this.msgError = err;
         return false;
-      });  
+      });
       if(result.status == "success"){ 
         this.saleOrder = result.data;  
         console.log("RESULTADO DE LA ORDEN:");
         console.log(this.saleOrder);
         this.emptyCar();
         return true;
-      }else{ 
+      }else{
         window.scrollTo(0,0);
         if (result.data == "Error Interno") {
           this.msgError = "Existe un error, por favor Comuníquese con el soporte al número: 55 51757108";
@@ -427,8 +513,8 @@ export default {
         doc.setTextColor(0,106,164);
         doc.setFontSize(11);
         doc.text(64,120,`Estimado/a ${data.payer.payer_info.first_name} ${data.payer.payer_info.last_name}`);
-        doc.text(64,140,`Ha enviado un pago por importe de ${data.transactions[0].amount.total} MXN a `);
-        doc.text(112,165,'¡Muchas gracias por tu pago!');
+        doc.text(64,140,`Ha enviado un pago por importe de $${data.transactions[0].amount.total} MXN`);
+        doc.text(112,165,'¡Muchas gracias por tu compra!');
 
         doc.setTextColor(0,0,0);
         doc.setFontSize(10);
@@ -505,12 +591,13 @@ export default {
       for (let index = 0; index < this.productos.length; index++) {
         try {
           const element = this.productos[index];
-          total += (parseInt(element.cantidad) * parseFloat(element.l0));
+          let subtotal =  (parseInt(element.cantidad) * parseFloat(element.siniva) * 1.16000000).toFixed(2);
+          total += parseFloat(subtotal);
         } catch (error) { 
           return null;
         } 
-      }
-      return total;
+      }   
+      return parseFloat(total).toFixed(2);
     },
     async mounted() {    
       window.scrollTo(0,0);
@@ -557,24 +644,23 @@ export default {
         }  
         this.productos = productsincar;  
     },
-    async allSucursales(){
+    async allSucursales(){ 
         this.sucursales = await axios.get(config.apiAdempiere + "/sucursal/get_auth", 
         {
           'headers': { 'token': this.$cookie.get('token') }
         }).then(res=>{return res.data.data;})
-        .catch(err=>{return err;});  
+        .catch(err=>{return err;}); 
     }  
     ,formatMXN(value) {
         var formatter = new Intl.NumberFormat('es-MX', {style: 'currency', currency: 'MXN',});
-        return formatter.format(value);
+        return `${formatter.format(value)} MXN`;
     }, 
     creditoDisponible(){
       return parseFloat(this.user.so_creditlimit) - parseFloat(this.user.so_creditused);
     }
   },  
   components: {
-      PayPal
-      ,AppMenu
+    PayPal,AppMenu
   }
   ,computed: {
     validaCredito(){ 
@@ -591,9 +677,7 @@ export default {
     },
     shopingcarlength(){
       return this.productos.length;
-    },calculaTotalCar(){ 
-      return this.formatMXN(this.calculaTotalCar_fn());
-    },
+    }, 
   }
 }
 </script>

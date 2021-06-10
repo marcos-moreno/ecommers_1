@@ -52,12 +52,12 @@
                   style="min-width: 120px;height: 50px;font-size: .9em;"
                 ></v-text-field>   
                  <p class="font-weight-thin-black text-center" style="font-size: 0.85em;">
-                  {{producto.mex_quantytotal}} disponible
+                  {{producto.mex_quantytotal}} disponibles
                 </p>
               </v-col> 
               <v-col> 
                 <div class="font-black text-center" style=" font-size: 0.8em;">{{formatMXN(producto.l0)}} c/u.</div>
-                <p class="font-black text-center" style=" font-size: 1.5em;">{{ formatMXN(producto.price) }}</p>
+                <p class="font-black text-center" style=" font-size: 1.3em;">{{ formatMXN(producto.price) }}</p>
               </v-col> 
             </v-row>   
           </v-col> 
@@ -91,7 +91,7 @@
                     Total <div style="font-size: 1em;color :#2DAD08">(Iva Incluido)</div>
                 </v-col>
                 <v-col class="mx-auto"> 
-                  <div style="font-size: 1.8em;">{{calculaTotalCar}} </div> 
+                  <div style="font-size: 1.7em;">{{formatMXN(calculaTotalCar_fn())}} </div> 
                 </v-col>
               </v-row>
 
@@ -312,25 +312,26 @@ export default {
     }
     ,formatMXN(value) { 
         var formatter = new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'});
-        return formatter.format(value);
-    }
+        return `${formatter.format(value)} MXN`;
+    },
+    calculaTotalCar_fn(){
+      let total = 0;
+      for (let index = 0; index < this.productos.length; index++) {
+        try {
+          const element = this.productos[index];
+          let subtotal =  (parseInt(element.cantidad) * parseFloat(element.siniva) * 1.16000000).toFixed(2);
+          total += parseFloat(subtotal);
+        } catch (error) { 
+          return null;
+        } 
+      }   
+      return parseFloat(total).toFixed(2);
+    },
   },
   computed:{ 
       shopingcarlength(){
           return this.productos.length;
-      },
-      calculaTotalCar(){
-        let total = 0;
-        for (let index = 0; index < this.productos.length; index++) {
-          const element = this.productos[index];
-          total += element.cantidad * element.l0;
-        }
-        return this.formatMXN(total);
-      },
-  },
-  watch: {
-  
-  } 
-  
+      }, 
+  },  
 }
 </script>
