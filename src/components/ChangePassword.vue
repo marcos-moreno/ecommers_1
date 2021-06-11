@@ -21,10 +21,10 @@
       </div> 
         <v-container v-if="isChangePassword"   class="my-6 grey lighten-5"  > 
           <v-card width="500"  class="mx-auto"> 
-            <v-btn @click="returnUser()" text color="primary" class="my-2" >
+            <!-- <v-btn @click="returnUser()" text color="primary" class="my-2 white--text" >
               <v-icon dark left >mdi-arrow-left </v-icon>
               <span>Regresar</span> 
-            </v-btn>   
+            </v-btn>    -->
             <v-container v-if="passworActuaCorrecto==false" fill-height fluid>  
                <v-row align="center" justify="center"> 
                   <v-card-title>Cambio de contraseña</v-card-title>
@@ -35,8 +35,8 @@
                             @click:append="showPassw" v-model="password"
                         ></v-text-field> 
                     </v-container> 
-                  <v-btn :disabled="!(password.length > 7)" 
-                    class="my-5 mx-auto" width="80%" 
+                  <v-btn 
+                    class="my-5 mx-auto white--text" width="80%" 
                     large color="primary" @click="comprobarPasswordActual" >
                     Continuar
                   </v-btn> 
@@ -44,7 +44,8 @@
             </v-container>  
             <v-container v-if="passworActuaCorrecto"  fill-height fluid>  
                <v-row align="center" justify="center"> 
-                  <v-card-title>¡Excelente!, ahora Ingresa tu nueva contraseña</v-card-title> 
+                  <v-card-title>¡Muy bien!</v-card-title> 
+                  <p>Ahora Ingresa tu nueva contraseña</p> 
                   <v-container style="width:90%" class="my-10 mx-auto">
                     
                   <v-container style="width:90%" class="my-2 mx-auto">
@@ -105,18 +106,24 @@
         showPasswC2 :false, 
         password1:"",
         password2:"",
+        isChangePassword : true
       }
     }, components: { 
       'app-menu': AppMenu, 
     },
     methods:{
-        async comprobarPasswordActual(){
+        async comprobarPasswordActual(){ 
+            if (this.password.length < 8 ) {
+              this.msgerror = "Ingresa tu contraseña actual."; 
+              return;
+            }else{
+              this.msgerror = ""; 
+            }
             let resuserPassword = await axios.post(config.apiAdempiere + "/user/comprobarPasswordActual"
             ,{password:this.password}
             ,{headers:{ 'token': this.$cookie.get('token') }})
             .then(function (response){return response; })
             .catch(function (response){console.log(response);return false;});
-            console.log(resuserPassword);
             if (resuserPassword==false) {
                 this.msgerror = "Ocurrio un error, intentalo más tarde.";
             } else {
@@ -126,24 +133,29 @@
                 }else{
                     this.msgerror = "Ocurrio un error, la contraseña no es correta.";
                 }
-            } 
+            }
+            window.scrollTo(0,0); 
         },
         async comprobarPasswords(){
             if (this.password1.toUpperCase() == "REFIVIDRIO") {
+                window.scrollTo(0,0); 
                 this.msgerror = "No puedes usar esta contraseña";
                 return false;
             }
             if (this.password1 === this.password2) {
                 if (this.password1.length < 8) {
+                    window.scrollTo(0,0); 
                     this.msgerror = "La contraseña debé contener mínimo 8 caracteres"; 
                     return false;
                 }else{
-                     if (this.password1.toUpperCase() == this.password.toUpperCase()) {
+                    window.scrollTo(0,0); 
+                    if (this.password1.toUpperCase() == this.password.toUpperCase()) {
                         this.msgerror = "No puedes usar la misma contraseña";
                         return false;
                     }
                 }
             }else{
+                window.scrollTo(0,0); 
                 this.msgerror = "Las contraseñas no coinciden";
                 return false;
             }

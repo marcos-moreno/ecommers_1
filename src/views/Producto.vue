@@ -63,38 +63,41 @@
             <v-container >
               <v-row>
                 <v-col  class="justify-center">
-                  <div>Cantidad de la Compra   
+                  <div>Cantidad de la compra   
                     <v-row>
                       <v-col>
-                        <v-text-field class="centered-input text--darken-3 mt-3" 
-                          v-model="qty" type="number" label="Cantidad"
-                          append-outer-icon="mdi-plus" @click:append-outer="qtyMovement('+')" 
-                          prepend-icon="mdi-minus" @click:prepend="qtyMovement('-')" 
-                          v-on:keyup="qtyMovement('0')" @click="qtyMovement('0')" 
-                          onkeydown="javascript: return event.keyCode == 69 ? false : true" 
-                        ></v-text-field>
-                    
-                        <p style="font-size: 0.9em; color:#909090">
-                          {{producto.mex_quantytotal}} disponible
-                        </p>
+                        <center>
+                          <v-text-field class="centered-input text--darken-3 mt-3" style="width:300px" 
+                            v-model="qty" type="number" label="Cantidad"
+                            append-outer-icon="mdi-plus" @click:append-outer="qtyMovement('+')" 
+                            prepend-icon="mdi-minus" @click:prepend="qtyMovement('-')" 
+                            v-on:keyup="qtyMovement('0')" @click="qtyMovement('0')" 
+                            onkeydown="javascript: return event.keyCode == 69 ? false : true" 
+                          ></v-text-field>
+                          <p style="font-size: 0.9em; color:#909090">
+                            {{producto.mex_quantytotal}} disponible
+                          </p>
+                        </center>
+                       
                       </v-col>
                     </v-row> 
                   </div>   
                   
                   <div class="font-black text-center" style=" font-size: 0.8em;">{{formatMXN(producto.l0)}} c/u.</div>
                   <p class="font-black text-center" style=" font-size: 1.8em;">{{calculaTotalProd}}</p>
-
-                  <div v-if="producto.mex_quantytotal < qty" class="font-weight-thin-black" style="font-size: 0.8em; color:#F72D04"> 
-                    <div v-if="((producto.mex_quantytotal - qty)*-1)==1">
-                      No hay stock disponible, se agregará 1 pz en forma de pedido.
-                    </div>
-                    <div v-else>
-                      No hay stock disponible, se agregarán <strong>{{(producto.mex_quantytotal - qty)*-1}}</strong> pzs en forma de pedido.
-                    </div>
-                  </div>  
+                  <center>
+                    <div v-if="producto.mex_quantytotal < qty" class="font-weight-thin-black" style="font-size: 0.8em; color:#F72D04"> 
+                      <div v-if="((producto.mex_quantytotal - qty)*-1)==1">
+                        No hay stock disponible, se agregará 1 pz en forma de pedido.
+                      </div>
+                      <div v-else>
+                        No hay stock disponible, se agregarán <strong>{{(producto.mex_quantytotal - qty)*-1}}</strong> pzs en forma de pedido.
+                      </div>
+                    </div>  
+                  </center>
                   <br>
                   <v-card-actions>
-                    <v-btn class="mx-auto" width="100%" large color="primary" @click="addtocar"  >
+                    <v-btn class="mx-auto white--text" width="100%" large color="primary" @click="addtocar"  >
                       Agregar Al Carrito
                     </v-btn>      
                   </v-card-actions>      
@@ -145,7 +148,7 @@
                 <v-col>
                     <br>
                     <v-card-actions>
-                      <v-btn class="mx-auto" width="100%" large color="primary" @click="menu('/shop/shopingcar/')" >
+                      <v-btn class="mx-auto white--text" width="100%" large color="primary" @click="menu('/shop/shopingcar/')" >
                         Ver carrito
                       </v-btn>  
                     </v-card-actions>

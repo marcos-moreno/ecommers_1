@@ -244,15 +244,16 @@
         </div>
         <v-container v-else style="min-height:700px" > 
             <v-alert type="success" text class="my-10"  border="left">
-                ¡Gracias por tu solicitud!
+                ¡Gracias por tu solicitud!<br>
                 Tu PRE-REGISTRO esta listo, nosotros te informaremos sobre el estatus de tu solicitud 
-                en un périodo máximo de 3 días hábiles (no olvides revisar también tu bandeja de correo no deseado).
+                en un périodo máximo de 3 días hábiles (no olvides revisar también tu bandeja de correo no deseado). 
+            </v-alert> 
+            <v-alert type="info" text class="my-10"  border="left"> 
                 <br>*En caso de no recibir la información en el plazo máximo favor de contactarnos vía WhatsApp.
-                <br>Para cualquier duda o aclaración comunicate al télefono 5551757108
-                <br>FOLIO DE SOLICITUD: {{solicitud.folio}}
+                <br>Para cualquier duda o aclaración comunicate al télefono 5551757108 
             </v-alert> 
             <div class="my-7">
-                Si tu comprobante no se descargo en automático
+                Si tu comprobante no se abrio en automático
                 <v-btn small text @click="acuse()" color="primary">
                     click aqui para descargar
                 </v-btn>
@@ -297,7 +298,7 @@
                 </tbody>
                 </template>
             </v-simple-table>
-          
+            <br><br><br><br><br>
         </v-container>
 
     </v-container>
@@ -871,7 +872,13 @@ export default {
             doc.text(45, finalY+18,'Para cualquier duda o aclaración comunicate al télefono 5551757108.')
             doc.setFontSize(8);
             doc.text(45, finalY+28,'Las compras en línea estarán disponibles a partir del 14 de JUNIO del 2021.')
-            doc.save('pre-registro.pdf'); 
+            // doc.save('pre-registro.pdf'); 
+            // doc.output();
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                window.open(doc.output("bloburl"), "_blank");   
+            } else {
+                doc.save('pre-registro.pdf');
+            } 
         }
         ,formatMXN(value) {
             var formatter = new Intl.NumberFormat('en-ES', {style: 'currency', currency: 'USD',});

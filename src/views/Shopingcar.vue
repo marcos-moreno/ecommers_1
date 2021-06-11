@@ -86,14 +86,23 @@
       </div>  
         <v-container>
             <v-card class="mx-auto" style="min-height:186px;"> 
-              <v-row>  
-                <v-col class="mx-auto text-end"> 
+              <!-- <v-row>   -->
+                <!-- <v-col class="mx-auto text-end"> 
                     Total <div style="font-size: 1em;color :#2DAD08">(Iva Incluido)</div>
-                </v-col>
-                <v-col class="mx-auto"> 
-                  <div style="font-size: 1.7em;">{{formatMXN(calculaTotalCar_fn())}} </div> 
-                </v-col>
-              </v-row>
+                </v-col> -->
+                <!-- <v-col class="mx-auto">  -->
+                  <center  >
+                    <br>
+                  <div style="font-size: 1.4em;">
+                    {{formatMXN(calculaTotalCar_fn())}}
+                  <br>
+                  Total
+                    <div style="font-size: .8em;color :#2DAD08">(Iva Incluido)</div>
+                   <br>
+                  </div> 
+                  </center>
+                <!-- </v-col> -->
+              <!-- </v-row> -->
 
               <v-row v-if="msgErro!=''" >  
                 <v-col class="mx-auto text-center"> 

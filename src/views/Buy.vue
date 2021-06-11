@@ -21,12 +21,8 @@
         {{msgError}}
       </v-alert>
 
-      <v-container v-if="isSucursal" style="min-height:656px;">
-        <v-card style="min-height:186px;">
-          <v-btn class="text-center" color="primary" text  @click="returnPago"
-            v-if="saleOrder.method_pay != 'paypal' && saleOrder.status_pay != 'pagado'"> 
-            <v-icon>mdi-arrow-left</v-icon>Cambiar forma de pago
-          </v-btn> 
+      <v-container v-if="calculaTotalCar_fn() >= montoMinimoCompra && isSucursal" style="min-height:656px;">
+        <v-card style="min-height:186px;"> 
           <p class="text-center" style="font-size: 2em;color :#909090">  
             ¿Dónde recolectarás tu compra?
           </p>  
@@ -37,7 +33,7 @@
                 <tbody> 
                   <tr v-for="sucursal in sucursales" :key="sucursal.value"> 
                     <td>
-                      <v-radio :disabled="sucursal.value != 'S6' && methodPay == 'EFE'" :label="sucursal.name" :value="sucursal.ad_org_id" >
+                      <v-radio :label="sucursal.name" :value="sucursal.ad_org_id" >
                       </v-radio>
                     </td>
                     <td>
@@ -75,8 +71,9 @@
             <br><br><br>
             <v-row>  
               <v-col class="mx-auto text-center"> 
-                <v-btn :disabled="sucursalSelec==0" @click="confirmarCompra"  class="mx-auto" color="primary" width="50%" large>
-                  CONFIRMAR COMPRA
+                <v-btn @click="nexSteepSucSelect()" 
+                 class="mx-auto" color="primary" width="50%" large>
+                  CONTINUAR
                 </v-btn>            
               </v-col> 
             </v-row> 
@@ -86,6 +83,9 @@
 
     <v-container v-if="isPay==true && calculaTotalCar_fn() >= montoMinimoCompra" style="min-height:656px;">
           <v-card style="min-height:186px;"> 
+            <v-btn class="text-center" color="primary" text  @click="returnSucursal()" > 
+              <v-icon>mdi-arrow-left</v-icon>Elegir otra sucursal
+            </v-btn> 
             <p class="text-center" style="font-size: 1em;color :#909090">  
              Elige tu método de pago   
             </p>  
@@ -135,16 +135,16 @@
                     </div>
                   </v-card> 
                 </v-col>
-                <v-col cols="12">
+                <v-col cols="12" >
                   <v-card color="#4E7394" dark>
                     <div class="d-flex flex-no-wrap justify-space-between">
                       <div>
                         <v-card-title class="text-h5">Pago en Sucursal</v-card-title>
-                        <v-card-subtitle >
-                          Tendrás 10 días como máximo para acreditar tu pago.
+                        <v-card-subtitle v-if="sucursalSelec != 1000005"> 
+                            Esta forma de pago solo esta disponible para la {{buscaSucursal(1000005)}}
                         </v-card-subtitle>
                         <v-card-actions>
-                          <v-radio-group v-model="methodPay"> 
+                          <v-radio-group v-model="methodPay" :disabled="sucursalSelec != 1000005"> 
                             <v-radio @click="changeMethodPay()" label="Pago en efectivo en Sucursal" value="EFE"  ></v-radio>
                           </v-radio-group>
                         </v-card-actions>
@@ -193,8 +193,9 @@
             <br><br><br> 
             <v-row>  
               <v-col class="mx-auto text-center"> 
-                <v-btn :disabled="enaContinueMPay" @click="payComplet" class="mx-auto" color="primary" width="50%" large>
-                  CONTINUAR
+                <v-btn 
+                @click="confirmarCompra()" class="mx-auto" style="color:#fff;" color="primary" width="250px" large>
+                  CONFIRMAR COMPRA
                 </v-btn>            
               </v-col> 
             </v-row> 
@@ -208,9 +209,10 @@
                 <img class="my-5" src="../../public/carrito-de-compras.svg" width="100px" />
               </center>
               <p class="text-center" style="font-size: 1.5em;color :#909090">  
-               La compra mínima es por el monto de<br> {{formatMXN(montoMinimoCompra)}} MXN
-               <br>El costo de tu carrito es de <br>{{calculaTotalCar}} MXN
-              </p> 
+               La compra mínima es por el monto de<br> {{formatMXN(montoMinimoCompra)}}
+               <br>El costo de tu carrito es de <br>{{formatMXN(calculaTotalCar_fn())}} 
+              </p>
+              <br> 
           </v-card> 
         </div>  
       </v-container> 
@@ -248,7 +250,7 @@ export default {
   data() {
     return { 
       sucursalSelec : 0 
-      ,diarecoleccion : ""
+      ,diarecoleccion : null
       ,diasEntrega : []
       ,montoMinimoCompra : 50
       ,msgFactura : ''
@@ -319,7 +321,7 @@ export default {
       this.menu('/shop/Login/');
     }
     this.isLoad = false;  
-    this.isPay = true; 
+    this.isSucursal = true; 
   }
   ,methods: { 
     async movementSuc(){ 
@@ -385,36 +387,52 @@ export default {
       result.setDate(result.getDate() + days);
       return result;
     },
-    async confirmarCompra(){
-      if (this.sucursalSelec > 0) {
-        this.isLoad = true;
-        this.saleOrder.fechaprometida = this.diarecoleccion.date; 
-        this.saleOrder.ad_org_recpt_id = this.sucursalSelec;
-        if (this.methodPay  == "CRE" || this.methodPay  == "EFE") {
-          const resIns = await this.insertSaleOrder()
-          if (resIns)this.menu("/shop/purchases");  
-        }else if(this.methodPay  == "paypal" && this.saleOrder.status_pay == "pagado"){
-          const resUpd = await this.updateSaleOrder(); 
-          if (resUpd)this.menu("/shop/purchases");  
-        }
-       this.isLoad = false;
+    buscaSucursal(idOrg){ 
+      let nombreSucursal = "";
+      this.sucursales.forEach(element => {
+        if (element.ad_org_id == idOrg)nombreSucursal = element.name;
+      });
+      return nombreSucursal;
+    }
+    ,async confirmarCompra(){ 
+      window.scrollTo(0,0);
+      if (this.methodPay==0) {
+        this.msgError = "Por favor selecciona una forma de pago.";
+        return;
       }else{
-        this.sucursalSelec = 0;
-      }
+        this.msgError = "";
+      } 
+      // if (this.sucursalSelec > 0) {
+
+      this.isLoad = true; 
+      const resIns = await this.insertSaleOrder()
+      if (resIns)this.menu("/shop/purchases");  
+      this.isLoad = false;
+        
+        // else if(this.methodPay  == "paypal" && this.saleOrder.status_pay == "pagado"){
+        //   // const resUpd = await this.updateSaleOrder(); 
+        //   // if (resUpd)this.menu("/shop/purchases");  
+        // } 
+
+      // }else{
+      //   this.sucursalSelec = 0;
+      // }
     },
-    async updateSaleOrder(){  
-      const result =  await axios.put(config.apiAdempiere + "/saleorder/updatebyID_auth", 
-                                      this.saleOrder,{headers:{'token': this.$cookie.get('token')}})
-      .then(res=>{ 
-        if(res.data.data.status != "success")return true; else return false;
-      }).catch(err=>{
-        console.log(err);
-        this.msgError = err;
-        return false;
-      });    
-      return result;    
-    },
+    // async updateSaleOrder(){  
+    //   const result =  await axios.put(config.apiAdempiere + "/saleorder/updatebyID_auth", 
+    //                                   this.saleOrder,{headers:{'token': this.$cookie.get('token')}})
+    //   .then(res=>{ 
+    //     if(res.data.data.status != "success")return true; else return false;
+    //   }).catch(err=>{
+    //     console.log(err);
+    //     this.msgError = err;
+    //     return false;
+    //   });    
+    //   return result;    
+    // },
     async insertSaleOrder(){
+      this.saleOrder.fechaprometida = this.diarecoleccion.date; 
+      this.saleOrder.ad_org_recpt_id = this.sucursalSelec;
       this.saleOrder.isfactura = this.factura;  
       this.saleOrder.emailClient = this.user.email;  
       this.saleOrder.nombre_cliente = this.user.cpname;  
@@ -432,11 +450,11 @@ export default {
       });
       if(result.status == "success"){ 
         this.saleOrder = result.data;  
-        console.log("RESULTADO DE LA ORDEN:");
-        console.log(this.saleOrder);
+        // console.log("RESULTADO DE LA ORDEN:");
+        // console.log(this.saleOrder);
         this.emptyCar();
         return true;
-      }else{
+      }else{ 
         window.scrollTo(0,0);
         if (result.data == "Error Interno") {
           this.msgError = "Existe un error, por favor Comuníquese con el soporte al número: 55 51757108";
@@ -469,9 +487,9 @@ export default {
       this.saleOrder.method_pay = "paypal";
       this.methodPay = "paypal";   
     }, 
-    returnPago() {
-      this.isPay = true;
-      this.isSucursal = false; 
+    returnSucursal() {
+      this.isPay = false;
+      this.isSucursal = true; 
     },
     paymentCompleted: async function (data) {
       if (data.state == "approved") {
@@ -481,13 +499,7 @@ export default {
         this.methodPay = "paypal";
         try {
           const OSInsert = await this.insertSaleOrder(); 
-          if (this.saleOrder._id != "" && OSInsert) {
-            this.msgSucces = "Pago Procesado Exitosamente";
-            this.changeMethodPay();
-            this.isPay = false;
-            this.isSucursal = true;
-            window.scrollTo(0,0);
-          }
+          if (OSInsert)this.menu("/shop/purchases");   
         } catch (error) {
           console.log(error);
         }
@@ -539,7 +551,11 @@ export default {
         doc.text(64,340,`Fecha transacción:`);
         doc.text(160,340,`${this.formatDate(data.transactions[0].related_resources[0].sale.create_time)} ${this.formatTime(data.transactions[0].related_resources[0].sale.create_time)}
         `); 
-        doc.save(`comprobante de pago${data.transactions[0].related_resources[0].sale.id}.pdf`); 
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            window.open(doc.output("bloburl"), "_blank");   
+        } else {
+            doc.save(`comprobante de pago${data.transactions[0].related_resources[0].sale.id}.pdf`);
+        }
     },
     formatDate(dates) { 
         var month= ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio",
@@ -571,20 +587,38 @@ export default {
       this.enaContinueMPay = true; 
       this.methodPay = 0;
     },
-    payComplet(){ 
-      if ((this.saleOrder.method_pay == "paypal" && this.saleOrder.status_pay == "pagado" )
-            || this.saleOrder.method_pay  == "CRE" 
-            || this.saleOrder.method_pay  == "EFE" 
-      ){
-        if (this.saleOrder.method_pay  == "EFE" ) {
-          this.sucursalSelec = "";
-        }
-        this.isPay = false;
-        this.isSucursal = true;
-        window.scrollTo(0,0);
+    nexSteepSucSelect(){ 
+      window.scrollTo(0,0);
+      if (this.sucursalSelec==0 || this.diarecoleccion == null) {
+        this.msgError = "Por favor selecciona los datos para tu entrega.";
+        return;
       }else{
-        this.enaContinueMPay = true; 
+        this.msgError = "";
       }
+      this.methodPay = 0;
+      if (parseInt(this.sucursalSelec) > 0) {
+        if (this.diarecoleccion == null) {
+          this.for
+          this.msgError = "Por favor indica tu horario de entrega.";
+        }else{
+          this.isPay = true;
+          this.isSucursal = false;
+        }
+      } 
+      // if ((this.saleOrder.method_pay == "paypal" && this.saleOrder.status_pay == "pagado" )
+      //       || this.saleOrder.method_pay  == "CRE" 
+      //       || this.saleOrder.method_pay  == "EFE" 
+      // ){
+      
+      // if (this.saleOrder.method_pay  == "EFE" ) {
+      //     this.sucursalSelec = "";
+      //   }
+      //   this.isPay = false;
+      //   this.isSucursal = true;
+      //   window.scrollTo(0,0);
+      // }else{
+      //   this.enaContinueMPay = true; 
+      // }
     },
     calculaTotalCar_fn(){
       let total = 0;

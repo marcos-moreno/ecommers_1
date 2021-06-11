@@ -441,8 +441,11 @@ export default {
                 for (let index = 0; index < this.preRegistros.length; index++) {
                     this.preRegistros[index].tipoSolicitante = this.preRegistros[index].tipoSolicitante[0];
                 }
-            }else
-                this.preRegistros = [];  
+            }else if(this.preRegistros.status == "unauthorized"){ 
+                this.$router.push('/shop/admin'+config.matchAdmin+'/login');
+            }else{
+                this.preRegistros = [];         
+            } 
             this.usosCFDI = await axios.get(config.apiAdempiere + "/preregistro/get_uso_cfdi",{})
             .then(res=>{return res.data;})
             .catch(err=>{return err;});

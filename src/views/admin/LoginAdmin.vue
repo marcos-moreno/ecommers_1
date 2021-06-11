@@ -55,7 +55,7 @@
                     @click:append="showPassw" v-model="password"
                 ></v-text-field> 
               </v-container>
-              <v-btn class="my-5 mx-auto" width="80%" large color="primary" @click="login" >
+              <v-btn class="my-5 mx-auto white--text" width="80%" large color="primary" @click="login" >
                 Continuar
               </v-btn> 
             </v-row>

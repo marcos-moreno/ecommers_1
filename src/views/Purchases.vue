@@ -43,7 +43,7 @@
                             <v-col cols="6" sm="4">
                                 <div>Estado del pago</div> 
                                 <div style="color :#000"> 
-                                  {{purchase.status_pay}}
+                                  {{purchase.status_pay=="pendiente"?"Pendiente": (purchase.status_pay=="pagado"?"Pagado": purchase.status_pay)}} 
                                 </div>
                             </v-col>
                             <v-col cols="6" sm="4">
@@ -54,13 +54,26 @@
                             </v-col>
                             <v-col  cols="6" sm="4">
                                 <div>Entrega</div> 
-                                <div style="color :#000">{{purchase.status_entrega}}</div>
+                                <div style="color :#000"> 
+                                  {{purchase.status_entrega=="pendiente"?"Pendiente": 
+                                  (purchase.status_entrega=="entregado"?"Entregado": purchase.status_entrega)}} 
+
+                                </div>
                             </v-col>
                             <v-col  cols="6" sm="4">
                                 <div>Fecha Compra</div>
                                 <div style="color :#000">{{formatDate(purchase.created_at)}} {{formatTime(purchase.created_at)}}</div>
                             </v-col> 
+                            
                             <v-col  cols="6" sm="4">
+                                <div>Entrega en</div>
+                                <div style="color :#000">{{buscaSucursal(purchase.ad_org_recpt_id)}}</div>
+                            </v-col> 
+                            <v-col  cols="6" sm="4">
+                                <div>Fecha programada para la entrega</div>
+                                <div style="color :#000">{{formatDate(purchase.fechaprometida)}}</div>
+                            </v-col> 
+                            <!-- <v-col  cols="6" sm="4">
                                 <v-btn x-small text color="primary" >
                                     Ver Entregas
                                 </v-btn>
@@ -69,7 +82,7 @@
                                 <v-btn x-small text color="primary" >
                                     Ver Factura
                                 </v-btn>
-                            </v-col> 
+                            </v-col>  -->
                         </v-row>  
                         </v-container>
 
@@ -141,7 +154,8 @@ export default {
       isLogged : false,
       user : {},
       isLoad : false, 
-      msgErro : ""
+      msgErro : "",
+      sucursales:[]
     }; 
   }, 
   async created() {
@@ -149,6 +163,7 @@ export default {
     await this.validaLogin();
     if (this.isLogged) {
       await this.allPurchases();
+      await this.allSucursales();
     }else{
       this.menu('/shop/Login/');  
     } 
@@ -158,6 +173,20 @@ export default {
         'app-menu': AppMenu, 
   },
   methods: { 
+    async allSucursales(){  
+        this.sucursales = await axios.get(config.apiAdempiere + "/sucursal/get_auth", 
+        {
+          'headers': { 'token': this.$cookie.get('token') }
+        }).then(res=>{return res.data.data;})
+        .catch(err=>{return err;}); 
+    },
+    buscaSucursal(idOrg){ 
+      let nombreSucursal = "";
+      this.sucursales.forEach(element => {
+        if (element.ad_org_id == idOrg)nombreSucursal = element.name;
+      });
+      return nombreSucursal;
+    },
     async mounted() {    
       window.scrollTo(0,0);
     },
@@ -183,8 +212,7 @@ export default {
         {
           'headers': { 'token': this.$cookie.get('token') }
         }).then(res=>{return res.data;})
-        .catch(err=>{return err;});  
-        console.log(puchases);
+        .catch(err=>{return err;});   
         if (puchases.status == "success") { 
             this.purchases = puchases.data; 
             for (let ip = 0; ip < this.purchases.length; ip++) {  

@@ -238,7 +238,7 @@ export default {
                 i++;
             }
             this.solicitud.montPreAprobed = this.formatMXN(this.solicitud.montPreAprobed);
-        }, 
+        },
         async getCollections(){
             this.isLoad = true;
             this.accounts = await axios.get(
@@ -247,7 +247,10 @@ export default {
                 data:{filer: {}}
             }).then(res=>{return res.data;})
             .catch(err=>{return err;}); 
-            if (this.accounts.status == "success") this.accounts = this.accounts.data;  
+            if (this.accounts.status == "success") this.accounts = this.accounts.data; 
+            if(this.preRegistros.status == "unauthorized"){ 
+                this.$router.push('/shop/admin'+config.matchAdmin+'/login');
+            } 
             else this.accounts = [];   
             this.isLoad = false;
         },
