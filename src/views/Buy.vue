@@ -135,16 +135,16 @@
                     </div>
                   </v-card> 
                 </v-col>
-                <v-col cols="12" >
+                <v-col cols="12" v-if="sucursalSelec == 1000005" >
                   <v-card color="#4E7394" dark>
                     <div class="d-flex flex-no-wrap justify-space-between">
                       <div>
                         <v-card-title class="text-h5">Pago en Sucursal</v-card-title>
-                        <v-card-subtitle v-if="sucursalSelec != 1000005"> 
+                        <!-- <v-card-subtitle > 
                             Esta forma de pago solo esta disponible para la {{buscaSucursal(1000005)}}
-                        </v-card-subtitle>
-                        <v-card-actions>
-                          <v-radio-group v-model="methodPay" :disabled="sucursalSelec != 1000005"> 
+                        </v-card-subtitle> -->
+                        <v-card-actions> <!--:disabled="sucursalSelec != 1000005"-->
+                          <v-radio-group v-model="methodPay" > 
                             <v-radio @click="changeMethodPay()" label="Pago en efectivo en Sucursal" value="EFE"  ></v-radio>
                           </v-radio-group>
                         </v-card-actions>

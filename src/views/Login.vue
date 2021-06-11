@@ -98,7 +98,7 @@
                     
                   <v-container style="width:90%" class="my-2 mx-auto">
                     <v-text-field :append-icon="showPasswC1 ? 'mdi-eye' : 'mdi-eye-off'"
-                        :type="showPasswC1 ? 'text' : 'password'" label="Contraseña" v-model="password1"
+                        :type="showPasswC1 ? 'text' : 'password'" label="Contraseña mínimo 8 caracteres" v-model="password1"
                         @click:append="showPasswC1 == true ? showPasswC1 = false : showPasswC1 = true;"
                         onkeydown="javascript: return event.keyCode == 32 ? false : true"
                     ></v-text-field> 
@@ -106,7 +106,7 @@
 
                   <v-container style="width:90%" class="my-2 mx-auto">
                     <v-text-field :append-icon="showPasswC2 ? 'mdi-eye' : 'mdi-eye-off'"
-                        :type="showPasswC2 ? 'text' : 'password'" label="Repite tu contraseña"
+                        :type="showPasswC2 ? 'text' : 'password'" label="Repite tu contraseña mínimo 8 caracteres"
                         @click:append="showPasswC2 == true ? showPasswC2 = false : showPasswC2 = true;"
                         v-model="password2"
                         onkeydown="javascript: return event.keyCode == 32 ? false : true"
