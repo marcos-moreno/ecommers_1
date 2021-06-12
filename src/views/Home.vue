@@ -200,7 +200,7 @@ export default {
       } 
       window.scrollTo(0,0);
     },formatMXN(value) {
-      var formatter = new Intl.NumberFormat('es-MX', {style: 'currency', currency: 'MXN',});
+      var formatter = new Intl.NumberFormat('en-ES', {style: 'currency', currency: 'USD',});
       return formatter.format(value);
     },seeProduct(value){  
       this.$router.push('/shop/Product/'+value+'/home/'+ this.page)

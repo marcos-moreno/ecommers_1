@@ -686,7 +686,7 @@ export default {
         .catch(err=>{return err;}); 
     }  
     ,formatMXN(value) {
-        var formatter = new Intl.NumberFormat('es-MX', {style: 'currency', currency: 'MXN',});
+        var formatter = new Intl.NumberFormat('en-ES', {style: 'currency', currency: 'USD',});
         return `${formatter.format(value)} MXN`;
     }, 
     creditoDisponible(){

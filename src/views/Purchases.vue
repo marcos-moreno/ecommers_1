@@ -245,7 +245,7 @@ export default {
       this.$router.push('/shop/Product/'+value+"/purchases/0");
     }
     ,formatMXN(value) {
-        var formatter = new Intl.NumberFormat('es-MX', {style: 'currency', currency: 'MXN',});
+        var formatter = new Intl.NumberFormat('en-ES', {style: 'currency', currency: 'USD',});
         return `MXN ${formatter.format(value)}`;
     },
     formatDate(dates) { 

@@ -21,7 +21,7 @@
           </v-card-text> 
           <v-divider class="mx-4">Costos</v-divider>
           <v-card-title >
-            $ {{ producto.l0 }}
+            $ {{ formatMXN(producto.l0) }}
           </v-card-title> 
           <v-card-text>  
             <div class="my-4 subtitle-1">
@@ -82,6 +82,10 @@ export default {
           this.isLogged = false;
         }  
     }
+    ,formatMXN(value) {
+          var formatter = new Intl.NumberFormat('en-ES', {style: 'currency', currency: 'USD',});
+          return formatter.format(value);
+    } 
     ,async allProduct(){
       let uri = this.isLogged ? config.apiAdempiere + "/productos/all" : config.apiAdempiere + "/productos/all";
       this.productos = await axios.get(uri,{'headers': { 'token': this.$cookie.get('token') }})
