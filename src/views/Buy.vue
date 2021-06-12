@@ -251,7 +251,7 @@ export default {
       sucursalSelec : 0 
       ,diarecoleccion : null
       ,diasEntrega : []
-      ,montoMinimoCompra : 50
+      ,montoMinimoCompra : 1000
       ,msgFactura : ''
       ,typeMsgFactura : ''
       ,productos : []
