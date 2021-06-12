@@ -246,12 +246,11 @@ export default {
                 { headers:{token: this.$cookie.get('token')}, 
                 data:{filer: {}}
             }).then(res=>{return res.data;})
-            .catch(err=>{return err;}); 
+            .catch(err=>{return err;});  
             if (this.accounts.status == "success") this.accounts = this.accounts.data; 
-            if(this.preRegistros.status == "unauthorized"){ 
+            if(this.accounts.status == "unauthorized"){ 
                 this.$router.push('/shop/admin'+config.matchAdmin+'/login');
-            } 
-            else this.accounts = [];   
+            }  
             this.isLoad = false;
         },
         async refresh(){

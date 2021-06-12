@@ -43,17 +43,23 @@
           <v-col sm="6" md="4"> 
             <v-row no-gutters>
               <v-col md="4">
+                <!-- @click="qtyMovement(producto,'0')"  v-on:keyup="qtyMovement(producto,'0')"  -->
                 <v-text-field class="centered-input text--darken-3 mt-3" 
                   v-model="producto.cantidad" type="number" label="Cantidad"
-                  append-outer-icon="mdi-plus" @click:append-outer="qtyMovement(producto,'+')" 
-                  prepend-icon="mdi-minus" @click:prepend="qtyMovement(producto,'-')" 
-                  v-on:keyup="qtyMovement(producto,'0')" @click="qtyMovement(producto,'0')" 
+                  append-outer-icon="mdi-plus" 
+                  @click:append-outer="qtyMovement(producto,'+')" 
+                  @click:prepend="qtyMovement(producto,'-')"
+                  @blur="qtyMovement(producto,'0')"
+                  prepend-icon="mdi-minus"   
                   onkeydown="javascript: return event.keyCode == 69 ? false : true" 
                   style="min-width: 120px;height: 50px;font-size: .9em;"
                 ></v-text-field>   
-                 <p class="font-weight-thin-black text-center" style="font-size: 0.85em;">
-                  {{producto.mex_quantytotal}} disponibles
-                </p>
+                <p class="font-weight-thin-black text-center" style="font-size: 0.85em;">
+                  {{producto.mex_quantytotal}} {{producto.mex_quantytotal == 1 ?"disponible":"disponibles"}}
+                  <center v-if="producto.total < producto.cantidad" style="font-size: .8em;color:#920505;">
+                    {{(producto.total == 1) ? "El límite de compra es 1 pza." : `El límite de compra son ${producto.total} pzas.` }}
+                  </center>
+                </p> 
               </v-col> 
               <v-col> 
                 <div class="font-black text-center" style=" font-size: 0.8em;">{{formatMXN(producto.l0)}} c/u.</div>
@@ -71,10 +77,10 @@
               <v-col cols="6"  > 
                   <div v-if="producto.mex_quantytotal < producto.cantidad" style="font-size: 0.8em; color:#F72D04"> 
                       <div v-if="((producto.mex_quantytotal - producto.cantidad)*-1)==1">
-                        No hay stock disponible, se agregará 1 pz en forma de pedido.
+                        No hay stock disponible, se agregará 1 pza en forma de pedido.
                       </div>
                       <div v-else>
-                        No hay stock disponible, se agregarán <strong>{{(producto.mex_quantytotal - producto.cantidad)*-1}}</strong> pzs en forma de pedido.
+                        No hay stock disponible, se agregarán <strong>{{(producto.mex_quantytotal - producto.cantidad)*-1}}</strong> pzas en forma de pedido.
                       </div>
                   </div> 
               </v-col>
@@ -104,7 +110,7 @@
                 <!-- </v-col> -->
               <!-- </v-row> -->
 
-              <v-row v-if="msgErro!=''" >  
+              <v-row v-if="msgErro!=''" style="margin:20px" >  
                 <v-col class="mx-auto text-center"> 
                   <v-alert dense outlined type="error" >
                     {{msgErro}}
@@ -115,7 +121,7 @@
           
               <v-row>  
                 <v-col class="mx-auto text-center"> 
-                  <v-btn @click="completarComprar" class="mx-auto" color="primary" width="60%" large>
+                  <v-btn @click="completarComprar()" class="mx-auto" color="primary" width="60%" large>
                     CONTINUAR COMPRA
                   </v-btn>            
                 </v-col> 
@@ -205,7 +211,7 @@ export default {
     },
     completarComprar(){ 
       if (!this.validarProductos()) {
-        this.msgErro = "La cantidad de algun producto de tu carrito no es válida.";
+        this.msgErro = "Las cantidades de tu carrito no son válidas.";
       }else{
         this.msgErro = "";
         this.$router.push('/shop/Buy/')
@@ -215,9 +221,9 @@ export default {
       for (let index = 0; index < this.productos.length; index++) {
         try {
           const element = this.productos[index];
-          if (!this.isInt(element.cantidad) != element.cantidad < 1 || element.cantidad ==  "") {
+          if (!this.isInt(element.cantidad) != element.cantidad < 1 || element.cantidad ==  "" || element.cantidad > element.total) {
             return false;
-          }  
+          } 
         } catch (error) {
           return false; 
         }
@@ -228,14 +234,22 @@ export default {
       try {
         if (this.isInt(producto.cantidad)) {
           if (vl == '+') {
-            producto.cantidad = parseInt(producto.cantidad) + 1;
+            if (producto.cantidad >= producto.total) {
+              producto.cantidad = producto.total; 
+            }else{
+              producto.cantidad = parseInt(producto.cantidad) + 1;
+            } 
           }else  if (vl == '-') {
             if (parseInt(producto.cantidad) > 1) {
                 producto.cantidad = parseInt(producto.cantidad) - 1;
             }
-          } 
+          }
+
           if (producto.cantidad < 0) {
              producto.cantidad = producto.cantidad * -1;
+          }
+          if (producto.cantidad >= producto.total) {
+            producto.cantidad = producto.total; 
           }
         }else{
           if (producto.cantidad != "") {
@@ -324,17 +338,25 @@ export default {
         return `${formatter.format(value)} MXN`;
     },
     calculaTotalCar_fn(){
-      let total = 0;
-      for (let index = 0; index < this.productos.length; index++) {
-        try {
-          const element = this.productos[index];
-          let subtotal =  (parseInt(element.cantidad) * parseFloat(element.siniva) * 1.16000000).toFixed(2);
-          total += parseFloat(subtotal);
-        } catch (error) { 
-          return null;
-        } 
-      }   
-      return parseFloat(total).toFixed(2);
+      try {
+        let total = 0;
+        for (let index = 0; index < this.productos.length; index++) {
+          try {
+            const element = this.productos[index];
+            let subtotal =  (parseInt(element.cantidad) * parseFloat(element.siniva) * 1.16000000).toFixed(2);
+            total += parseFloat(subtotal);
+          } catch (error) { 
+            return null;
+          } 
+        }
+        if (Number.isNaN(total)) {
+          return 0;
+        }else{
+          return parseFloat(total).toFixed(2);  
+        }
+      } catch (error) {
+        return 0;
+      }
     },
   },
   computed:{ 

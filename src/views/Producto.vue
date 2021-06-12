@@ -13,7 +13,7 @@
       </v-dialog>
     </div>
     <v-container>
-      <v-row >
+      <v-row>
         <v-col cols="12" sm="4">
           <v-btn icon color="blue" @click="returnOrigen"> <v-icon>mdi-arrow-left</v-icon>volver</v-btn>
         </v-col>
@@ -67,15 +67,19 @@
                     <v-row>
                       <v-col>
                         <center>
+                          <!-- v-on:keyup="qtyMovement('0')"  @click="qtyMovement('0')" -->
                           <v-text-field class="centered-input text--darken-3 mt-3" style="width:300px" 
                             v-model="qty" type="number" label="Cantidad"
-                            append-outer-icon="mdi-plus" @click:append-outer="qtyMovement('+')" 
-                            prepend-icon="mdi-minus" @click:prepend="qtyMovement('-')" 
-                            v-on:keyup="qtyMovement('0')" @click="qtyMovement('0')" 
+                            append-outer-icon="mdi-plus" 
+                             prepend-icon="mdi-minus"
+                            @click:append-outer="qtyMovement('+')" 
+                            @click:prepend="qtyMovement('-')"
+                            @blur="qtyMovement('0')"
                             onkeydown="javascript: return event.keyCode == 69 ? false : true" 
                           ></v-text-field>
                           <p style="font-size: 0.9em; color:#909090">
-                            {{producto.mex_quantytotal}} disponible
+                            {{producto.mex_quantytotal}} {{producto.mex_quantytotal == 1 ?"disponible":"disponibles"}}
+                            <!-- <br>{{producto.total}} limite de compra -->
                           </p>
                         </center>
                        
@@ -88,10 +92,10 @@
                   <center>
                     <div v-if="producto.mex_quantytotal < qty" class="font-weight-thin-black" style="font-size: 0.8em; color:#F72D04"> 
                       <div v-if="((producto.mex_quantytotal - qty)*-1)==1">
-                        No hay stock disponible, se agregará 1 pz en forma de pedido.
+                        No hay stock disponible, se agregará 1 pza en forma de pedido.
                       </div>
                       <div v-else>
-                        No hay stock disponible, se agregarán <strong>{{(producto.mex_quantytotal - qty)*-1}}</strong> pzs en forma de pedido.
+                        No hay stock disponible, se agregarán <strong>{{(producto.mex_quantytotal - qty)*-1}}</strong> pzas en forma de pedido.
                       </div>
                     </div>  
                   </center>
@@ -255,10 +259,19 @@ export default {
         this.isLoad = true;
         if (this.isLogged) {
           if (this.isInt(this.qty) && this.qty > 0) { 
+            if (this.qty > this.producto.total) {
+              if (this.producto.total == 1) {
+                this.msgErro = "El límite de compra es 1 pza.";
+              }else{
+                this.msgErro = "El límite de compra son " + this.producto.total + " pzas.";
+              } 
+              this.isLoad = false; 
+              return;
+            }
             this.agregado = await axios.post(config.apiAdempiere + "/shopingcar/add_auth", 
             {value: this.producto.value, cantidad : this.qty},{headers:{'token': this.$cookie.get('token')}})
             .then(res=>{ 
-              if(res.data.status == "success"){ 
+              if(res.data.status == "success"){
                 return true;
               }else{
                 console.log(res.data.status);
@@ -285,20 +298,27 @@ export default {
         var x;
         return isNaN(value) ? !1 : (x = parseFloat(value), (0 | x) === x);
     },
-    async qtyMovement(vl){ 
-        try {
-          if (this.isInt(this.qty)) {
-
+    async qtyMovement(vl){
+        try { 
+          if (this.isInt(this.qty)) { 
             if (vl == '+') {
+              // if (this.qty >= this.producto.total) {
+              //   this.qty = this.producto.total; 
+              // }else{
+                
+              // } 
               this.qty  = parseInt(this.qty) + 1;
             }else  if (vl == '-') {
               if ( parseInt(this.qty)  > 1) {
                   this.qty =  parseInt(this.qty)  - 1;
               }
-            } 
+            }
             if (this.qty < 0) {
-             this.qty = this.qty * -1;
-            } 
+              this.qty = this.qty * -1;
+            }
+            // if (this.qty >= this.producto.total) {
+            //     this.qty = this.producto.total; 
+            // }
           }else{
             if (this.qty != "") {
               this.qty = 0;

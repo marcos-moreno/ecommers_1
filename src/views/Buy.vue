@@ -265,8 +265,8 @@ export default {
       ,isSucursal : false
       ,enaContinueMPay : true  
       ,credentials: {
-        sandbox: 'AW5asrqUKWfdNKSSMapnfEqBmXDOAqZ1r_BbfqOZbHDOukjMKDvNtqm5JGovrOzoG8xDan2kBXJbbZfT',
-        production: 'AbEpHVkInyW2GzxG2fWPaLwvikiDqD2zh08oTUzEKuUsoq9Aq-OSybEHv2d1aQsH5CjbJglP3xnPY29S'
+        sandbox: 'AaqPS8vx_7boWNjia6clQTonhe_CrQWvMlh5eMbTMDW4EOaNd9U23VV-2-CfQ-OLKAruxMgu6r267Hjh',
+        production: 'Ab2m7GTOLB6Tt3y0fMw9rEdymmks8QWZG9QT9xiX7-KiIXYBpzuTfzJ5rr7wH8D-lTsWcL3gwkqRIrW3'
       }
       ,payProducts: []
       ,paypalStyle: {label:'checkout',size:'responsive',shape:'pill',color:'blue'}
