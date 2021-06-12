@@ -20,14 +20,24 @@
             <v-col cols="12" sm="10" md="8" lg="6" >
               <v-card ref="form"> 
                 <v-card-text> 
-                  <v-text-field ref="name" v-model="user.username" label="Nombre" required></v-text-field>
+                  <!-- <v-text-field ref="name" v-model="user.username" label="Nombre" required></v-text-field>
                   <v-text-field ref="name" v-model="user.phone2" label="Celular" required></v-text-field>
-                  <v-text-field disabled ref="name" v-model="user.value" label="No. Cliente" required></v-text-field>
-                  <v-text-field disabled ref="name" :value="formatMXN(user.so_creditlimit) + ' MXN'" 
+                  <v-text-field ref="name" v-model="user.value" label="No. Cliente" required></v-text-field>
+                  <v-text-field ref="name" :value="formatMXN(user.so_creditlimit) + ' MXN'" 
                    label="Limite de Crédito" required></v-text-field>
-                  <v-text-field disabled ref="name" :value="formatMXN(user.so_creditused) + ' MXN'" 
-                   label="Crédito Usado" required></v-text-field>
-                  <!-- {{user}} -->
+                  <v-text-field  ref="name" :value="formatMXN(user.so_creditused) + ' MXN'" label="Crédito Usado" required></v-text-field> -->
+                  
+                  <v-card-text> Nombre <br>{{user.username}}</v-card-text>
+                  <v-divider></v-divider>
+                  <v-card-text> Celular <br>{{user.phone2}}</v-card-text>
+                  <v-divider></v-divider>
+                  <v-card-text> No. Cliente <br>{{user.value}}</v-card-text>
+                  <v-divider></v-divider>
+                  <v-card-text> Limite de Crédito <br>{{formatMXN(user.so_creditlimit) + ' MXN'}}</v-card-text>
+                  <v-divider></v-divider>
+                  <v-card-text> Nombre <br>{{user.username}}</v-card-text>
+                  <v-divider></v-divider>
+
                 </v-card-text> 
                 <v-divider class="mt-12"></v-divider> 
               </v-card>
@@ -39,12 +49,18 @@
           <v-row justify="center">
             <v-col cols="12" sm="10" md="8" lg="6" >
               <v-card ref="form">
-                <v-card-text> 
+                  <!-- 
+                <v-card-text>   
                   <v-text-field ref="name" v-model="user.email" label="Email" required></v-text-field>
                   <v-text-field ref="name" v-if="user.taxid != 'XAXX010101000'" 
-                  v-model="user.taxid" label="RFC" required></v-text-field>
+                  v-model="user.taxid" label="RFC" required></v-text-field> 
                 </v-card-text> 
-                <v-divider class="mt-12"></v-divider> 
+                  -->
+                  <v-card-text> user.email <br>{{user.email}}</v-card-text>
+                  <v-divider></v-divider>
+                  <v-card-text v-if="user.taxid != 'XAXX010101000'" > RFC <br>{{user.taxid}}    </v-card-text>
+                  <v-divider></v-divider>
+                   <br><br>
               </v-card>
             </v-col>
           </v-row>  

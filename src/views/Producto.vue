@@ -133,12 +133,12 @@
             </v-card> 
         </v-row>  
       </v-row> 
-      <v-row v-else no-gutters class="my-12 mx-auto">
+      <v-row v-else no-gutters class="my-1 mx-auto">
           <v-container  style="min-height:556px;"  >
           <div >
             <v-card style="min-height:186px;"> 
-              <v-row>
-                <v-col cols="12" sm="6" md="2"> 
+              <v-row style="margin:20px">
+                <v-col  cols="12" sm="6" md="2"> 
                   <v-img width="200px" :src="producto.img"></v-img>
                 </v-col>
                 <v-col cols="12" sm="6" md="6">
@@ -154,6 +154,13 @@
                     <v-card-actions>
                       <v-btn class="mx-auto white--text" width="100%" large color="primary" @click="menu('/shop/shopingcar/')" >
                         Ver carrito
+                      </v-btn>  
+                    </v-card-actions>
+
+                     <v-card-actions>
+                      <v-btn class="mx-auto white--text" width="100%" large color="success" @click="menu('/shop/')" >
+                        Seguir comprando
+                        <v-icon right dark>mdi-shopping</v-icon>
                       </v-btn>  
                     </v-card-actions>
                 </v-col>
@@ -206,11 +213,9 @@ export default {
   },
   components: { 
       'app-menu': AppMenu, 
-  },
-  async mounted() {    
-    window.scrollTo(0,0);
   }, 
   async created(){ 
+    window.scrollTo(0,0);
     this.isMobile();
     this.isLoad = true;
     await this.validaLogin(); 

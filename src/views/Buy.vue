@@ -173,9 +173,8 @@
                          -->
                           <PayPal 
                             :amount="calculaTotalCar_fn().toString()"
-                            currency="MXN" 
+                            currency="MXN"
                             :client="credentials"  
-                            env="sandbox"
                             v-on:payment-authorized="paymentAuthorized"
                             v-on:payment-completed="paymentCompleted"
                             v-on:payment-cancelled="paymentCancelled"

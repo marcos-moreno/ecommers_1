@@ -126,6 +126,7 @@
       <div>
         <v-card style="min-height:186px;"> 
             <p class="text-center" style="font-size: 2em;color :#909090">  
+              <br> 
              Aún no tienes compras.
             </p> 
         </v-card> 

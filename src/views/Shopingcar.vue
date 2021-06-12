@@ -134,7 +134,8 @@
     <v-container v-if="shopingcarlength == 0 && isLoad == false"  style="min-height:656px;"  >
       <div>
         <v-card style="min-height:186px;"> 
-            <p class="text-center" style="font-size: 2em;color :#909090">  
+          <br><br>
+            <p class="text-center my-5" style="font-size: 2em;color :#909090">  
              Tu carrito está vacío  
             </p> 
         </v-card> 

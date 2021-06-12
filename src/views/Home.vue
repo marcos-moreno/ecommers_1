@@ -85,7 +85,7 @@ export default {
       productos : [],
       productosPaginator : [],
       lengthPaginator:0,
-      totalPage:12,
+      totalPage:8,
       isLogged : false,
       user : {},
       isLoad : false,
@@ -194,7 +194,7 @@ export default {
           element.img = "../../noImg.png";
         } 
         this.productosPaginator.push(element);
-        if (index == fin-1) {
+        if (index == fin) {
           this.isLoad = false;   
         }
       } 

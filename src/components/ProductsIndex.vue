@@ -57,7 +57,7 @@ export default {
       productos : [],
       productosPaginator : [],
       lengthPaginator:0,
-      totalPage:12,
+      totalPage:8,
       isLogged : false,
       user : {},
       isLoad : false
