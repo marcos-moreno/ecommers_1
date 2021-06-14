@@ -492,7 +492,7 @@ export default {
                     return false;
                 }
                 this.isLoad = true;
-                let uriCp = `https://api-sepomex.hckdrk.mx/query/info_cp/${this.solicitud.cp}?token=3bda8a59-91e8-4b44-a534-1761a6e60335`;
+                let uriCp = `https://api.copomex.com/query/info_cp/${this.solicitud.cp}?token=3bda8a59-91e8-4b44-a534-1761a6e60335`;
                 await axios.get(uriCp)
                 .then(res=>{
                     try {

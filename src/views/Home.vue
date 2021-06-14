@@ -195,7 +195,8 @@ export default {
         } 
         this.productosPaginator.push(element);
         if (index == fin) {
-          this.isLoad = false;   
+          this.isLoad = false;
+          window.scrollTo(0,0);
         }
       } 
       window.scrollTo(0,0);
