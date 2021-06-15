@@ -62,8 +62,8 @@
         <form >   
             <!-- v-if="(solicitud.resultAD!= undefined && solicitud.resultAD !={})|| solicitud.estado_solicitud=='RE' "  -->
             <v-alert 
-                border="top" colored-border type="info" elevation="2">
-                <div> 
+                border="top" colored-border :type="solicitud.estado_solicitud=='AU'?'success': 'warning'" elevation="2">
+                <div>
                     <!-- {{solicitud.resultAD.data.msg}} -->
                     {{valorEstadoSolicitud}}  
                 </div>
@@ -97,6 +97,10 @@
                 </v-icon>
                 ID SOCIO: {{solicitud.c_bpartner_id}} 
             </v-chip> 
+
+            <!-- <v-text-field   v-model="solicitud.c_bpartner_id"  >
+            </v-text-field> -->
+            
 
             <v-chip v-if="solicitud.ad_user_id!=undefined" class="ma-2" color="primary"  text-color="white">
                 <v-icon left>
@@ -242,10 +246,13 @@
                 </v-col> -->
             </v-row>  
             <div class="my-10">
-                <v-btn 
-                    v-if="solicitud.estado_solicitud != 'AU' 
+
+<!-- 
+                v-if="solicitud.estado_solicitud != 'AU' 
                             && solicitud.estado_solicitud != 'SE' 
-                            && solicitud.estado_solicitud != 'SD'"
+                            && solicitud.estado_solicitud != 'SD'" -->
+                <v-btn 
+                    
                         class="ma-2" color="primary" @click="approved()">
                     <v-icon left dark>mdi-checkbox-marked-circle</v-icon>
                     Aprobar Solicitud
@@ -371,15 +378,14 @@ export default {
        this.filtrarRegistros();
     },
     computed: {
-        valorEstadoSolicitud: function (){
-            console.log(this.solicitud.estado_solicitud);
+        valorEstadoSolicitud: function (){ 
             switch (this.solicitud.estado_solicitud) {
                 case "SE":
-                    return "El socio de Negocio existe.";
+                    return "Socio de negocio Existente.";
                 case "SD":
-                    return "El RFC corresponde a más de un Usuario.";
+                    return "El RFC corresponde a más de un Socio de negocio (usuario).";
                 case "ARH":
-                    return "En espera de alta del empleado.";
+                    return "No se encontró ningun empleado con este RFC, por favor solicita el alta del empleado.";
                 case "AU":
                     return "Registro Completo.";
                 case "RE":
@@ -498,60 +504,70 @@ export default {
             if (parseInt(this.solicitud.montPreAprobed) > 0) {
                 this.solicitud.ApprovedCredit = true;
             }
-            console.log(this.solicitud);
+            // console.log(this.solicitud);
             // valido = false;
             if (valido) {
                 this.isLoad = true;  
                 const result = await axios.post(config.apiAdempiere + "/preregistro/insercbpartner",this.solicitud
                 ,{headers:{ 'token': this.$cookie.get('token') }})
                 .then(res=>{  
-                    console.log(res);
+                    // console.log(res);
                     return res.data;
                 }).catch(err=>{
                     console.log(err); 
                     return false;
                 });
-                console.log(result);
-                if (result.status == "success") {
-                    this.solicitud = result.data;
-                    this.solicitud.montPreAprobed = this.formatMXN(this.solicitud.montPreAprobed);
-                    this.solicitud.created_atFormat = this.formatDate(this.solicitud.created_at,0) +' a las' + this.formatTime(this.solicitud.created_at);
-                    this.solicitud.created_atFormatLimit =  this.formatDate(this.solicitud.created_at,3) + ' a las' + this.formatTime(this.solicitud.created_at);
-                    this.solicitud.tipoSolicitante = this.solicitud.tipoSolicitante[0];
-                    if (this.solicitud.resultAD.status == "SE") {
-                        this.msgError = `Parece que este Usuario ya ha sido sincronizado,
-                        se encontró coincidencias con los siguientes registros.
-                        ID USUARIO: ${this.solicitud.resultAD.ad_user_id} 
-                        , ID SOCIO: ${this.solicitud.resultAD.c_bpartner_id}. 
-                        Por favor inactiva estos registros para poder sincronizar de nuevo.
-                        `;
-                        this.isLoad = false;
-                        window.scrollTo(0,0); 
-                    } 
-                } else {
-                    this.msgError = result.data;
-                }
-                if (result!=false) { 
+                
+             
+
+                
+                if (result!=false) {  
                     if (result.status == "success") {
-                        this.solicitud = result.data;
-                        this.isRegistrado = true;
-                    } else {
-                        console.log(result);
+                        this.solicitud = result.data;  
+                        console.log(this.solicitud);
+                        this.solicitud.montPreAprobed = this.formatMXN(this.solicitud.montPreAprobed);
+                        this.solicitud.created_atFormat = this.formatDate(this.solicitud.created_at,0) +' a las' + this.formatTime(this.solicitud.created_at);
+                        this.solicitud.created_atFormatLimit =  this.formatDate(this.solicitud.created_at,3) + ' a las' + this.formatTime(this.solicitud.created_at);
+                        this.solicitud.tipoSolicitante = this.solicitud.tipoSolicitante[0];
                         try {
-                            if (result.data == "rfcDuplicado") {
-                                this.msgError = "Parece que ya hay una solicitud con este RFC de solicitante, por favor verificalo."; 
-                                this.isLoad = false;
-                                window.scrollTo(0,0);
-                                return;
-                            } 
+                                if (this.solicitud.resultAD.status == "SE") {
+                                    this.msgError = `Parece que este Usuario ya ha sido sincronizado,
+                                    se encontró coincidencias con los siguientes registros.
+                                    ID USUARIO: ${this.solicitud.resultAD.ad_user_id} 
+                                    , ID SOCIO: ${this.solicitud.resultAD.c_bpartner_id}. 
+                                    Por favor inactiva estos registros para poder sincronizar de nuevo.
+                                    `;
+                                    this.isLoad = false;
+                                    window.scrollTo(0,0); 
+                                }    
                         } catch (error) {
                             console.log(error);
-                            this.msgError = "Existe un error desconocido, intentalo más tarde.";
-                        } 
+                        }
+                    } else {
+                        this.msgError = result.data;
                     }
                 }else{
                     this.msgError = "Existe un error, Intentalo más tarde."; 
                 }
+
+                    // if (result.status == "success") {
+                    //     this.solicitud = result.data;
+                    //     this.isRegistrado = true;
+                    // } else {
+                    //     // console.log(result);
+                    //     try {
+                    //         if (result.data == "rfcDuplicado") {
+                    //             this.msgError = "Parece que ya hay una solicitud con este RFC de solicitante, por favor verificalo."; 
+                    //             this.isLoad = false;
+                    //             window.scrollTo(0,0);
+                    //             return;
+                    //         } 
+                    //     } catch (error) {
+                    //         console.log(error);
+                    //         this.msgError = "Existe un error desconocido, intentalo más tarde.";
+                    //     } 
+                    // }
+               
                 window.scrollTo(0,0);
                 this.isLoad = false; 
             }else{ 
@@ -584,7 +600,7 @@ export default {
 
             return result;
         },async validarCp(){
-         this.msgError = "";
+            this.msgError = "";
             this.asentamientos = [];
             this.solicitud.estado = "";
             this.solicitud.ciudad = "";

@@ -17,7 +17,9 @@ const routes = [
   ,{ path: '/shop/shopingcar/',name: 'Shopingcar',props: true,component: () => import('../views/Shopingcar.vue')}
   ,{ path: '/shop/purchases/',name: 'Purchases',props: true,component: () => import('../views/Purchases.vue')}
   ,{ path: '/shop/ChangePassword/',name: 'ChangePassword',props: true,component: () => import('../components/ChangePassword.vue')}
- 
+  
+  ,{ path: '/shop/Foro/',name: 'Foro',props: true,component: () => import('../views/Foro.vue')}
+
   ,{ path: '/shop/deliveries', name: 'Deliveries',component: () => import('../views/Deliveries.vue')}
 
 // */
