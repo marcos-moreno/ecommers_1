@@ -247,12 +247,11 @@
             </v-row>  
             <div class="my-10">
 
-<!-- 
-                v-if="solicitud.estado_solicitud != 'AU' 
-                            && solicitud.estado_solicitud != 'SE' 
-                            && solicitud.estado_solicitud != 'SD'" -->
+            <!-- Aprobar solicitud -->
                 <v-btn 
-                    
+                    v-if="solicitud.estado_solicitud != 'AU' 
+                            && solicitud.estado_solicitud != 'SE' 
+                            && solicitud.estado_solicitud != 'SD'"
                         class="ma-2" color="primary" @click="approved()">
                     <v-icon left dark>mdi-checkbox-marked-circle</v-icon>
                     Aprobar Solicitud
@@ -406,8 +405,8 @@ export default {
             for (let index = 0; index < this.preRegistros.length; index++) {
                 let element= this.preRegistros[index];
                 if (element.estado_solicitud == this.filterStatus || this.filterStatus == 'all') {
-                    element.created_atFormat = this.formatDate(element.created_at,0) +' a las' + this.formatTime(element.created_at);
-                    element.created_atFormatLimit =  this.formatDate(element.created_at,3) + ' a las' + this.formatTime(element.created_at);
+                    element.created_atFormat = this.formatDate(element.created_at,0) +' a las ' + this.formatTime(element.created_at);
+                    element.created_atFormatLimit =  this.formatDate(element.created_at,3) + ' a las ' + this.formatTime(element.created_at);
                     this.preRegistrosFiltrado.push(element);
                 }
             } 
