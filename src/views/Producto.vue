@@ -28,9 +28,19 @@
         <v-col>
           <v-card  >  
           <center>  
-            <v-img width="400px" v-if="producto.img=='/noImg.png' || isMobile()"  :src="producto.img"></v-img>
-            <zoom-on-hover :scale="2"  v-else width="400px" :img-normal="producto.img">
+            <!-- <v-img :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" :lazy-src="`../../public/noImg.png`"
+                    aspect-ratio="1" class="grey lighten-2" width="220" height="170"> 
+              <template v-slot:placeholder>
+                <v-row class="fill-height ma-0" align="center" justify="center">
+                  <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                </v-row>
+              </template> 
+            </v-img> -->
+            <zoom-on-hover :scale="2" width="400px" :img-normal="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`">
             </zoom-on-hover> 
+            <!-- <v-img width="400px" v-if="producto.img=='/noImg.png' || isMobile()"  :src="producto.img"></v-img> -->
+            <!-- <zoom-on-hover :scale="2"  v-else width="400px" :img-normal="producto.img">
+            </zoom-on-hover>  -->
           </center>
           <v-card-title>{{producto.name}}</v-card-title>
           <v-card-subtitle class="pb-0">
@@ -139,7 +149,15 @@
             <v-card style="min-height:186px;"> 
               <v-row style="margin:20px">
                 <v-col  cols="12" sm="6" md="2"> 
-                  <v-img width="200px" :src="producto.img"></v-img>
+                  <!-- <v-img width="200px" :src="producto.img"></v-img> -->
+                  <v-img width="200px" :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" :lazy-src="`../../public/noImg.png`"
+                    aspect-ratio="1" class="grey lighten-2" > 
+                    <template v-slot:placeholder>
+                      <v-row class="fill-height ma-0" align="center" justify="center">
+                        <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                      </v-row>
+                    </template> 
+                  </v-img>
                 </v-col>
                 <v-col cols="12" sm="6" md="6">
                   <div class="my-5" style="font-size: 1em;color :#00A6FF">  
@@ -336,41 +354,50 @@ export default {
     },
     async getProduct(){
       try {
-        let uri = "/productos/all";
-        uri = config.apiAdempiere + uri; 
+        let uri = config.apiAdempiere + "/productos/all";
         this.producto = await axios.get(uri
-        ,{headers: { 'token': this.$cookie.get('token') },params: {filter: this.value}})
-        .then(function (response) { 
+        ,{headers: { 'token': this.$cookie.get('token') },
+        params: {
+            filter: this.value
+            ,onliStock : 0
+            ,range : [0]
+            ,andalucia : '0' 
+            ,ld : '0' 
+            ,ordenMenorP : '0' 
+            ,ordenMayorP : '0' 
+            ,ordenMasVendido : '0' 
+          }}
+        ).then(function (response) { 
           return response.data;
         }).catch(function (response){  
           return response;
         });  
         if (this.producto.status == "success") {
-            this.producto = this.producto.data;   
+            this.producto = this.producto.data;    
           if (this.producto.length > 0) {
               this.producto = this.producto[0];  
-              try {
-                let img = await axios.get(config.apiAdempiere + "/productos/imgByValue"
-                      ,{headers: { 'token': this.$cookie.get('token') },params: {filter: this.value}})
-                      .then(function (response) {  
-                        return response.data.data;
-                      }).catch(function (response){  
-                        console.log(response);
-                        return response;
-                      }); 
-                    if (img.length == 1) {
-                      img = img[0].img;
-                      this.producto.img = 'data:image/jpeg;base64,' + btoa(
-                          new Uint8Array(img.data)
-                      .reduce((data, byte) => data + String.fromCharCode(byte), '')
-                      );  
-                    }else{ 
-                      this.producto.img = "/noImg.png";
-                    }
+              // try {
+              //   let img = await axios.get(config.apiAdempiere + "/productos/imgByValue"
+              //         ,{headers: { 'token': this.$cookie.get('token') },params: {filter: this.value}})
+              //         .then(function (response) {  
+              //           return response.data.data;
+              //         }).catch(function (response){  
+              //           console.log(response);
+              //           return response;
+              //         }); 
+              //       if (img.length == 1) {
+              //         img = img[0].img;
+              //         this.producto.img = 'data:image/jpeg;base64,' + btoa(
+              //             new Uint8Array(img.data)
+              //         .reduce((data, byte) => data + String.fromCharCode(byte), '')
+              //         );  
+              //       }else{ 
+              //         this.producto.img = "/noImg.png";
+              //       }
                  
-              } catch (error) {
-                 this.producto.img = "/noImg.png";
-              } 
+              // } catch (error) {
+              //    this.producto.img = "/noImg.png";
+              // } 
             this.productoEncontrado = true; 
           }  
         } else {
@@ -394,7 +421,7 @@ export default {
         if (inputCar != null) {
           inputCar.value = "";
         }
-      } 
+      }
     },
     formatMXN(value) {
           var formatter = new Intl.NumberFormat('en-ES', {style: 'currency', currency: 'USD',});

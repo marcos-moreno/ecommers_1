@@ -4,10 +4,19 @@
         <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon> 
         <v-toolbar-title>Refividrio</v-toolbar-title> 
         <v-spacer></v-spacer> 
+
+        <v-toolbar-title> 
+          <a @click="menu('/shop/Foro')">
+            <!-- <v-icon style="margin:5px"  >mdi-account-group-outline</v-icon> -->
+            Foro
+          </a>
+        </v-toolbar-title>
+
         <v-toolbar-title>
           <v-btn @click="shopincaropen()" class="ma-2" text  color="#FFF"  >
-            <v-icon>mdi-cart</v-icon><div v-if="isLogged"> 
-              <input disabled style="color:#fff;border:none;width:50px;" id="cantidadInCar"/>
+            <v-icon>mdi-cart</v-icon>
+            <div v-if="isLogged"> 
+              <input disabled style="color:#fff;border:none;width:20px;" id="cantidadInCar"/>
               </div>
           </v-btn>
         </v-toolbar-title>
@@ -126,7 +135,7 @@
 
               <v-list-item @click="menu('/shop/Foro')">
                 <v-list-item-icon>
-                  <v-icon>mdi-format-list-bulleted-square</v-icon>
+                  <v-icon>mdi-account-group-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-title>Foro</v-list-item-title>
               </v-list-item>

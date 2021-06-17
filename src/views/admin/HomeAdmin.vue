@@ -1,6 +1,6 @@
 <template>
   <div v-if="isLogged"> 
-    <app-menu/> 
+    <AppMenu/> 
       <v-toolbar>    
           <v-tabs v-model="tab"
             next-icon="mdi-arrow-right-bold-box-outline"
@@ -25,8 +25,9 @@
           </v-tabs> 
       </v-toolbar> 
     <v-card min-height="800px"> 
-      <pre-registros v-if="tab==0" />
-      <accounts v-if="tab==1" />
+      <Preregistros v-if="tab==0" />
+      <Accounts v-if="tab==1" />
+      <Ventas v-if="tab==2" />
     </v-card>
    </div>
 </template>  
@@ -37,6 +38,7 @@ import axios from 'axios';
 import AppMenu from '../../components/admin/MenuAdmin.vue'; 
 import Preregistros from '../../components/admin/Pre-registros.vue'; 
 import Accounts from '../../components/admin/Accounts.vue'; 
+import Ventas from '../../components/admin/Ventas.vue'; 
 
  
 export default {
@@ -58,9 +60,10 @@ export default {
     this.isLoad = false;  
   },
   components: { 
-        'app-menu': AppMenu, 
-        'pre-registros' : Preregistros,
-        'accounts':Accounts
+        AppMenu, 
+        Preregistros,
+        Accounts,
+        Ventas
   },methods: { 
     async validaLogin(){
         this.user = await axios.get(config.apiAdempiere + "/user/userByTokenAdmin", 

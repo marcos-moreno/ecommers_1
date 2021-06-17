@@ -85,32 +85,51 @@
                             </v-col>  -->
                         </v-row>  
                         </v-container>
-
-                        <v-divider></v-divider>
  
-                        <v-row class="my-2">
-                            <v-col cols="12" md="4" v-for="producto in purchase.productos" :key="producto.value">
-                                <v-card class="mx-auto" max-width="500" outlined @click="seeProduct(producto.value)" >
-                                    <v-row>
-                                        <v-col  cols="12" md="4">
-                                            <v-img class="mx-auto" width="150px" :src="producto.img" ></v-img>
-                                        </v-col>
-                                        <v-col  cols="12" md="8">
-                                            <div v-if="producto.prodCompleto.data.length > 0" class="my-2" style="font-size: 0.8em;color :#909090">
-                                                {{producto.prodCompleto.data[0].name.substring(0,45) + "..."}}
-                                            </div>  
-                                            <v-row>
-                                                <v-col><div style="font-size: 0.8em;color :#909090">Total</div>{{formatMXN(producto.total)}} </v-col>
-                                                <v-col><div style="font-size: 0.8em;color :#909090">Cantidad</div>{{producto.quantity}} </v-col>
-                                            </v-row>
-                                                <v-row>
-                                                    <v-col><div style="font-size: 0.8em;color :#909090">Código: {{producto.value}}</div></v-col>
-                                            </v-row>  
-                                        </v-col>
-                                    </v-row> 
-                                </v-card> 
-                            </v-col> 
-                        </v-row> 
+                        <v-expansion-panels>
+                          <v-expansion-panel>
+                            <v-expansion-panel-header>
+                              <center>Productos</center>
+                            </v-expansion-panel-header>
+                            <v-expansion-panel-content>
+                          
+
+                              <v-row class="my-2">
+                                  <v-col cols="12" md="4" v-for="producto in purchase.productos" :key="producto.value">
+                                      <v-card class="mx-auto" max-width="500" outlined @click="seeProduct(producto.value)" >
+                                          <v-row >
+                                              <v-col  cols="12" md="4">
+                                                <v-img  width="150px" :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" :lazy-src="`../../public/noImg.png`"
+                                                          aspect-ratio="1" class="grey lighten-2"> 
+                                                    <template v-slot:placeholder>
+                                                      <v-row class="fill-height ma-0" align="center" justify="center">
+                                                        <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                                                      </v-row>
+                                                    </template> 
+                                                  </v-img> 
+                                                  <!-- <v-img class="mx-auto" width="150px" :src="producto.img" ></v-img> -->
+                                              </v-col>
+                                              <v-col  cols="12" md="8">
+                                                  <div v-if="producto.prodCompleto.data.length > 0" class="my-2" style="font-size: 0.8em;color :#909090">
+                                                      {{producto.prodCompleto.data[0].name.substring(0,45) + "..."}}
+                                                  </div>  
+                                                  <v-row>
+                                                      <v-col><div style="font-size: 0.8em;color :#909090">Total</div>{{formatMXN(producto.total)}} </v-col>
+                                                      <v-col><div style="font-size: 0.8em;color :#909090">Cantidad</div>{{producto.quantity}} </v-col>
+                                                  </v-row>
+                                                      <v-row>
+                                                          <v-col><div style="font-size: 0.8em;color :#909090">Código: {{producto.value}}</div></v-col>
+                                                  </v-row>  
+                                              </v-col>
+                                          </v-row> 
+                                      </v-card> 
+                                  </v-col> 
+                              </v-row> 
+
+                            </v-expansion-panel-content>
+                          </v-expansion-panel>
+                        </v-expansion-panels>
+
 
                       </div>   
                     </v-card>
@@ -215,29 +234,29 @@ export default {
         }).then(res=>{return res.data;})
         .catch(err=>{return err;});   
         if (puchases.status == "success") { 
-            this.purchases = puchases.data; 
-            for (let ip = 0; ip < this.purchases.length; ip++) {  
-                for (let index = 0; index < this.purchases[ip].productos.length; index++) {   
-                    if (this.purchases[ip].productos[index].prodCompleto.status == "success") { 
-                        let img = await axios.get(config.apiAdempiere + "/productos/imgByValue"
-                          ,{headers: { 'token': this.$cookie.get('token') },params: {filter: this.purchases[ip].productos[index].value}})
-                          .then(function (response) {  
-                            return response.data.data;
-                          }).catch(function (response){  
-                            console.log(response);
-                            return response;
-                          });
-                        if (img.length == 1) {
-                          img = img[0].img;
-                          this.purchases[ip].productos[index].img = 'data:image/jpeg;base64,' + btoa(
-                              new Uint8Array(img.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
-                          );  
-                        }else{ 
-                          this.purchases[ip].productos[index].img = "/noImg.png";
-                        }
-                    }
-                } 
-            }  
+            this.purchases = puchases.data;
+            // for (let ip = 0; ip < this.purchases.length; ip++) {  
+            //     for (let index = 0; index < this.purchases[ip].productos.length; index++) {   
+            //         if (this.purchases[ip].productos[index].prodCompleto.status == "success") { 
+            //             let img = await axios.get(config.apiAdempiere + "/productos/imgByValue"
+            //               ,{headers: { 'token': this.$cookie.get('token') },params: {filter: this.purchases[ip].productos[index].value}})
+            //               .then(function (response) {  
+            //                 return response.data.data;
+            //               }).catch(function (response){  
+            //                 console.log(response);
+            //                 return response;
+            //               });
+            //             if (img.length == 1) {
+            //               img = img[0].img;
+            //               this.purchases[ip].productos[index].img = 'data:image/jpeg;base64,' + btoa(
+            //                   new Uint8Array(img.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
+            //               );  
+            //             }else{ 
+            //               this.purchases[ip].productos[index].img = "/noImg.png";
+            //             }
+            //         }
+            //     } 
+            // }  
         }else if(this.user.status == "unauthorized"){  
             this.menu('/shop/Login/');
         }  

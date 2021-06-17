@@ -57,7 +57,7 @@
 
       <v-card-text class="white--text">
        &copy; {{ new Date().getFullYear() }} — <strong>Grupo Refividrio</strong>
-       <p>Created by Marcos GMG</p>
+       <!-- <p>Created by Marcos GMG</p> -->
       </v-card-text>
     </v-card>
   </v-footer>

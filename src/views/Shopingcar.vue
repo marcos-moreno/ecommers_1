@@ -25,7 +25,15 @@
           <v-col cols="12" sm="6" md="8" >
             <v-row no-gutters>
               <v-col md="2">
-                <v-img width="90" :src="producto.img" ></v-img>  
+                <v-img width="90" :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" :lazy-src="`../../public/noImg.png`"
+                      aspect-ratio="1" class="grey lighten-2"> 
+                <template v-slot:placeholder>
+                  <v-row class="fill-height ma-0" align="center" justify="center">
+                    <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                  </v-row>
+                </template> 
+              </v-img> 
+                <!-- <v-img width="90" :src="producto.img" ></v-img>   -->
               </v-col> 
               <v-col >
                 <div class="my-50"> 
@@ -303,6 +311,7 @@ export default {
           'headers': { 'token': this.$cookie.get('token') }
         }).then(res=>{return res.data;})
         .catch(err=>{return err;}); 
+        // console.log(productsincar);
 
         if (productsincar.status == "success") {
           productsincar = productsincar.data;
@@ -311,23 +320,23 @@ export default {
         }    
         for (let index = 0; index < productsincar.length; index++) { 
           productsincar[index].price = productsincar[index].l0 * productsincar[index].cantidad;  
-          let img = await axios.get(config.apiAdempiere + "/productos/imgByValue"
-                  ,{headers: { 'token': this.$cookie.get('token') },params: {filter: productsincar[index].value}})
-                  .then(function (response) {  
-                    return response.data.data;
-                  }).catch(function (response){  
-                    console.log(response);
-                    return response;
-                  });  
-          if (img.length == 1) {
-            img = img[0].img;
-            productsincar[index].img = 'data:image/jpeg;base64,' + btoa(
-                new Uint8Array(img.data)
-            .reduce((data, byte) => data + String.fromCharCode(byte), '')
-            );  
-          }else{ 
-            productsincar[index].img = "/noImg.png";
-          }
+          // let img = await axios.get(config.apiAdempiere + "/productos/imgByValue"
+          //         ,{headers: { 'token': this.$cookie.get('token') },params: {filter: productsincar[index].value}})
+          //         .then(function (response) {  
+          //           return response.data.data;
+          //         }).catch(function (response){  
+          //           console.log(response);
+          //           return response;
+          //         });  
+          // if (img.length == 1) {
+          //   img = img[0].img;
+          //   productsincar[index].img = 'data:image/jpeg;base64,' + btoa(
+          //       new Uint8Array(img.data)
+          //   .reduce((data, byte) => data + String.fromCharCode(byte), '')
+          //   );  
+          // }else{ 
+          //   productsincar[index].img = "/noImg.png";
+          // }
         }
         this.productos = productsincar;
     } 
