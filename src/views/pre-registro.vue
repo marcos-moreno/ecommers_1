@@ -250,7 +250,7 @@
             </v-alert> 
             <v-alert type="info" text class="my-10"  border="left"> 
                 <br>*En caso de no recibir la información en el plazo máximo favor de contactarnos vía WhatsApp.
-                <br>Para cualquier duda o aclaración comunicate al télefono 5551757108 
+                <br>Para cualquier duda o aclaración comunicate al télefono 55-5175-7108 
             </v-alert> 
             <div class="my-7">
                 Si tu comprobante no se abrio en automático
@@ -869,7 +869,7 @@ export default {
             );
             let finalY = doc.lastAutoTable.finalY;
             doc.setFontSize(8);
-            doc.text(45, finalY+18,'Para cualquier duda o aclaración comunicate al télefono 5551757108.')
+            doc.text(45, finalY+18,'Para cualquier duda o aclaración comunicate al télefono 55-5175-7108.')
             doc.setFontSize(8);
             doc.text(45, finalY+28,'Las compras en línea estarán disponibles a partir del 14 de JUNIO del 2021.')
             // doc.save('pre-registro.pdf'); 

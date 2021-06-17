@@ -1,5 +1,5 @@
 <template>
- <v-app>
+ <v-app >
     <app-menu/>
     <v-app-bar color="deep" dark > 
       <v-spacer></v-spacer> 
@@ -8,14 +8,14 @@
       <div v-if="!isMobile()"> 
         <v-container fluid>
           <v-row align="center">  
-            <v-col >
+            <!-- <v-col >
               <v-btn style="margin:50px" @click="showFilter('filter')">
                 <img src="../../public/filtro.svg" width="15px" style="margin:5px" />filtrar
               </v-btn>
-            </v-col> 
+            </v-col>  -->
             <v-col>
               <v-select style="width:150px;height:40px" v-model="orden" @change="applyFilter()"
-                :items="['Menor precio', 'Mayor precio', 'Más vendido']" 
+                :items="['Descripción','Menor precio', 'Mayor precio', 'Más vendido']" 
                 label="Ordenar por" >
               </v-select>
             </v-col> 
@@ -38,7 +38,7 @@
               <img src="../../public/ordenar.svg" width="15px" style="margin:5px"  />Ordenar
             </v-btn> -->
               <v-select style="width:150px;height:40px" v-model="orden" @change="applyFilter()"
-                :items="['Menor precio', 'Mayor precio', 'Más vendido']" 
+                :items="['Descripción','Menor precio', 'Mayor precio', 'Más vendido']" 
                 label="Ordenar por" >
               </v-select>
           </v-col>  
@@ -46,9 +46,7 @@
       </v-container> 
     </v-app-bar> 
 
-    <v-navigation-drawer v-model="sceemFiltro" absolute temporary width="300px">
-      
-        
+    <v-navigation-drawer v-model="sceemFiltro" absolute temporary width="300px"> 
         <v-list nav dense >
           <v-list-item-group>
               <!-- Inicio filtro -->
@@ -114,78 +112,272 @@
           
           </v-list-item-group> 
         </v-list>
-      </v-navigation-drawer> 
-
-    <app-slider v-if="verfiltro == false && page == 1" /> 
-
-    <div class="grey lighten-2"  >
-      <v-container class="grey lighten-5">  
-          <p v-if="verfiltro == true && valorBuscado != ''" style="font-size: 2em;color :#909090">  
-          <strong>{{valorBuscado}}</strong> 
-          <v-btn text color="error" @click="deleteFilter">X</v-btn>
-          </p>{{productos.length}} Resultados
-      </v-container>
+    </v-navigation-drawer>  
+    <div style="min-heigth:40px;">
+      <app-slider v-if="verfiltro == false && page == 1" /> 
     </div>
+    <!-- <v-main style="wid" class="grey lighten-2">
+      <v-container>
+        <v-row>
+          <v-col cols="12" sm="3" >
+            <v-sheet rounded="lg" min-height="268" > 
+          <v-col v-for="producto in productosOferta" :key="producto.value">  
+            <v-alert dismissible color="cyan" border="left"  elevation="2" colored-border>
+                 <v-card class="mx-auto my-12" width="260" height="500" @click=seeProduct(producto.value) >
+                  <center>   
+                    <v-img :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" :lazy-src="`../../public/noImg.png`"
+                            aspect-ratio="1" class="grey lighten-2" width="220" height="170"> 
+                      <template v-slot:placeholder>
+                        <v-row class="fill-height ma-0" align="center" justify="center">
+                          <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                        </v-row>
+                      </template> 
+                    </v-img>
+                  </center>
+                  <v-card-text>
+                    <div class="my-4 subtitle-3">{{producto.name.substring(0,83)}}</div>
+                    <div class="my-4 subtitle-2">{{producto.value}}</div>
+                  </v-card-text> 
+                  <v-divider class="mx-4">Costos</v-divider>
+                  <v-card-title >
+                    {{ formatMXN(producto.l0) }}
+                  </v-card-title> 
+                  <v-card-text>  
+                    <div class="my-4 subtitle-1">
+                      Cantidad Disponible: {{ producto.mex_quantytotal }}
+                    </div> 
+                  </v-card-text> 
+                </v-card> 
+            </v-alert>
+          </v-col>
 
-    <v-main class="grey lighten-2" >
-      <v-container class="grey lighten-5" style="min-height:556px;"> 
-      <v-row class="mb-6" no-gutters >   
 
-        <div class="text-center">
-          <v-dialog v-model="isLoad" persistent width="300">
-            <v-card color="primary" dark >
-              <v-card-text>
-                cargando
-                <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
-              </v-card-text>
-            </v-card> 
-          </v-dialog>
-        </div>
+              
+            </v-sheet>
+          </v-col>
 
-        <v-col v-for="producto in productosPaginator" :key="producto.value"> 
-          <v-card class="mx-auto my-12" width="260" height="500" @click=seeProduct(producto.value) >
-            <center>  
-              <!--  :src="producto.img" 
-                src="../../public/noImg.png" 
-                :src="`https://picsum.photos/500/300?image=15`" 
-              -->
-              <v-img :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" :lazy-src="`../../public/noImg.png`"
-                      aspect-ratio="1" class="grey lighten-2" width="220" height="170"> 
-                <template v-slot:placeholder>
-                  <v-row class="fill-height ma-0" align="center" justify="center">
-                    <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
-                  </v-row>
-                </template> 
-              </v-img>
+          <v-col cols="12" sm="8" >
+            <v-sheet min-height="70vh" rounded="lg" > 
+              hjjhjh
+            </v-sheet>
+          </v-col> -->
+
+          <!-- <v-col cols="12" sm="2" >
+            <v-sheet rounded="lg" min-height="268"  >
+              lklk
+            </v-sheet>
+          </v-col> -->
+        <!-- </v-row>
+      </v-container>
+    </v-main> -->
+ 
+   <!-- <v-row> 
+          <v-col v-for="producto in productosOferta" :key="producto.value">  
+            <v-alert style="height:116px;" dismissible color="cyan" border="left"  elevation="2" colored-border>
+                <v-col > 
+                  <v-row>
+                    <v-col cols="12" sm="3"> 
+                      <v-img width="70px" :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" 
+                      :lazy-src="`../../public/noImg.png`"
+                        aspect-ratio="1" class="grey lighten-2" > 
+                        <template v-slot:placeholder>
+                          <v-row class="fill-height ma-0" align="center" justify="center">
+                            <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                          </v-row>
+                        </template> 
+                      </v-img>
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <div style="font-size: 1em;color :#00A6FF">  
+                        <v-icon style=" color: green;">mdi-shopping</v-icon>
+                        {{ producto.name }}
+                      </div> 
+                    </v-col> 
+                    <v-col cols="12" sm="2">
+                        <v-btn color="primary" @click="menu('/shop/')" >
+                          Agregar 
+                        </v-btn>  
+                    </v-col>
+                  </v-row>  
+                </v-col>
+            </v-alert>
+          </v-col>
+        </v-row>   -->
+
+<template class="grey lighten-2"  >
+  <v-row class="grey lighten-2" > 
+    <v-col cols="12" sm="1"></v-col>
+
+    <v-col cols="12" sm="2" v-if="isMobile()">
+          <v-alert dismissible>
+            <v-alert dense type="info">
+              Para dar una mejor presentación a sus productos adquiera nuestras <strong>NUEVAS BOLSAS</strong>
+            </v-alert>
+          <v-col  v-for="producto in productosOferta" :key="producto.value">  
+            <center>
+            <v-alert width="90%" color="cyan" border="left"  elevation="1" colored-border> 
+                  <div  @click="seeProduct(producto.value)">
+                  <center>   
+                    <v-img width="40%" :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" 
+                          :lazy-src="`../../public/noImg.png`"
+                            aspect-ratio="1" class="grey lighten-2"> 
+                      <template v-slot:placeholder>
+                        <v-row class="fill-height ma-0" align="center" justify="center">
+                          <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                        </v-row>
+                      </template> 
+                    </v-img>
+                  </center>
+                  <v-card-text>
+                    <div class="my-4 subtitle-3">{{producto.name.substring(0,83)}}</div> 
+                  </v-card-text>  
+                  </div>
+            </v-alert>
             </center>
-            <v-card-text>
-              <div class="my-4 subtitle-3">{{producto.name.substring(0,83)}}</div>
-              <div class="my-4 subtitle-2">{{producto.value}}</div>
-            </v-card-text> 
-            <v-divider class="mx-4">Costos</v-divider>
-            <v-card-title >
-              {{ formatMXN(producto.l0) }}
-            </v-card-title> 
-            <v-card-text>  
-              <div class="my-4 subtitle-1">
-                Cantidad Disponible: {{ producto.mex_quantytotal }}
-              </div> 
-            </v-card-text> 
-          </v-card> 
         </v-col>
-        
-      </v-row>   
-      <div class="text-center">
-        <v-pagination 
-          v-on:input="paginator" 
-          v-model="page" 
-          :length="lengthPaginator"  
-          circle
-          :total-visible="7"
-          ></v-pagination>
-      </div>
+          </v-alert> 
+    </v-col>
+
+    <v-col cols="12" sm="2">   
+      <v-list nav dense v-if="!isMobile()"  class="my-5">
+          <v-list-item-group> 
+              <div>
+                  <h1>Filtrar por</h1> 
+              <v-container class="px-0" fluid>
+                <v-switch @change="filterOnlystock()" v-model="onlystock" label="Solo producto con existencia." ></v-switch>
+              </v-container>   
+              <v-card flat color="transparent">
+                <br>
+                <div><strong>Precio</strong></div>
+                <v-card-text>
+                  <v-row>
+                    <v-col class="px-4">
+                      {{formatMXN(range[0])}}  -- {{formatMXN(range[1])}}
+                      <v-range-slider v-model="range" @change="movementPriceFilter()"  :max="max" :min="min" hide-details class="align-center" >
+                        <template v-slot:prepend>
+                          <v-text-field  style="display:none;" :value="range[0]"  type="number" @change="$set(range, 0, $event)"></v-text-field>
+                        </template>
+                        <template v-slot:append style="">
+                          <v-text-field  style="display:none;" :value="range[1]"  type="number" @change="$set(range, 1, $event)"></v-text-field>
+                        </template>
+                      </v-range-slider>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card><br>   
+              <v-card flat color="transparent">
+                    <v-checkbox @change="applyFilter()" v-model="isfilterAndalucia"  label="Aromas de Andalucía"></v-checkbox>
+                    <v-checkbox @change="applyFilter()" v-model="isfilterLD" label="Air Natur Home"></v-checkbox>
+              </v-card>  
+              </div> 
+          </v-list-item-group> 
+        </v-list>
+    </v-col> 
+    
+    <v-col cols="12" sm="6" class="grey lighten-5">  
+              <v-container class="grey lighten-5" >  
+                  <p v-if="verfiltro == true && valorBuscado != ''" style="font-size: 2em;color :#909090">  
+                  <strong>{{valorBuscado}}</strong> 
+                  <v-btn text color="error" @click="deleteFilter">X</v-btn>
+                  </p>{{productos.length}} Resultados
+              </v-container> 
+              <v-row class="mb-6" no-gutters >    
+                <div class="text-center">
+                  <v-dialog v-model="isLoad" persistent width="300">
+                    <v-card color="primary" dark >
+                      <v-card-text>
+                        cargando
+                        <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+                      </v-card-text>
+                    </v-card> 
+                  </v-dialog>
+                </div>  
+                <v-col v-for="producto in productosPaginator" :key="producto.value"> 
+                  <v-card class="mx-auto my-3" width="260" height="500" @click="seeProduct(producto.value)" >
+                    <center>   
+                      <v-img :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" :lazy-src="`../../public/noImg.png`"
+                              aspect-ratio="1" class="grey lighten-2" width="220" height="170"> 
+                        <template v-slot:placeholder>
+                          <v-row class="fill-height ma-0" align="center" justify="center">
+                            <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                          </v-row>
+                        </template> 
+                      </v-img>
+                    </center>
+                    <v-card-text>
+                      <div class="my-4 subtitle-3">{{producto.name.substring(0,83)}}</div>
+                      <div class="my-4 subtitle-2">{{producto.value}}</div>
+                    </v-card-text> 
+                    <v-divider class="mx-4">Costos</v-divider>
+                    <v-card-title >
+                      {{ formatMXN(producto.l0) }}
+                    </v-card-title> 
+                    <v-card-text>  
+                      <div class="my-4 subtitle-1">
+                        Cantidad Disponible: {{ producto.mex_quantytotal }}
+                      </div> 
+                    </v-card-text> 
+                  </v-card> 
+                </v-col> 
+              </v-row>   
+              <div class="text-center">
+                <v-pagination 
+                  v-on:input="paginator" 
+                  v-model="page" 
+                  :length="lengthPaginator"  
+                  circle
+                  :total-visible="7"
+                  ></v-pagination>
+              </div>  
+              <br> 
+          </v-col>
+          <v-col cols="12" sm="2" v-if="!isMobile()">
+                <v-alert dismissible class="my-5">
+                  <v-alert dense type="info">
+                    Para dar una mejor presentación a sus productos adquiera nuestras <strong>NUEVAS BOLSAS</strong>
+                  </v-alert>
+                <v-col  v-for="producto in productosOferta" :key="producto.value">  
+                  <center>
+                  <v-alert width="100%" color="cyan" border="left"  elevation="1" colored-border> 
+                        <div  @click="seeProduct(producto.value)">
+                        <center>   
+                          <v-img width="70%" :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" 
+                                :lazy-src="`../../public/noImg.png`"
+                                  aspect-ratio="1" class="grey lighten-2"> 
+                            <template v-slot:placeholder>
+                              <v-row class="fill-height ma-0" align="center" justify="center">
+                                <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                              </v-row>
+                            </template> 
+                          </v-img>
+                        </center>
+                        <v-card-text>
+                          <div class="my-4 subtitle-3">{{producto.name.substring(0,83)}}</div> 
+                        </v-card-text>  
+                        </div>
+                  </v-alert>
+                  </center>
+              </v-col>
+               </v-alert> 
+          </v-col>
+      <v-col cols="12" sm="1"></v-col>
+     </v-row>       
+</template>
+
+    <!-- <v-main class="grey lighten-2" style="width:100%" > 
+      <v-container class="grey lighten-5" >
+        <v-row> 
+          <v-col>
+            vfgbhjk 
+          </v-col>
+          <v-col> 
+              
+          </v-col>
+       
+        </v-row>  
     </v-container>      
-    </v-main> 
+    </v-main>  -->
+
   </v-app> 
 </template>  
  
@@ -199,31 +391,33 @@ export default {
   name: "Productos", 
   props: ['pagina'], 
   data() {
-    return { 
+    return {
+      productosOferta : [],
       ordenMenorP : false,
       ordenMayorP : false,
-      ordenMasVendido : false,
-      orden : null,
+      ordenMasVendido : false, 
+      orden : 'Descripción',
       isfilterAndalucia:true,
       isfilterLD:true,
+      onlystock : false,
+      page: 1,
+      filter : "",
+
       min: 0,
       max: 5000,
       range: [0, 5000],
       maxProd : 0,
       minProd : 0,
       // isMobile : null,
-      onlystock : false,
       sceemFiltro : false,
       typeScreem:null,
-      page: 1,
       productos : [],
       productosPaginator : [],
       lengthPaginator:0,
-      totalPage:8,
+      totalPage:9,
       isLogged : false,
       user : {},
       isLoad : false,
-      filter : "",
       valorBuscado : "",
       verfiltro : false,
       productosFiltrados : []
@@ -234,6 +428,7 @@ export default {
     'app-menu': AppMenu, 
   }, 
   async created() {  
+    console.log(this.$route.query);
     try{
       if (parseInt(this.pagina) > 0) {
         this.page = parseInt(this.pagina);
@@ -244,13 +439,48 @@ export default {
       this.page = 1;
     }
     this.isLoad = true;  
-    await this.validaLogin(); 
+    await this.validaLogin();
     await this.allProduct(); 
+    this.productosOferta = [];
+    for (let index = 0; index < this.productos.length; index++) {
+      let element = this.productos[index];  
+      if (element.value == 'P15UN0978' || element.value == 'P15UN0979') {
+          this.productosOferta.push(element);
+      } 
+    } 
     this.getExtremos();
+    if(this.recoverParams()){
+      this.applyFilter();
+    } 
     await this.paginator();
+    console.log(this.andalucia);
     this.isLoad = false;  
+    
   } 
-  ,methods: { 
+  ,methods: {
+    recoverParams(){ 
+      if (this.$route.query.isValid != undefined) { 
+        try {
+          this.filter = this.$route.query.filter;
+          this.onlystock = this.$route.query.onlystock=='true'?true:false; 
+          if (this.$route.query.range != undefined) { 
+            this.range = this.$route.query.range;
+          } 
+          this.isfilterAndalucia = this.$route.query.isfilterAndalucia=='true'?true:false;
+          this.isfilterLD = this.$route.query.isfilterLD=='true'?true:false;
+          this.ordenMenorP =  this.$route.query.ordenMenorP=='true'?true:false;
+          this.ordenMayorP = this.$route.query.ordenMayorP=='true'?true:false;
+          this.ordenMasVendido = this.$route.query.ordenMasVendido=='true'?true:false;
+          this.orden = this.$route.query.orden; 
+          return true;
+        } catch (error) { 
+          console.log(error);
+          return false;
+        }
+      }else{
+        return false;
+      }
+    },
     getExtremos(){
       for (let index = 0; index < this.productos.length; index++) {
         const element = this.productos[index]; 
@@ -271,7 +501,7 @@ export default {
     async applyFilter(){
       this.ordenMenorP = false;
       this.ordenMayorP = false;
-      this.ordenMasVendido = false;
+      this.ordenMasVendido = false; 
       switch (this.orden) {
         case 'Menor precio': 
           this.ordenMenorP = true; 
@@ -281,7 +511,7 @@ export default {
           break;
         case 'Más vendido':  
           this.ordenMasVendido = true;
-          break;  
+          break;    
       }
       this.isLoad = true;   
       await this.allProduct();
@@ -360,7 +590,7 @@ export default {
             ,ld : this.isfilterLD 
             ,ordenMenorP : this.ordenMenorP
             ,ordenMayorP : this.ordenMayorP
-            ,ordenMasVendido : this.ordenMasVendido
+            ,ordenMasVendido : this.ordenMasVendido 
         }
       }
       ).then(function (response) { 
@@ -375,23 +605,14 @@ export default {
         return [];
       }); 
       this.lengthPaginator = Math.ceil(this.productos.length/this.totalPage); 
-    },imageExists(image_url){
-
-    var http = new XMLHttpRequest();
-
-    http.open('HEAD', image_url, false);
-    http.send();
-
-    return http.status != 404;
-
-    }
+    } 
     ,async paginator(){   
       this.isLoad = true; 
       this.productosPaginator = [];
       let fin = ((this.page * (this.totalPage )) -1) > (this.productos.length -1) ? (this.productos.length -1):((this.page * (this.totalPage )) -1);  
+    
       for (let index = ( ( (this.page -1) * this.totalPage)); index <= fin; index++) {
         let element = this.productos[index];   
-
         // let img =  await axios.get(config.apiAdempiere + "/productos/imgByValue"
         //           ,{headers: { 'token': this.$cookie.get('token') },params: {filter: element.value}})
         // .then(function (response) { 
@@ -426,7 +647,20 @@ export default {
       var formatter = new Intl.NumberFormat('en-ES', {style: 'currency', currency: 'USD',});
       return formatter.format(value);
     },seeProduct(value){  
-      this.$router.push('/shop/Product/'+value+'/home/'+ this.page)
+      // this.$router.push({
+      //   path:`/shop/Product/${value}/home/${this.page}`
+      //   ,query:{
+      //     filter: this.filter
+      //     ,onlystock : this.onlystock
+      //     ,range : this.range
+      //     ,isfilterAndalucia : this.isfilterAndalucia 
+      //     ,isfilterLD : this.isfilterLD 
+      //     ,ordenMenorP : this.ordenMenorP
+      //     ,ordenMayorP : this.ordenMayorP
+      //     ,ordenMasVendido : this.ordenMasVendido 
+      //     ,orden : this.orden
+      // }});
+      this.$router.push(`/shop/Product/${value}/home/${this.page}`);
     } 
   },
   

@@ -6,7 +6,7 @@
         <v-spacer></v-spacer> 
 
         <v-toolbar-title> 
-          <a @click="menu('/shop/Foro')">
+          <a style="color:#fff;" @click="menu('/shop/Foro')">
             <!-- <v-icon style="margin:5px"  >mdi-account-group-outline</v-icon> -->
             Foro
           </a>

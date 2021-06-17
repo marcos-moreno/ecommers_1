@@ -213,8 +213,8 @@
               </p>
               <br> 
           </v-card> 
-        </div>  
-      </v-container> 
+        </div>
+      </v-container>
     </template>
 
     <v-container v-if="shopingcarlength == 0 && isLoad == false && this.saleOrder.status_pay != 'pagado'"  style="min-height:656px;"  >
@@ -655,7 +655,7 @@ export default {
           }else{
             this.factura = false;
             this.msgFactura = `Esta compra NO generará factura, en caso 
-            de requerirla ponte en contacto con tu agente de ventas o al número 5551757108.`;
+            de requerirla ponte en contacto con tu agente de ventas o al número 55-5175-7108.`;
             this.typeMsgFactura = 'warning';
           } 
           this.isLogged = true;

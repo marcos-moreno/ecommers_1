@@ -141,7 +141,37 @@
                 </v-list-item-content> 
               </v-list-item>  
             </v-card> 
-        </v-row>  
+        </v-row> 
+
+        <v-row class="my-5"> 
+          <v-container>
+            <p>Productos Novedad</p> 
+              <v-card> 
+                <v-row v-for="producto in productosOferta" :key="producto.value" @click="seeProduct(producto.value)">
+                  <v-col  cols="12" sm="6" md="2"  >  
+                    <v-img width="140px" :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" :lazy-src="`../../public/noImg.png`"
+                      aspect-ratio="1" class="grey lighten-2" > 
+                      <template v-slot:placeholder>
+                        <v-row class="fill-height ma-0" align="center" justify="center">
+                          <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                        </v-row>
+                      </template> 
+                    </v-img>
+                  </v-col>
+                  <v-col cols="12" sm="6" md="10">
+                    <div class="my-5" style="font-size: 1em;color :#00A6FF">  
+                      <v-icon style=" color: green;">mdi-shopping</v-icon>
+                      Para dar una mejor presentación a sus productos adquiera nuestras NUEVAS BOLSAS
+                    </div>
+                    <div  style="font-size: 1em;">  
+                    {{ producto.name }}
+                    </div>  
+                  </v-col> 
+                </v-row> 
+              </v-card>  
+          </v-container> 
+        </v-row> 
+      
       </v-row> 
       <v-row v-else no-gutters class="my-1 mx-auto">
           <v-container  style="min-height:556px;"  >
@@ -227,18 +257,18 @@ export default {
       ,agregado : false
       ,productoEncontrado: false
       ,msgErro:''
+      ,productosOferta : []
+      ,cpdePromo :['P15UN0978','P15UN0979']
+      ,codigoProd : ""
     }
   },
   components: { 
       'app-menu': AppMenu, 
   }, 
   async created(){ 
-    window.scrollTo(0,0);
-    this.isMobile();
-    this.isLoad = true;
-    await this.validaLogin(); 
-    await this.getProduct();
-    this.isLoad = false;
+    this.codigoProd = this.value; 
+    window.scrollTo(0,0); 
+    this.iniciaDatos();
   },
   methods:{
     isMobile(){
@@ -255,8 +285,12 @@ export default {
         }
     },
     returnOrigen(){
-        if (this.origen == "home") {
-          this.menu("/shop/"+this.origen+'/'+this.pagina);
+        if (this.origen == "home") { 
+          let regresarParametros = this.$route.query;
+          regresarParametros.isValid = true;
+          // this.$router.push({path:`/shop/${this.origen}/${this.pagina}` ,query: regresarParametros});
+          this.menu("/shop/Home/");
+          // this.menu("/shop/Home/"+this.pagina);
         }else{
           this.menu("/shop/"+this.origen+'/');
         }
@@ -275,9 +309,30 @@ export default {
     },
     menu(path){
         if (this.$route.path !== path){
-        this.$router.push(path);
+          this.$router.push(path);
         }  
     }, 
+    seeProduct(value){  
+      this.codigoProd = value;
+      this.iniciaDatos();
+    },
+    async iniciaDatos(){ 
+      this.isLoad = true;
+      await this.validaLogin(); 
+      await this.getProduct(); 
+      this.productosOferta = [];
+      for (let index = 0; index < this.cpdePromo.length; index++) {
+        let responce = await this.getProductByCode(this.cpdePromo[index]); 
+        try {
+          if (responce.value != undefined && responce.value != this.codigoProd) {
+            this.productosOferta.push(responce);
+          }
+        } catch (error) {
+          console.log(error);
+        } 
+      }
+      this.isLoad = false;
+    },
     async addtocar(){  
         this.isLoad = true;
         if (this.isLogged) {
@@ -358,7 +413,7 @@ export default {
         this.producto = await axios.get(uri
         ,{headers: { 'token': this.$cookie.get('token') },
         params: {
-            filter: this.value
+            filter: this.codigoProd
             ,onliStock : 0
             ,range : [0]
             ,andalucia : '0' 
@@ -375,29 +430,7 @@ export default {
         if (this.producto.status == "success") {
             this.producto = this.producto.data;    
           if (this.producto.length > 0) {
-              this.producto = this.producto[0];  
-              // try {
-              //   let img = await axios.get(config.apiAdempiere + "/productos/imgByValue"
-              //         ,{headers: { 'token': this.$cookie.get('token') },params: {filter: this.value}})
-              //         .then(function (response) {  
-              //           return response.data.data;
-              //         }).catch(function (response){  
-              //           console.log(response);
-              //           return response;
-              //         }); 
-              //       if (img.length == 1) {
-              //         img = img[0].img;
-              //         this.producto.img = 'data:image/jpeg;base64,' + btoa(
-              //             new Uint8Array(img.data)
-              //         .reduce((data, byte) => data + String.fromCharCode(byte), '')
-              //         );  
-              //       }else{ 
-              //         this.producto.img = "/noImg.png";
-              //       }
-                 
-              // } catch (error) {
-              //    this.producto.img = "/noImg.png";
-              // } 
+              this.producto = this.producto[0];   
             this.productoEncontrado = true; 
           }  
         } else {
@@ -405,6 +438,28 @@ export default {
         } 
       } catch (error) {
         this.productoEncontrado = false; 
+      }
+    },
+    async getProductByCode(value){
+      try {
+        let uri = config.apiAdempiere + "/productos/all";
+        const producto = await axios.get(uri
+        ,{
+          headers: { 'token': this.$cookie.get('token') },
+          params: {filter: value,onliStock : 0,range : [0],andalucia : '0',ld : '0',ordenMenorP : '0',ordenMayorP : '0',ordenMasVendido : '0' }
+        }).then(function (response) { 
+          return response.data;
+        }).catch(function (response){  
+          return response;
+        });  
+       
+        if (producto.status == "success") { 
+            return producto.data[0];
+        } else {
+          return [];
+        } 
+      } catch (error) {
+        return false;
       }
     },
     async validaLogin(){
