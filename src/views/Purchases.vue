@@ -35,8 +35,7 @@
                             <v-col cols="6" sm="4">
                                 <div>Método de pago</div> 
                                 <div style="color :#000">
-                                    {{  purchase.method_pay=="EFE"?"Pago en sucursal": (purchase.method_pay=="CRE"?"Crédito":
-                                     (purchase.method_pay=="paypal"?"Paypal":"Error de pago"))}}
+                                    {{buscarTipoPago(purchase.method_pay)}} 
                                      ({{purchase.estado_pago}})
                                 </div>
                             </v-col>
@@ -72,6 +71,11 @@
                             <v-col  cols="6" sm="4">
                                 <div>Fecha programada para la entrega</div>
                                 <div style="color :#000">{{formatDate(purchase.fechaprometida)}}</div>
+                            </v-col> 
+                            <v-col  cols="6" sm="4">
+                                <v-btn x-small text color="primary" @click="acuse(purchase)">
+                                    Imprimir orden
+                                </v-btn>
                             </v-col> 
                             <!-- <v-col  cols="6" sm="4">
                                 <v-btn x-small text color="primary" >
@@ -165,6 +169,8 @@
 import config from '../json/config.json'
 import axios from 'axios'; 
 import AppMenu from '../components/Menu.vue';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 export default {
   name: "CrudDepartment",
   data() {
@@ -179,7 +185,7 @@ export default {
     }; 
   }, 
   async created() {
-    this.isLoad = true;  
+    this.isLoad = true;   
     await this.validaLogin();
     if (this.isLogged) {
       await this.allPurchases();
@@ -192,14 +198,91 @@ export default {
   ,components: { 
         'app-menu': AppMenu, 
   },
-  methods: { 
-    async allSucursales(){  
+  methods: {
+      buscarTipoPago(method_pay){
+       let valur = "";
+       switch (method_pay) {
+          case "EFE":
+            valur = "Pago en sucursal";
+            break;
+           case "CRE":
+            valur = "Crédito";
+            break;
+           case "paypal":
+            valur = "Paypal";
+            break;  
+          default:
+            valur = "No definido";
+            break;
+        } 
+        return valur;
+      }, 
+      async acuse(data){   
+        this.isLoad = true;
+        let bodyTBL= []; 
+        let totl = (500 + (data.productos.length * 25));
+        var doc = new jsPDF('p', 'pt',[500,totl ]);
+        var img = new Image()
+        img.src = '/refivid.png'; 
+        doc.addImage(img,'png', 150, 18, 0, 0);    
+        doc.setTextColor(0,106,164);
+        doc.setFontSize(11);
+        doc.text(40,100,`Estimado/a ${data.nombre_cliente}`);
+        doc.text(175,115,`¡Muchas gracias por tu compra!`);
+        doc.setTextColor(0,0,0);
+        doc.setFontSize(15);
+        doc.text(145,140,`Orden de Venta ${data.documentno}`);
+        doc.setFontSize(10);
+        doc.text(40,165,`Fecha de compra: ${this.formatDate(data.created_at)} ${this.formatTime(data.created_at)}`);
+        doc.text(40,180,`Entrega programada para el: ${this.formatDate(data.fechaprometida)} ${this.formatTime(data.fechaprometida)}`);
+        doc.text(40,195,`Entrega en la Sucursal: ${this.buscaSucursal(data.ad_org_recpt_id)}`);
+        doc.text(40,210,`Método de pago: ${this.buscarTipoPago(data.method_pay)}`);
+        let counPosition = 245;
+        for (let index = 0; index < data.productos.length; index++) {
+          const element = data.productos[index]; 
+          let imgs = await axios.get(config.apiAdempiere + "/productos/imgByValue"
+            ,{headers: { 'token': this.$cookie.get('token') },
+            params: {filter: element.value}})
+            .then(function (response) {  
+              return response.data.data;
+            }).catch(function (response){   
+              return response;
+            });
+          if (imgs.length == 1) {
+            imgs = imgs[0].img;
+            imgs = 'data:image/jpeg;base64,' + btoa(
+                new Uint8Array(imgs.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
+            ); 
+            doc.addImage(imgs,'jpg', 35, counPosition, 40, 40); 
+          }
+          counPosition += 45; 
+          bodyTBL.push([element.name,`${element.quantity} X ${this.formatMXN(element.price)}`,this.formatMXN(element.total)]);
+        }  
+        doc.autoTable({
+          head: [['Producto' ,'Cantidad','Subtotal']],
+          margin: { top: 225,left:80 }, 
+          bodyStyles: {minCellHeight: 40},
+          body: bodyTBL, 
+        });
+        let finalY = doc.lastAutoTable.finalY;
+        doc.setFontSize(15);
+        doc.text(180, finalY+20,'Total: ' + this.formatMXN(data.grandtotal));
+        doc.setFontSize(10);
+        doc.text(45, finalY+38,'Para cualquier duda o aclaración comunicate al télefono 55-5175-7108.');
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            window.open(doc.output("bloburl"), "_blank");   
+        } else {
+            doc.save(`Orden de venta ${data.documentno}.pdf`);
+        }
+        this.isLoad = false;
+    },  
+    async allSucursales(){ 
         this.sucursales = await axios.get(config.apiAdempiere + "/sucursal/get_auth", 
         {
           'headers': { 'token': this.$cookie.get('token') }
         }).then(res=>{return res.data.data;})
         .catch(err=>{return err;}); 
-    },
+    },   
     buscaSucursal(idOrg){ 
       let nombreSucursal = "";
       this.sucursales.forEach(element => {
@@ -234,29 +317,7 @@ export default {
         }).then(res=>{return res.data;})
         .catch(err=>{return err;});   
         if (puchases.status == "success") { 
-            this.purchases = puchases.data;
-            // for (let ip = 0; ip < this.purchases.length; ip++) {  
-            //     for (let index = 0; index < this.purchases[ip].productos.length; index++) {   
-            //         if (this.purchases[ip].productos[index].prodCompleto.status == "success") { 
-            //             let img = await axios.get(config.apiAdempiere + "/productos/imgByValue"
-            //               ,{headers: { 'token': this.$cookie.get('token') },params: {filter: this.purchases[ip].productos[index].value}})
-            //               .then(function (response) {  
-            //                 return response.data.data;
-            //               }).catch(function (response){  
-            //                 console.log(response);
-            //                 return response;
-            //               });
-            //             if (img.length == 1) {
-            //               img = img[0].img;
-            //               this.purchases[ip].productos[index].img = 'data:image/jpeg;base64,' + btoa(
-            //                   new Uint8Array(img.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
-            //               );  
-            //             }else{ 
-            //               this.purchases[ip].productos[index].img = "/noImg.png";
-            //             }
-            //         }
-            //     } 
-            // }  
+            this.purchases = puchases.data; 
         }else if(this.user.status == "unauthorized"){  
             this.menu('/shop/Login/');
         }  
@@ -266,7 +327,7 @@ export default {
     }
     ,formatMXN(value) {
         var formatter = new Intl.NumberFormat('en-ES', {style: 'currency', currency: 'USD',});
-        return `MXN ${formatter.format(value)}`;
+        return `${formatter.format(value)} MXN`;
     },
     formatDate(dates) { 
         var month= ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio",
