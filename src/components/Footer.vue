@@ -47,10 +47,13 @@
       </v-card-text>
       </v-col>
       </v-row>
-     
+
+     <v-card-text class="white--text pt-0">
+        <a @click="menu('/shop/AvisoPrivacidad')">Aviso de Privacidad</a>
+      </v-card-text>
 
       <v-card-text class="white--text pt-0">
-        R-F HOODS & TRUCK PARTS SA DE CV Carretera Federal México Pachuca KM 30, Col. La Esmeralda, 55765 Tecámac, Estado de México, México
+        RFV TRUCK PARTS AND ACCESORIES S.A. DE C.V. Carretera Federal México Pachuca KM 30, Col. La Esmeralda, 55765 Tecámac, Estado de México, México
       </v-card-text>
 
       <v-divider></v-divider>
@@ -72,11 +75,25 @@
         'mdi-linkedin',
         'mdi-instagram',
       ],
-    }),
+    }), 
     methods:{
       direccionar(path){    
         window.open(path, '_blank'); 
       }
-    }
+      ,menu(path){ 
+        if (path == '/shop/Home') {
+          location.href = "/shop/Home";
+        }
+        if (this.$route.path !== path &&
+          this.$route.path !== 
+          ((path.charAt(path.length-1) == '/')?path.substring(0,(path.length-1)):path +'/')
+        ){
+          this.$router.push(path);
+        } 
+        this.menuAccount = false;
+        this.menuNoAccount = false;
+      }
+    },
+ 
   }
 </script>

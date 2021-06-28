@@ -20,6 +20,8 @@ const routes = [
   
   ,{ path: '/shop/Foro/',name: 'Foro',props: true,component: () => import('../views/Foro.vue')}
 
+  ,{ path: '/shop/AvisoPrivacidad/',name: 'AvisoPrivacidad',props: true,component: () => import('../views/Avisoprivacidad.vue')}
+
   ,{ path: '/shop/deliveries', name: 'Deliveries',component: () => import('../views/Deliveries.vue')}
 
 // */
