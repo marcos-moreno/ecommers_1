@@ -6,7 +6,7 @@ Vue.use(VueRouter)
 
 const routes = [
    { path: '/', redirect: 'shop',}
- // /*
+ /*
   ,{ path: '/shop/',redirect: '/shop/Home',  }
   ,{ path: '/shop/Home', name: 'Home',component: () => import('../views/Home.vue')}
   ,{ path: '/shop/Buy', name: 'Buy',component: () => import('../views/Buy.vue')}
@@ -24,7 +24,7 @@ const routes = [
 
   ,{ path: '/shop/deliveries', name: 'Deliveries',component: () => import('../views/Deliveries.vue')}
 
-// */
+*/
   ,{ path: '/shop/register/',name: 'preRegistro',props: true,component: () => import('../views/pre-registro.vue')}
   
   // Admin
