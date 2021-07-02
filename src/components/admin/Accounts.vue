@@ -24,7 +24,7 @@
         </v-alert>
     </v-container> 
 
-    <v-container v-if="!isCrud"> 
+    <v-container v-if="!isCrud" style="min-width: 80%;"> 
         <template> 
             <div> 
                 <v-row>
@@ -142,12 +142,12 @@ export default {
         search: '',
         headers: [ 
             {
-                text: 'Nombre',
+                text: 'Nombre_completo_Cliente',
                 align: 'start',
                 // filterable: false,
                 value: 'cpname',
             },
-            { text: 'name2', value: 'name2'},
+            // { text: 'name2', value: 'name2'},
             { text: 'Usuario ID', value: 'ad_user_id' },
             { text: 'Socio ID', value: "c_bpartner_id" }, 
             { text: 'phone2', value: 'phone2'}, 

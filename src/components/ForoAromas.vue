@@ -1,201 +1,118 @@
-<template> 
-    <center>  
-        <template>
-            <v-list-item-title class="text-h5 mb-1">
-                ¿QUÉ AROMAS MANEJAN?
-                </v-list-item-title>
-                    <v-list-item-subtitle>
-                    Contamos con una gran variedad de aromas que se dividen en: 
-                </v-list-item-subtitle>
-                <br>
-                <v-container class="grey lighten-5">
-                    <v-row class="mb-6" no-gutters>  
-                        <v-col>
-                            <v-card  width="260" height="250" class="mx-auto" max-width="344" outlined > 
-                                <v-list-item three-line>
-                                    <v-list-item-content> 
-                                        <v-list-item two-line>
-                                        <v-list-item-content>
-                                            <v-list-item-title>AMADERADOS</v-list-item-title>
-                                            <v-list-item-subtitle>Al Oud</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Pino</v-list-item-subtitle>  
-                                        </v-list-item-content>
-                                        </v-list-item> 
-                                    </v-list-item-content> 
-                                </v-list-item> 
-                            </v-card>
-                        </v-col>
-                        <v-col>
-                            <v-card  width="260" height="250" class="mx-auto" max-width="344" outlined > 
-                                <v-list-item three-line>
-                                    <v-list-item-content> 
+<template>
+    <v-card color="basil" >
+    <v-card-title class="text-center justify-center py-6">
+      <h1 class="font-weight-bold text-h5 basil--text">
+        ¿QUÉ AROMAS MANEJAN?
+      </h1>
+    </v-card-title> 
+    <v-card-title color="basil" class="justify-center"> 
+            <v-list color="basil"  max-width="400">
+            <v-list-group  prepend-icon="mdi-ticket" v-for="clasearoma in items" :key="clasearoma.name" no-action >
+                <template v-slot:activator>
+                <v-list-item-content>
+                    <v-list-item-title v-text="clasearoma.name"></v-list-item-title>
+                </v-list-item-content>
+                </template> 
+                <v-list-item v-for="aroma in clasearoma.values" :key="aroma">
+                <v-list-item-content>
+                    <v-list-item-title v-text="aroma"></v-list-item-title>
+                </v-list-item-content>
+                </v-list-item>
+            </v-list-group>
+            </v-list>
+    </v-card-title> 
+</v-card>
+</template> 
 
-                                        <v-list-item two-line>
-                                        <v-list-item-content>
-                                            <v-list-item-title>DULCES</v-list-item-title>
-                                            <v-list-item-subtitle>Algodón de Azúcar</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Vainilla Americana</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Vainilla</v-list-item-subtitle> 
-
-                                        </v-list-item-content>
-                                        </v-list-item>
-
-                                    </v-list-item-content> 
-                                </v-list-item> 
-                            </v-card>
-                        </v-col>
-                        <v-col>
-                            <v-card  width="260" height="250" class="mx-auto" max-width="344" outlined > 
-                                <v-list-item three-line>
-                                    <v-list-item-content> 
-                                        
-                                        <v-list-item two-line>
-                                        <v-list-item-content>
-                                            <v-list-item-title>FRESCOS</v-list-item-title> 
-                                            <v-list-item-subtitle>Aloe Menta</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Antitabaco</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Bosque</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Cool Black</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Océano</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Polar</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Te Verde</v-list-item-subtitle>
-                                        </v-list-item-content>
-                                        </v-list-item> 
-
-                                    </v-list-item-content> 
-                                </v-list-item> 
-                            </v-card>
-                        </v-col>
-                        <v-col>
-                            <v-card  width="260" height="250" class="mx-auto" max-width="344" outlined > 
-                                <v-list-item three-line>
-                                    <v-list-item-content> 
-
-
-                                        <v-list-item two-line>
-                                        <v-list-item-content>
-                                            <v-list-item-title>CÍTRICOS</v-list-item-title>
-                                            <v-list-item-subtitle>Naranja</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Limón</v-list-item-subtitle>
-                                        </v-list-item-content>
-                                        </v-list-item>  
-
-
-                                    </v-list-item-content> 
-                                </v-list-item> 
-                            </v-card>
-                        </v-col>
-                        <v-col>
-                            <v-card  width="260" height="250" class="mx-auto" max-width="344" outlined > 
-                                <v-list-item three-line>
-                                    <v-list-item-content> 
-
-
-                                        <v-list-item two-line>
-                                        <v-list-item-content>
-                                            <v-list-item-title>AROMATICOS</v-list-item-title>
-                                            <v-list-item-subtitle>Eucalipto</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Lavanda</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Menta</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Peppermint Herb Tea</v-list-item-subtitle>
-                                        </v-list-item-content>
-                                        </v-list-item>  
-                                    </v-list-item-content> 
-                                </v-list-item> 
-                            </v-card>
-                        </v-col>
-                        <v-col>
-                            <v-card  width="260" height="250" class="mx-auto" max-width="344" outlined > 
-                                <v-list-item three-line>
-                                    <v-list-item-content> 
-
-                                        <v-list-item two-line>
-                                        <v-list-item-content>
-                                            <v-list-item-title>FRUTALES</v-list-item-title>
-                                            <v-list-item-subtitle>Canela Manzana</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Cereza</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Chicle</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Coco</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Explosión Tropical</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Fresa</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Frutos Rojos</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Melocotón</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Melón</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Piña Tropical</v-list-item-subtitle>
-                                        </v-list-item-content>
-                                        </v-list-item> 
-
-                                </v-list-item-content> 
-                                </v-list-item> 
-                            </v-card>
-                        </v-col>
-                        <v-col>
-                            <v-card  width="260" height="250" class="mx-auto" max-width="344" outlined > 
-                                <v-list-item three-line>
-                                    <v-list-item-content> 
-
-
-                                        <v-list-item two-line>
-                                        <v-list-item-content>
-                                            <v-list-item-title>FLORALES</v-list-item-title>
-                                            <v-list-item-subtitle>Flor de Azahar</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Jazmín</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Lila</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Rosa</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Ylang Ylang</v-list-item-subtitle>
-                                        </v-list-item-content>
-                                        </v-list-item> 
-
-                                    </v-list-item-content> 
-                                </v-list-item> 
-                            </v-card>
-                        </v-col>
-                        <v-col>
-                            <v-card  width="260" height="250" class="mx-auto" max-width="344" outlined > 
-                                <v-list-item three-line>
-                                    <v-list-item-content> 
-
-
-                                        <v-list-item two-line>
-                                        <v-list-item-content>
-                                            <v-list-item-title>LINEA AIR CAR</v-list-item-title>
-                                            <v-list-item-subtitle>Angel</v-list-item-subtitle>
-                                            <v-list-item-subtitle>One</v-list-item-subtitle>
-                                            <v-list-item-subtitle>ºF</v-list-item-subtitle>
-                                            <v-list-item-subtitle>The Man</v-list-item-subtitle>
-                                            <v-list-item-subtitle>Homme</v-list-item-subtitle>
-                                        </v-list-item-content>
-                                        </v-list-item> 
-
-                                    </v-list-item-content> 
-                                </v-list-item> 
-                            </v-card>
-                        </v-col>
-                        <v-col>
-                            <v-card  width="260" height="250" class="mx-auto" max-width="344" outlined > 
-                                <v-list-item three-line>
-                                    <v-list-item-content> 
-
-                                        <v-list-item two-line>
-                                        <v-list-item-content>
-                                            <v-list-item-title>LINEA ELITE CLASS ONE</v-list-item-title>
-                                            <v-list-item-subtitle>Exclussive One</v-list-item-subtitle>
-                                            <v-list-item-subtitle>One Billion</v-list-item-subtitle>
-                                            <v-list-item-subtitle>One VIP</v-list-item-subtitle>
-                                        </v-list-item-content>
-                                        </v-list-item>  
-
-                                    </v-list-item-content> 
-                                </v-list-item> 
-                            </v-card> 
-                        </v-col>
-
-                    </v-row> 
-                </v-container>  
-        </template> 
-    </center>
-</template>
-
-<script> 
-
+<script>
+  export default {
+    data: () => ({ 
+      items: [
+        {
+          name: 'FRUTALES',
+          values: ["California Sun","Cereza","Chicle","Coco","Frambuesa","Fresa","Frutos Rojos","Mango"
+                    ,"Manzana","Melocotón","Melón","Granada","Manzana Verde","Cacao Banana"]
+        },
+        {
+          name: 'FLORALES',
+          values: ["Flor de Azahar","Jazmín","Rosa","Rosa Damascena","Violet South Grasse","Floral","Agua de Flores"
+          ,"Flor de Tahití","Dama de Noche","Edén","Sakura","Renacer"]
+        },
+        {
+          name: 'LINEA AIR CAR',
+          values: ["Angel","One","ºF","The Man","Homme"]
+        },
+        {
+          name: 'LINEA ELITE CLASS ONE',
+          values: ["One Billion","One VIP","One Exclusive"]
+        },
+        {
+          name: 'AROMATICOS/CÍTRICOS',
+          values: ["Aromatherapy","Pack Top"]
+        },
+        { 
+          name: 'ESPECIADOS',
+          values: ["Especias de la India","Té Moruno","Té Negro"]
+        },
+        {
+          name: 'BOLSAS',
+          values: ["Aromas de Andalucía","Air Natur Home"]
+        },
+        {
+          name: 'DIFUSOR',
+          values: ["Esencia","Fragancia"]
+        },
+        {
+          name: 'AMADERADOS',
+          values: ["Pino","White Amber"]
+        },
+        {
+          name: 'DULCES',
+          values: ["Algodón de Azúcar","Vainilla","Piruleta","Fresa Cremosa","Tarta de Manzana","Romance"]
+        },
+        {
+          name: 'FRESCOS',
+          values: ["Antitabaco","Bosque","Coche Nuevo","Cool Black","Océano","Polar","Té Verde","Pino Salvaje"
+          ,"Baby Touch","Danza Balinesa","Estrella de Mar","Mediterráneo","Sky","Storm"]
+        },
+        {
+          name: 'CÍTRICOS',
+          values: ["Naranja","Limón","Limón Pera","Brisa Cítrica","Zero Car"]
+        }, 
+        {
+          name: 'AROMATICOS',
+          values: ["Eucalipto","Lavanda","Menta","Jabón"]
+        },
+        {
+          name: 'BALSAMICOS',
+          values: ["Café","Flor de Vainilla","Agua de Coco"]
+        },
+        {
+          name: 'AROMATICOS/CÍTRICOS/ESPECIADO',
+          values: ["Pack Starter"]
+        },
+        {
+          name: 'FLORALES/AMADERADO',
+          values: ["Al-Andalus","Unforgettable"]
+        },
+        {
+          name: 'FLORALES/FRUTALES',
+          values: ["World Edition","Unforgettable"]
+        },
+        {
+          name: 'NEUTRO',
+          values: ["Neutro"]
+        },
+      ],
+    }),
+  }
 </script>
+
+<style>
+.basil {
+  /* background-color: #FFFBE6 !important; */
+}
+.basil--text {
+  color: #356859 !important;
+}
+</style>

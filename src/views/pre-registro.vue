@@ -16,6 +16,7 @@
                     <v-card-title class="justify-center headline grey lighten-2">
                         AVISO DE PRIVACIDAD
                     </v-card-title>
+                    <br>
                     <aviso-privacidad/>
                     <v-divider></v-divider>
                     <v-card-actions>

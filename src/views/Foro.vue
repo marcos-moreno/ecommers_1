@@ -17,9 +17,9 @@
             </v-tab> 
             </v-tabs>  
           </v-tabs> 
-      </v-toolbar> 
+      </v-toolbar>  
     <v-card min-height="800px"> 
-      <ForoAromas v-if="tab==0" />
+      <ForoAromas v-if="tab==0" /> 
       <PreguntasFrecuentes v-if="tab==1" />
     </v-card> 
 </div>

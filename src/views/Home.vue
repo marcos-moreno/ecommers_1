@@ -427,8 +427,7 @@ export default {
     'app-slider': AppSlider,
     'app-menu': AppMenu, 
   }, 
-  async created() {  
-    console.log(this.$route.query);
+  async created() {   
     try{
       if (parseInt(this.pagina) > 0) {
         this.page = parseInt(this.pagina);
@@ -452,8 +451,7 @@ export default {
     if(this.recoverParams()){
       this.applyFilter();
     } 
-    await this.paginator();
-    console.log(this.andalucia);
+    await this.paginator(); 
     this.isLoad = false;  
     
   } 

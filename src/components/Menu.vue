@@ -2,16 +2,15 @@
   <div>
   <v-app-bar color="deep" dark> 
         <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon> 
-        <v-toolbar-title>Refividrio</v-toolbar-title> 
-        <v-spacer></v-spacer> 
+        <v-toolbar-title v-if="!isMobile()">Refividrio Distribuidores</v-toolbar-title> 
+        <v-toolbar-title v-else style="font-size: .8em">Refividrio Distribuidores</v-toolbar-title> 
 
-        <v-toolbar-title> 
+        <v-spacer></v-spacer>  
+        <v-toolbar-title v-if="!isMobile()"> 
           <a style="color:#fff;" @click="menu('/shop/Foro')">
-            <!-- <v-icon style="margin:5px"  >mdi-account-group-outline</v-icon> -->
             Foro
           </a>
         </v-toolbar-title>
-
         <v-toolbar-title>
           <v-btn @click="shopincaropen()" class="ma-2" text  color="#FFF"  >
             <v-icon>mdi-cart</v-icon>
@@ -20,6 +19,9 @@
               </div>
           </v-btn>
         </v-toolbar-title>
+
+        <div v-if="isLogged && !isMobile()" style="margin-right:10px">{{user.username}}</div>  
+
         <v-toolbar-title v-if="isLogged" > 
           <div class="text-center">
             <v-menu v-model="menuAccount" :close-on-content-click="false" :nudge-width="200" offset-x>
@@ -118,7 +120,7 @@
       <v-navigation-drawer v-model="drawer" absolute temporary>
         <v-list nav dense >
           <v-list-item-group>
-            Refividrio 
+            Refividrio Distribuidores 
               <v-list-item-group v-model="group"> 
               <v-list-item @click="menu('/shop/Home')">
                 <v-list-item-icon  >
@@ -168,6 +170,19 @@
     components: {
     },
     methods:{ 
+      isMobile(){
+        if( navigator.userAgent.match(/Android/i)
+          || navigator.userAgent.match(/webOS/i)
+          || navigator.userAgent.match(/iPhone/i)
+          || navigator.userAgent.match(/iPad/i)
+          || navigator.userAgent.match(/iPod/i)
+          || navigator.userAgent.match(/BlackBerry/i)
+          || navigator.userAgent.match(/Windows Phone/i)){
+          return true;
+        }else{
+          return false;
+        }
+      },
       shopincaropen(){ 
         if (this.isLogged) {
           this.menu('/shop/shopingcar/'); 

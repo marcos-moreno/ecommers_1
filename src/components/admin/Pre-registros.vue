@@ -21,7 +21,7 @@
         </v-alert>
     </v-container> 
 
-    <v-container v-if="!isCrud"> 
+    <v-container v-if="!isCrud" style="min-width: 80%;"> 
         <template> 
             <div> 
                 <v-row>

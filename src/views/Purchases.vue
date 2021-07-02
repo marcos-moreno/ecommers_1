@@ -11,6 +11,53 @@
           </v-card-text>
         </v-card> 
       </v-dialog>
+      
+      <v-dialog  v-model="dialogdiasentrega"  width="800"> 
+        <v-card>
+          <v-card-title style="background:#004996;color:#fff;">HORARIOS DISPONIBLES</v-card-title> 
+          <v-card-text>
+            <v-radio-group > 
+              <v-card dark color="#385F73" class="mx-auto">
+                <v-card-title style="font-size:14px">
+                  {{sucursal.name}}
+                </v-card-title>
+                 <center style="font-size:14px">
+                  No. Orden: {{purchase.documentno}}
+                </center>
+                <br>
+              </v-card>
+              <v-list>  
+                <v-radio-group>  
+                  <v-list-group v-for="dia in diasEntrega" :key="dia.fecha">
+                    <template v-slot:activator>
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          <v-card color="transparent">{{dia.valor}}</v-card>
+                        </v-list-item-title>
+                      </v-list-item-content>
+                    </template> 
+                      <v-list-item v-for="dia in diasEntrega" :key="dia.fecha">
+                        <v-list-item-content>
+                          <v-list-item-title>
+                            <v-radio :label="dia.valor" :value="dia" ></v-radio> 
+                          </v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                  </v-list-group>
+                </v-radio-group> 
+              </v-list>  
+            </v-radio-group>
+          </v-card-text>
+          <v-divider></v-divider> 
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" text @click="dialogdiasentrega = false" >
+              Guardar
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
     </div>
     <template >
       <v-tabs >
@@ -28,15 +75,53 @@
                       <div class="my-5 flex-grow-1 text-center">
                         <v-container class="grey lighten-5">
                         <v-row style="font-size: 0.9em;color :#909090">
-                            <v-col  cols="6" md="4">
+                            <v-col  cols="5" md="4">
                                 <div>Orden de Venta</div>
-                                <div style="color :#000" >{{purchase.documentno}}</div>
+                                <div style="color :#000" ><strong>{{purchase.documentno}}</strong></div>
                             </v-col>
+
+                            <div v-if="purchase.method_pay == 'TRA' &&
+                             (purchase.status_pay=='pendiente' || purchase.status_pay=='Cancelado' || purchase.requiresdate==true)" 
+                             cols="6" sm="4">
+                            </div>
+                            <v-col v-else cols="7" sm="4">
+                                <v-btn text color="primary" @click="acuse(purchase)">
+                                    Imprimir orden
+                                </v-btn>
+                            </v-col>
+                            <!-- <v-col v-if="purchase.method_pay == 'TRA' && purchase.requiresdate==true" cols="7" sm="4">
+                                <v-btn depressed color="primary" @click="asignarfechaRecoleccion(purchase)">
+                                  Fecha Entrega
+                                </v-btn>
+                            </v-col>  -->
+                            <v-col  cols="6" sm="4">
+                              <!-- <div>Fecha programada para la entrega</div> 
+                              <div style="color :#000" v-if="purchase.method_pay == 'TRA' &&
+                                (purchase.requiresdate==true || purchase.status_pay == 'pendiente')">
+                                <div style="color :red">Aún no asignada</div>
+                              </div>
+                              <div style="color :#000" v-else>
+                                {{formatDate(purchase.fechaprometida)}}
+                              </div> -->
+                              <!-- {{purchase.fechaprometida}} -->
+
+                              <div>Fecha disponible para la entrega</div>  
+                              <div style="color :#000" v-if="purchase.fechaprometida == undefined">
+                                Disponible hasta confirmar tu pago 
+                              </div>
+                              <div v-else style="color :#000">
+                                {{formatDate(purchase.fechaprometida)}} a partir de las {{purchase.horaprometida}}:00 hrs.
+                              </div>
+
+                            </v-col>
+                          
+                          
+
                             <v-col cols="6" sm="4">
                                 <div>Método de pago</div> 
                                 <div style="color :#000">
                                     {{buscarTipoPago(purchase.method_pay)}} 
-                                     ({{purchase.estado_pago}})
+                                     <!-- ({{purchase.estado_pago}}) -->
                                 </div>
                             </v-col>
                             <v-col cols="6" sm="4">
@@ -48,7 +133,7 @@
                             <v-col cols="6" sm="4">
                                 <div>Total</div>
                                 <v-row>
-                                    <v-col style="color :#000">{{formatMXN(purchase.grandtotal)}}</v-col>
+                                    <v-col style="color :#000"><strong>{{formatMXN(purchase.grandtotal)}}</strong></v-col>
                                 </v-row> 
                             </v-col>
                             <v-col  cols="6" sm="4">
@@ -67,16 +152,7 @@
                             <v-col  cols="6" sm="4">
                                 <div>Entrega en</div>
                                 <div style="color :#000">{{buscaSucursal(purchase.ad_org_recpt_id)}}</div>
-                            </v-col> 
-                            <v-col  cols="6" sm="4">
-                                <div>Fecha programada para la entrega</div>
-                                <div style="color :#000">{{formatDate(purchase.fechaprometida)}}</div>
-                            </v-col> 
-                            <v-col  cols="6" sm="4">
-                                <v-btn x-small text color="primary" @click="acuse(purchase)">
-                                    Imprimir orden
-                                </v-btn>
-                            </v-col> 
+                            </v-col>  
                             <!-- <v-col  cols="6" sm="4">
                                 <v-btn x-small text color="primary" >
                                     Ver Entregas
@@ -176,16 +252,20 @@ export default {
   data() {
     return { 
       page: 1,
+      dialogdiasentrega : false,
       purchases : [],
+      diasEntrega : [],
       isLogged : false,
       user : {},
       isLoad : false, 
       msgErro : "",
-      sucursales:[]
+      sucursales:[],
+      sucursal: {},
+      purchase : {}
     }; 
   }, 
   async created() {
-    this.isLoad = true;   
+    this.isLoad = true;
     await this.validaLogin();
     if (this.isLogged) {
       await this.allPurchases();
@@ -199,25 +279,43 @@ export default {
         'app-menu': AppMenu, 
   },
   methods: {
-      buscarTipoPago(method_pay){
-       let valur = "";
-       switch (method_pay) {
-          case "EFE":
-            valur = "Pago en sucursal";
-            break;
-           case "CRE":
-            valur = "Crédito";
-            break;
-           case "paypal":
-            valur = "Paypal";
-            break;  
-          default:
-            valur = "No definido";
-            break;
-        } 
-        return valur;
-      }, 
-      async acuse(data){   
+    async asignarfechaRecoleccion(compra){   
+      this.purchase = compra;
+      this.sucursal = {};
+      for (let index = 0; index < this.sucursales.length; index++) {
+          if(this.sucursales[index].ad_org_id == compra.ad_org_recpt_id) this.sucursal = this.sucursales[index];
+      }
+      this.diasEntrega = [];
+      this.diasEntrega = await axios.get(config.apiAdempiere + "/sucursal/get_dias_entrega"
+        ,{headers: { 'token': this.$cookie.get('token') },params: this.sucursal}
+      ).then(res=>{
+        return res.data.data;
+      }).catch(err=>{return err;});
+      this.dialogdiasentrega = true;
+      console.log(this.diasEntrega);
+    },
+    buscarTipoPago(method_pay){
+      let valur = "";
+      switch (method_pay) {
+        case "EFE":
+          valur = "Pago en sucursal";
+        break;
+        case "CRE":
+          valur = "Crédito";
+        break;
+        case "paypal":
+          valur = "Paypal";
+        break;
+        case "TRA":
+            valur = "Transferencia electrónica"
+        break;
+        default:
+          valur = "No definido";
+        break;
+      } 
+      return valur;
+    }, 
+    async acuse(data){   
         this.isLoad = true;
         let bodyTBL= []; 
         let totl = (500 + (data.productos.length * 25));
@@ -234,7 +332,7 @@ export default {
         doc.text(145,140,`Orden de Venta ${data.documentno}`);
         doc.setFontSize(10);
         doc.text(40,165,`Fecha de compra: ${this.formatDate(data.created_at)} ${this.formatTime(data.created_at)}`);
-        doc.text(40,180,`Entrega programada para el: ${this.formatDate(data.fechaprometida)} ${this.formatTime(data.fechaprometida)}`);
+        doc.text(40,180,`Entrega disponible a partir del día: ${this.formatDate(data.fechaprometida)} a las ${data.horaprometida==undefined?0:data.horaprometida}:00 hrs`);
         doc.text(40,195,`Entrega en la Sucursal: ${this.buscaSucursal(data.ad_org_recpt_id)}`);
         doc.text(40,210,`Método de pago: ${this.buscarTipoPago(data.method_pay)}`);
         let counPosition = 245;
