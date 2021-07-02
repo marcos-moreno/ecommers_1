@@ -17,132 +17,163 @@
         <v-col cols="12" sm="4">
           <v-btn icon color="blue" @click="returnOrigen"> <v-icon>mdi-arrow-left</v-icon>volver</v-btn>
         </v-col>
-        <v-col cols="12" sm="8" >
-          <!-- <v-btn icon color="blue" @click="returnOrigen"> <v-icon>mdi-arrow-left</v-icon>volver</v-btn> -->
+        <v-col cols="12" sm="8" > 
         </v-col>
       </v-row>
-    </v-container>
-   
+    </v-container> 
     <div v-if="productoEncontrado && isLoad == false" style="min-height: 600px;">
       <v-row v-if="agregado==false" no-gutters >
         <v-col>
-          <v-card  >  
-          <center>  
-            <!-- <v-img :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" :lazy-src="`../../public/noImg.png`"
-                    aspect-ratio="1" class="grey lighten-2" width="220" height="170"> 
-              <template v-slot:placeholder>
-                <v-row class="fill-height ma-0" align="center" justify="center">
-                  <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
-                </v-row>
-              </template> 
-            </v-img> -->
-            <zoom-on-hover :scale="2" width="400px" :img-normal="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`">
-            </zoom-on-hover> 
-            <!-- <v-img width="400px" v-if="producto.img=='/noImg.png' || isMobile()"  :src="producto.img"></v-img> -->
-            <!-- <zoom-on-hover :scale="2"  v-else width="400px" :img-normal="producto.img">
-            </zoom-on-hover>  -->
-          </center>
-          <v-card-title>{{producto.name}}</v-card-title>
-          <v-card-subtitle class="pb-0">
-              {{producto.description}}
-          </v-card-subtitle>
-          <v-simple-table>
-            <template v-slot:default>
-              <thead>
-                <tr>
-                  <th class="text-left">DISP.</th>
-                  <th class="text-left">PRECIO</th>
-                  <th class="text-left">UNIDAD</th>
-                  <th class="text-left">CÓDIGO</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{{producto.mex_quantytotal}}</td>
-                  <td>{{formatMXN(producto.l0)}}</td>
-                  <td>{{producto.unidad}}</td>
-                  <td>{{producto.value}}</td>
-                </tr>
-              </tbody>
-            </template>
-          </v-simple-table>  
+          <v-card>  
+            <center>   
+              <zoom-on-hover :scale="2" width="400px" :img-normal="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`">
+              </zoom-on-hover>  
+            </center>
+            <v-card-title>{{producto.name}}</v-card-title>
+            <v-card-subtitle class="pb-0">
+                {{producto.description}}
+            </v-card-subtitle>
+            <v-simple-table>
+              <template v-slot:default>
+                <thead>
+                  <tr>
+                    <th class="text-left">DISP.</th>
+                    <th class="text-left">PRECIO</th>
+                    <th class="text-left">UNIDAD</th>
+                    <th class="text-left">CÓDIGO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{producto.mex_quantytotal}}</td>
+                    <td>{{formatMXN(producto.l0)}}</td>
+                    <td>{{producto.unidad}}</td>
+                    <td>{{producto.value}}</td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-simple-table>  
           </v-card>
         </v-col>
-        <v-col > 
+        <v-col >      
           <template> 
             <v-container >
               <v-row>
-                <v-col  class="justify-center">
-                  <div>Cantidad de la compra   
-                    <v-row>
-                      <v-col>
-                        <center>
-                          <!-- v-on:keyup="qtyMovement('0')"  @click="qtyMovement('0')" -->
-                          <v-text-field class="centered-input text--darken-3 mt-3" style="width:300px" 
-                            v-model="qty" type="number" label="Cantidad"
-                            append-outer-icon="mdi-plus" 
-                             prepend-icon="mdi-minus"
-                            @click:append-outer="qtyMovement('+')" 
-                            @click:prepend="qtyMovement('-')"
-                            @blur="qtyMovement('0')"
-                            onkeydown="javascript: return event.keyCode == 69 ? false : true" 
-                          ></v-text-field>
-                          <p style="font-size: 0.9em; color:#909090">
-                            {{producto.mex_quantytotal}} {{producto.mex_quantytotal == 1 ?"disponible":"disponibles"}}
-                            <!-- <br>{{producto.total}} limite de compra -->
-                          </p>
-                        </center>
-                       
-                      </v-col>
-                    </v-row> 
-                  </div>   
-                  
-                  <div class="font-black text-center" style=" font-size: 0.8em;">{{formatMXN(producto.l0)}} c/u.</div>
-                  <p class="font-black text-center" style=" font-size: 1.8em;">{{calculaTotalProd}}</p>
-                  <center>
-                    <div v-if="producto.mex_quantytotal < qty" class="font-weight-thin-black" style="font-size: 0.8em; color:#F72D04"> 
-                      <div v-if="((producto.mex_quantytotal - qty)*-1)==1">
-                        No hay stock disponible, se agregará 1 pza en forma de pedido.
-                      </div>
-                      <div v-else>
-                        No hay stock disponible, se agregarán <strong>{{(producto.mex_quantytotal - qty)*-1}}</strong> pzas en forma de pedido.
-                      </div>
-                    </div>  
-                  </center>
-                  <br>
-                  <v-card-actions>
-                    <v-btn class="mx-auto white--text" width="100%" large color="primary" @click="addtocar"  >
-                      Agregar Al Carrito
-                    </v-btn>      
-                  </v-card-actions>      
-                  <v-alert v-if="msgErro!=''" dense outlined type="error" >
-                    {{msgErro}}
-                  </v-alert>
-                </v-col>
-              </v-row> 
-            
+                <v-col class="justify-center"> 
+                  <v-row>
+                    <v-col>
+                      <div>Cantidad de la compra   
+                        <v-row>
+                          <v-col>
+                            <center>
+                              <!-- v-on:keyup="qtyMovement('0')"  @click="qtyMovement('0')" -->
+                              <v-text-field class="centered-input text--darken-3 mt-3" style="width:300px" 
+                                v-model="qty" type="number" label="Cantidad"
+                                append-outer-icon="mdi-plus" 
+                                prepend-icon="mdi-minus"
+                                @click:append-outer="qtyMovement('+')" 
+                                @click:prepend="qtyMovement('-')"
+                                @blur="qtyMovement('0')"
+                                onkeydown="javascript: return event.keyCode == 69 ? false : true" 
+                              ></v-text-field>
+                              <p style="font-size: 0.9em; color:#909090">
+                                {{producto.mex_quantytotal}} {{producto.mex_quantytotal == 1 ?"disponible":"disponibles"}}
+                                <!-- <br>{{producto.total}} limite de compra -->
+                              </p>
+                            </center> 
+                          </v-col>
+                        </v-row> 
+                      </div>   
+                      
+                      <div class="font-black text-center" style=" font-size: 0.8em;">{{formatMXN(producto.l0)}} c/u.</div>
+                      <p class="font-black text-center" style=" font-size: 1.8em;">{{calculaTotalProd}}</p>
+                      <center>
+                        <div v-if="producto.mex_quantytotal < qty" class="font-weight-thin-black" style="font-size: 0.8em; color:#F72D04"> 
+                          <div v-if="((producto.mex_quantytotal - qty)*-1)==1">
+                            No hay stock disponible, se agregará 1 pza en forma de pedido.
+                          </div>
+                          <div v-else>
+                            No hay stock disponible, se agregarán <strong>{{(producto.mex_quantytotal - qty)*-1}}</strong> pzas en forma de pedido.
+                          </div>
+                        </div>  
+                      </center>
+                      <br>
+                      <v-card-actions>
+                        <v-btn class="mx-auto white--text" width="100%" large color="primary" @click="addtocar"  >
+                          Agregar Al Carrito
+                        </v-btn>      
+                      </v-card-actions>      
+                      <v-alert v-if="msgErro!=''" dense outlined type="error" >
+                        {{msgErro}}
+                      </v-alert>
+
+
+                    </v-col>
+                  </v-row> 
+                  <v-row> 
+                    <v-col>
+                      <v-card class="mx-auto" outlined > 
+                        <v-list-item three-line>
+                          <v-list-item-content>
+                            <div class="overline mb-">
+                              <strong>Descripción del producto</strong>
+                            </div>
+                            <div>
+                              <p v-html="producto.elements"></p>
+                            </div>
+                          </v-list-item-content> 
+                        </v-list-item>  
+                      </v-card>
+                    </v-col>
+                  </v-row>  
+                </v-col> 
+              </v-row>  
             </v-container> 
           </template> 
-        </v-col> 
-         
-        <v-row class="my-5" v-if="producto.elements!=null&&producto.elements!=''">
-          <v-card
-              class="mx-auto"
-              outlined
-            > 
-              <v-list-item three-line>
-                <v-list-item-content>
-                  <div class="overline mb-4">
-                    <strong>Descripción del producto</strong>
-                  </div>
-                  <div >
-                    <p v-html="producto.elements"></p>  
-                  </div>
-                </v-list-item-content> 
-              </v-list-item>  
-            </v-card> 
-        </v-row> 
-
+        </v-col>    
+        <v-container max-width="1080" fluid class="pa-0 ma-0 my-10" >
+          <v-card>
+            <v-toolbar color="cyan" dark>
+              <template>
+                <v-tabs v-model="tabs" next-icon="mdi-arrow-right-bold-box-outline" prev-icon="mdi-arrow-left-bold-box-outline"
+                  show-arrows fixed-tabs>
+                  <v-tab v-for="n in itemstabs" :key="n" >
+                    {{ n }}
+                  </v-tab>
+                </v-tabs>
+              </template>
+            </v-toolbar> 
+            <v-tabs-items v-model="tabs">
+              <v-tab-item>
+                <v-card flat>
+                  <v-card-text>
+                      <p v-html="producto.technicalcharacteristics"></p>
+                  </v-card-text>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item>
+                <v-card flat>
+                  <v-card-title class="text-h5">
+                    Datos Generales:
+                  </v-card-title>
+                  <v-card-text>
+                      <p v-html="producto.additionalinformation"></p> 
+                  </v-card-text>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item>
+                <v-card flat>
+                  <v-card-title class="text-h5">
+                    Instrucciones:
+                  </v-card-title>
+                  <v-card-text>
+                      <p v-html="producto.usemode"></p> 
+                  </v-card-text>
+                </v-card>
+              </v-tab-item>
+            </v-tabs-items>
+          </v-card>
+        </v-container>  
         <v-row class="my-5"> 
           <v-container>
             <p>Productos Novedad</p> 
@@ -260,6 +291,11 @@ export default {
       ,productosOferta : []
       ,cpdePromo :['P15UN0978','P15UN0979']
       ,codigoProd : ""
+      ,tabs: null
+      ,itemstabs: [
+        'Carácteristicas Técnicas', 'Información Adicional', 'Modo Uso',
+      ]
+
     }
   },
   components: { 

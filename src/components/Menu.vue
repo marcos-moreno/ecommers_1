@@ -128,7 +128,7 @@
                 </v-list-item-icon>
                 <v-list-item-title>Inicio</v-list-item-title>
               </v-list-item> 
-              <v-list-item @click="menu('/shop/Login')">
+              <v-list-item @click="menu('/shop/Account')">
                 <v-list-item-icon>
                   <v-icon>mdi-account</v-icon>
                 </v-list-item-icon>

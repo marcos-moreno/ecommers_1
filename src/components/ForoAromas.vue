@@ -108,10 +108,7 @@
   }
 </script>
 
-<style>
-.basil {
-  /* background-color: #FFFBE6 !important; */
-}
+<style> 
 .basil--text {
   color: #356859 !important;
 }

@@ -12,7 +12,7 @@
             </v-card> 
           </v-dialog>
         </div>
-        <div v-if="!isLoad">
+        <div v-if="isLoad==false">
           <v-row justify="center">
             <div>Datos de cuenta</div> 
           </v-row>  
@@ -80,7 +80,7 @@
       return {  
         user:{},  
         msgerror : "",
-        isLoad : false
+        isLoad : true
       }
     },
     methods:{ 
@@ -107,7 +107,7 @@
         if (this.user.status == "success") {
           this.user = this.user.user;
         }
-        else if(this.user.status == "unauthorized"){
+        else{
           this.$router.push('/shop/Login') 
         }
       this.isLoad = false;

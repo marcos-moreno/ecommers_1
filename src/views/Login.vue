@@ -1,7 +1,7 @@
 <template>
   <v-main>
     <app-menu/>
-    <div v-if="isLoad==false">
+    <div >
       <div class="text-center">
         <v-dialog v-model="isLoad" persistent width="300">
           <v-card color="primary" dark >
@@ -12,7 +12,7 @@
           </v-card> 
         </v-dialog>
       </div> 
-      <div v-if="!isLoad"> 
+      <div v-if="isLoad==false"> 
         <v-container v-if="msgerror!=''" class="my-6 grey lighten-5"  >
           <v-alert  dense  outlined  type="error" > 
             {{ msgerror }}
@@ -262,7 +262,7 @@
                 return false;
               } 
             }else{
-              console.log(response.data.data);
+              // console.log(response.data.data);
               return false;
             }
           }).catch(function (response){console.log(response);return [];}); 
@@ -280,7 +280,7 @@
             .then(function (response){ 
               return response;
             })
-            .catch(function (response){
+            .catch(function (response){ 
               console.log(response);
               return {status:"error",token:null,user:{"value":""}};
             });
@@ -318,8 +318,7 @@
           'headers': { 'token': this.$cookie.get('token') }
         })
         .then(res=>{return res.data;})
-        .catch(err=>{return err;}); 
-        console.log(userObj);   
+        .catch(err=>{return err;});  
         if (userObj.status == "success") {
           this.$router.push('/shop/Account');
         }else{

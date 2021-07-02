@@ -79,12 +79,8 @@
                                 <div>Orden de Venta</div>
                                 <div style="color :#000" ><strong>{{purchase.documentno}}</strong></div>
                             </v-col>
-
-                            <div v-if="purchase.method_pay == 'TRA' &&
-                             (purchase.status_pay=='pendiente' || purchase.status_pay=='Cancelado' || purchase.requiresdate==true)" 
-                             cols="6" sm="4">
-                            </div>
-                            <v-col v-else cols="7" sm="4">
+ 
+                            <v-col v-if="purchase.status_pay=='pagado'" cols="7" sm="4">
                                 <v-btn text color="primary" @click="acuse(purchase)">
                                     Imprimir orden
                                 </v-btn>

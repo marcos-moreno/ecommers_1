@@ -11,10 +11,9 @@
     data: () => ({
       indexSlider: 0,
       imgs: [
-        '../bannerbolsas2.jpeg',
-        '../bannerbolsas.jpeg',
+        '../bannerbolsas2.jpeg', 
         '../andalucia.webp',
-        '../ld.webp',  
+        '../ld.webp',
       ],
     }),
     methods:{
