@@ -23,6 +23,9 @@ const routes = [
   ,{ path: '/shop/AvisoPrivacidad/',name: 'AvisoPrivacidad',props: true,component: () => import('../views/Avisoprivacidad.vue')}
 
   ,{ path: '/shop/deliveries', name: 'Deliveries',component: () => import('../views/Deliveries.vue')}
+  ,{ path: '/shop/Suggestions/',name: 'Suggestions',props: true,component: () => import('../views/Suggestions.vue')}
+  ,{ path: '/shop/Forum/',name: 'Forum',props: true,component: () => import('../views/Forum.vue')}
+
 
 // */
   ,{ path: '/shop/register/',name: 'preRegistro',props: true,component: () => import('../views/pre-registro.vue')}
@@ -30,6 +33,9 @@ const routes = [
   // Admin
   ,{ path: '/shop/admin'+config.matchAdmin+'/login',name: 'LoginAdmin',props: true,component: () => import('../views/admin/LoginAdmin.vue')}
   ,{ path: '/shop/admin'+config.matchAdmin+'/HomeAdmin',name: 'HomeAdmin',props: true,component: () => import('../views/admin/HomeAdmin.vue')}
+  ,{ path: '/shop/admin'+config.matchAdmin+'/ForumAdmin',name: 'ForumAdmin',props: true,component: () => import('../views/admin/ForumAdmin.vue')}
+  ,{ path: '/shop/admin'+config.matchAdmin+'/ComplaintsSuggestionsAdmin',name: 'ComplaintsSuggestionsAdmin',props: true,component: () => import('../views/admin/ComplaintsSuggestionsAdmin.vue')}
+
   //Generic
   ,{ path: '/shop/Logout/',name: 'Logout',props: true,component: () => import('../components/Logout.vue')}
   ,{ path: '/:pathMatch(.*)*',name: 'Not Found',component: () => import('../components/NotFound.vue')}

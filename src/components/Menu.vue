@@ -142,6 +142,20 @@
                 <v-list-item-title>Foro</v-list-item-title>
               </v-list-item>
 
+              <v-list-item @click="menu('/shop/Forum')">
+                <v-list-item-icon>
+                  <v-icon>mdi-comment-text-outline</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title>Preguntas</v-list-item-title>
+              </v-list-item>
+
+              <v-list-item @click="menu('/shop/Suggestions')">
+                <v-list-item-icon>
+                  <v-icon>mdi-clipboard-edit-outline</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title>Quejas o Sugerencia</v-list-item-title>
+              </v-list-item>
+
             </v-list-item-group>
           </v-list-item-group> 
         </v-list>

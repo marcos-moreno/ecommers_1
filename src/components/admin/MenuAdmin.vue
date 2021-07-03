@@ -34,7 +34,7 @@
                   </v-col>  
                 </v-row>  
                 <v-list-item-group v-model="group"> 
-                <v-list-item @click="menu('/shop/Logout')">
+                <v-list-item @click="logout()">
                   <v-list-item-icon>
                     <v-icon>mdi-logout</v-icon>
                   </v-list-item-icon>
@@ -65,18 +65,24 @@
           <v-list-item-group>
             Refividrio 
               <v-list-item-group v-model="group"> 
-              <v-list-item >
+              <v-list-item @click="menu('HomeAdmin')" >
                 <v-list-item-icon  >
                   <v-icon>mdi-home</v-icon>
                 </v-list-item-icon>
                 <v-list-item-title>Inicio</v-list-item-title>
               </v-list-item> 
-              <v-list-item >
+              <v-list-item @click="menu('ForumAdmin')" >
                 <v-list-item-icon>
-                  <v-icon>mdi-account</v-icon>
+                  <v-icon>mdi-comment-text-outline</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title>Cuenta</v-list-item-title>
+                <v-list-item-title>Preguntas</v-list-item-title>
               </v-list-item>
+               <v-list-item @click="menu('ComplaintsSuggestionsAdmin')">
+                <v-list-item-icon>
+                  <v-icon>mdi-clipboard-edit-outline</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title>Quejas y Sugerencias</v-list-item-title>
+              </v-list-item>             
             </v-list-item-group>
           </v-list-item-group> 
         </v-list>
@@ -104,11 +110,12 @@
     }),
     components: {
     },
-    methods:{   
-      menu(path){ 
-        if (path == '/shop/Home') {
-          location.href = "/shop/Home";
-        }
+    methods:{ 
+      logout(){
+        this.$router.push('/shop/Logout');
+      } , 
+      menu(name){
+         let path =name;// config.matchAdmin+'/'+name;
         if (this.$route.path !== path &&
           this.$route.path !== 
           ((path.charAt(path.length-1) == '/')?path.substring(0,(path.length-1)):path +'/')
@@ -117,7 +124,6 @@
         } 
         this.menuAccount = false;
         this.menuNoAccount = false;
-
       },async validaLogin(){
           this.user = await axios.get(config.apiAdempiere + "/user/userByTokenAdmin", 
           {
