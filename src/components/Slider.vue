@@ -11,6 +11,7 @@
     data: () => ({
       indexSlider: 0,
       imgs: [
+        '../catalogoHome.jpg', 
         '../bannerbolsas2.jpeg', 
         '../andalucia.webp',
         '../ld.webp',

@@ -1,16 +1,30 @@
 <template> 
   <div>
     <app-menu/>   
-    <center>
-      <v-img  v-for="(banner,i) in bannerNovedades" :key="i" 
-     :src="banner.src" width="800">
-    </v-img>
-    </center> 
-    <!-- <v-carousel  hide-delimiters height="600px"> 
+    <!-- <center>
+      <v-row>
+        <v-col  cols="12" sm="6" v-for="(banner,i) in bannerNovedades" :key="i" >
+          <v-img  
+          :src="banner.src" width="800">
+          </v-img> 
+        </v-col>
+      </v-row>
+      
+    </center>  -->
+ <div style="min-heigth:40px;">
+  <v-carousel  v-model="indexSlider" hide-delimiters height="100%"> 
+    <v-carousel-item v-for="(item,i) in bannerNovedades" :key="i"  >
+        <v-img contain :src="item.src" height="100%" width="100%"></v-img>
+    </v-carousel-item>
+  </v-carousel> 
+ </div> 
+<!-- 
+    <v-carousel  hide-delimiters > 
       <v-carousel-item  v-for="(banner,i) in bannerNovedades" :key="i" >
           <v-img contain :src="banner.src" height="100%" width="100%"></v-img>
       </v-carousel-item>
     </v-carousel>   -->
+
     <center class="my-5"><h1>Novedades</h1></center>
     <v-row class="lighten-1" > 
       <v-col cols="12" sm="2"></v-col>  
@@ -89,9 +103,10 @@ export default {
       isLoad : false, 
       bannerNovedades: 
         [
-            {
-            src: '../novedad1.jpg',
-            },
+            // {src: '../novedad1.jpg',},
+            // {src: '../novedad2.jpg',}, 
+            {src: '../bannernovedada.png',}, 
+            
         ],  
     }; 
   }, 
