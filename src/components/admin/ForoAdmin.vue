@@ -162,7 +162,7 @@
                     :headers="headers" :items="ventas" :search="search">
                     <template v-slot:[`item.actions`]="{ item }">
                         <center>
-                            <v-icon color="green darken-2" medium @click="crud(item),mostrarRespuestasPreguntas(item.numeropregunta)">
+                            <v-icon color="green darken-2" medium @click="crud(item)">
                                 mdi-chat-processing
                             </v-icon>
                         </center>
@@ -228,14 +228,12 @@
               </v-card>
           <!-- PREGUNTA PRINCIPAL -->
               <br>
-          <!-- CONSULTA DE RESPUESTAS -->
-            <v-app>
-            
+          <!-- CONSULTA DE RESPUESTAS -->            
               <v-container>
               
                 <v-col>
                   <v-row>
-                    <v-col v-for="r in resultadorespuesta" :key="r._id" cols="12">
+                    <v-col v-for="r in resultadorespuesta" :key="r._id">
                       <v-card
                       class="mx-auto"
                       max-width="1100"
@@ -285,7 +283,6 @@
               
               </v-container>
             
-            </v-app>
           <!-- CONSULTA DE RESPUESTAS -->
 
               <!-- RESPONDER FORO -->
@@ -295,12 +292,6 @@
                       v-model="valid"
                       lazy-validation
                     >
-
-                    <v-text-field
-                      label="Pregunta"
-                      v-model="respuesta.numeropregunta"
-                    ></v-text-field>
-
                     <v-flex>
                       <v-textarea
                           solo
@@ -343,14 +334,12 @@
   export default {
     data: () => ({
 
-
-        loader: null,
-        loading: false,
-        loading2: false,
-        loading3: false,
-        loading4: false,
-        loading5: false,
-
+      loader: null,
+      loading: false,
+      loading2: false,
+      loading3: false,
+      loading4: false,
+      loading5: false,
 
       search: '',
       headers: [
@@ -359,20 +348,22 @@
         { text: 'Fecha', value: 'creat_at'},   
         { text: 'Comentarios', value: 'actions', sortable: false },
       ], 
-      ventas:[],
       isCrud:false,
       msgError:'',
+      users:{},
+      isLogged : false,      
       ex11: ['red', 'indigo', 'orange', 'primary', 'secondary', 'success', 'info', 'warning', 'error', 'red darken-3', 'indigo darken-3', 'orange darken-3'],
 
       valid: true,
       dialog: false,
 
+      ventas:[],
       pregunta:{
         pregunta: "",
         descripcion: "",
-        "estado": "Pendiente",
-        "created_by" : "252",
-        "nombre_usuarios": "victor.rivera"
+        estado : "Pendiente",
+        created_by : "",
+        nombre_usuarios : ""
       },
 
       rules: [
@@ -392,8 +383,8 @@
         respuesta: "",
         activo: false,
         calificacion: "10",
-        "created_by" : "252",
-        nombre_usuarios: "victor.rivera"
+        created_by : "",
+        nombre_usuarios: ""
       },
 
 
@@ -401,6 +392,8 @@
 
     async created(){  
        await this.mostrarTodasPreguntas(); 
+       await this.validaLogin(); 
+       
     }, 
 
     watch: {
@@ -419,12 +412,14 @@
         this.$refs.form.validate()
       },
       reset () {
-        this.$refs.form.reset()
+          this.pregunta = [];
       },
 
       returnTable(){
           this.isCrud = false;
           this.msgError = "";
+          this.pregunta = [];
+
       },
 
       cerrarModalPregunta(){
@@ -444,9 +439,34 @@
           }
       },
 
+    async mostrarTodasPreguntas(){ 
+        this.isLoad = true;
+        this.ventas = await axios.get(config.apiAdempiere + "/foro/get_all",
+        { headers:{token: this.$cookie.get('token')}, data:{filer: {}}})
+        .then(res=>{return res.data;})
+        .catch(err=>{return err;});
+        if (this.ventas.status == "success") {
+            this.ventas = this.ventas.data; 
+            for (let index = 0; index < this.ventas.length; index++) { 
+                //this.ventas[index].fechaprometidaFormato = this.formatDate(this.ventas[index].fechaprometida);
+                this.ventas[index].Pregunta = this.ventas[index].pregunta;
+                this.ventas[index].Usuario = this.ventas[index].nombre_usuarios;
+                this.ventas[index].creat_at = this.formatDate(this.ventas[index].created_at);
+            }
+        }
+        this.isLoad = false;
+        
+    },
+
+    async refresh(){
+        await this.mostrarTodasPreguntas(); 
+    },
+
     async registrar() {
-        this.msgError = "";
-            // console.log(JSON.stringify(this.solicitud));
+            this.msgError = "";
+            this.pregunta.created_by = this.user.ad_user_id;
+            this.pregunta.nombre_usuarios = this.user.cpname;
+
             const result = await axios.post(config.apiAdempiere + "/foro/add_question",this.pregunta
             ,{headers:{token: this.$cookie.get('token')}})
             .then(res=>{
@@ -458,37 +478,19 @@
             });
 
             console.log(result);
+            this.dialog = false,
+            this.pregunta = "";
             this.mostrarTodasPreguntas();
     },
 
+    async crud(item){
+        this.msgError = "";
+        this.isCrud = true;
+        this.pregunta = item;
+        this.respuesta.numeropregunta = item.numeropregunta;
+        this.mostrarRespuestasPreguntas(item.numeropregunta)
 
-        async mostrarTodasPreguntas(){ 
-            this.isLoad = true;
-            this.ventas = await axios.get(config.apiAdempiere + "/foro/get_all",
-            { headers:{token: this.$cookie.get('token')}, data:{filer: {}}})
-            .then(res=>{return res.data;})
-            .catch(err=>{return err;});
-            if (this.ventas.status == "success") {
-                this.ventas = this.ventas.data; 
-                for (let index = 0; index < this.ventas.length; index++) { 
-                    //this.ventas[index].fechaprometidaFormato = this.formatDate(this.ventas[index].fechaprometida);
-                    this.ventas[index].Pregunta = this.ventas[index].pregunta;
-                    this.ventas[index].Usuario = this.ventas[index].nombre_usuarios;
-                    this.ventas[index].creat_at = this.formatDate(this.ventas[index].created_at);
-                }
-            }
-            this.isLoad = false;
-            
-        },
-
-        async refresh(){
-            await this.mostrarTodasPreguntas(); 
-        },
-        async crud(item){
-            this.msgError = "";
-            this.isCrud = true;
-            this.pregunta = item;  
-        }, 
+    }, 
 
       /////////////////////// RESPUESTAS //////////////////////
         async mostrarRespuestasPreguntas(item){ 
@@ -507,9 +509,11 @@
         },
 
     async registrarRespuesta() {
-        this.msgError = "";
-
+            this.msgError = "";
             // console.log(JSON.stringify(this.solicitud));
+            //this.respuesta.numeropregunta = this.respuesta.numeropregunta;
+            this.respuesta.created_by = this.user.ad_user_id;
+            this.respuesta.nombre_usuarios = this.user.cpname;
             const result = await axios.post(config.apiAdempiere + "/foro/add_answer",this.respuesta
 
             ,{headers:{token: this.$cookie.get('token')}})
@@ -520,11 +524,23 @@
                 return false;
             });
             console.log(result);
+            this.mostrarRespuestasPreguntas( this.respuesta.numeropregunta );
+            this.respuesta.respuesta = "";            
     },
       /////////////////////// RESPUESTAS //////////////////////
-
-
-
+    async validaLogin(){
+              this.user = await axios.get(config.apiAdempiere + "/user/userByTokenAdmin", 
+              {
+                'headers': { 'token': this.$cookie.get('token') }
+              }).then(res=>{return res.data;})
+              .catch(err=>{return err;});
+              if (this.user.status == "success") {
+                this.user = this.user.user;
+                this.isLogged = true; 
+              }else if(this.user.status == "unauthorized"){ 
+                this.isLogged = false;
+              } 
+          }
     },
   }
 </script>

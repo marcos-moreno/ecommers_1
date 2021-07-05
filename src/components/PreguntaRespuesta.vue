@@ -141,11 +141,30 @@
 
  <!-- PREGUNTA PRINCIPAL -->
       <v-container v-if="esRespuesta">
+
+              <v-card-title>
+                  <v-spacer></v-spacer>
+                    <v-text-field
+                      label="Búsqueda Respuesta..."
+                      single-line
+                      hide-details
+                      v-model="searchDetail"
+                    ></v-text-field>
+                    <v-col class="text-right">
+                    <v-btn
+                      depressed
+                      color="success"
+                      @click="filterSearchDetail()"
+                    >Buscar 
+                    </v-btn>
+                    </v-col>
+              </v-card-title>
+
         
                <v-card
                   class="mx-auto"
                   max-width="1600"
-                  elevation="2"
+                  elevation="24"
                   outlined
                   shaped
                 >
@@ -307,6 +326,7 @@
       ex11: ['red', 'indigo', 'orange', 'primary', 'secondary', 'success', 'info', 'warning', 'error', 'red darken-3', 'indigo darken-3', 'orange darken-3'],
 
       search:"",
+      searchDetail:"",
       valid: true,
       name: '',
       nameRules: [
@@ -396,7 +416,7 @@
 
         async refresh(){
             await this.mostrarTodasPreguntas();
-                        this.filterSearch();
+            this.filterSearch();
 
         },
 
@@ -416,6 +436,23 @@
           this.isLoad = false;
       },
 
+      async filterSearchDetail(){ 
+          this.respuestas = [];
+          //console.log(this.search);
+          
+          this.isLoad = true;
+          this.respuestas = await axios.get(config.apiAdempiere + "/foro/get_all_answer_question",
+          { headers:{token: this.$cookie.get('token')}, params: {respuesta : this.searchDetail } } )
+          .then(res=>{return res.data;})
+          .catch(err=>{return err;});
+          
+          if (this.respuestas.status == "success") {
+              this.respuestas = this.respuestas.data; 
+          }
+          this.isLoad = false;
+      },
+
+
 
         async crud(item){
             this.msgError = "";
@@ -423,6 +460,7 @@
             this.pregunta = item;
             this.respuesta.numeropregunta = item.numeropregunta;
             //this.preguntaGeneral = item.numeropregunta;
+            this.searchDetail = "";
             this.mostrarRespuestasPreguntas(item.numeropregunta)
 
         }, 
