@@ -25,7 +25,8 @@ const routes = [
   ,{ path: '/shop/deliveries', name: 'Deliveries',component: () => import('../views/Deliveries.vue')}
   ,{ path: '/shop/Suggestions/',name: 'Suggestions',props: true,component: () => import('../views/Suggestions.vue')}
   ,{ path: '/shop/Forum/',name: 'Forum',props: true,component: () => import('../views/Forum.vue')}
-
+  ,{ path: '/shop/Novedades/',name: 'Novedades',props: true,component: () => import('../views/Novedades.vue')}
+  
 
 // */
   ,{ path: '/shop/register/',name: 'preRegistro',props: true,component: () => import('../views/pre-registro.vue')}

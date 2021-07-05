@@ -119,43 +119,61 @@
 
       <v-navigation-drawer v-model="drawer" absolute temporary>
         <v-list nav dense >
-          <v-list-item-group>
-            Refividrio Distribuidores 
-              <v-list-item-group v-model="group"> 
-              <v-list-item @click="menu('/shop/Home')">
-                <v-list-item-icon  >
-                  <v-icon>mdi-home</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>Inicio</v-list-item-title>
-              </v-list-item> 
-              <v-list-item @click="menu('/shop/Account')">
-                <v-list-item-icon>
-                  <v-icon>mdi-account</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>Cuenta</v-list-item-title>
-              </v-list-item>
+          <v-list-item-group> 
 
-              <v-list-item @click="menu('/shop/Foro')">
-                <v-list-item-icon>
-                  <v-icon>mdi-account-group-outline</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>Foro</v-list-item-title>
-              </v-list-item>
+              <v-list-item-content>
+                <v-list-item-title class="text-h6">
+                  Refividrio Distribuidores 
+                </v-list-item-title>
+                <v-list-item-subtitle></v-list-item-subtitle>
+              </v-list-item-content> 
 
-              <v-list-item @click="menu('/shop/Forum')">
-                <v-list-item-icon>
-                  <v-icon>mdi-comment-text-outline</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>Preguntas</v-list-item-title>
-              </v-list-item>
+              <v-list-item-group v-model="group">  
+                <v-subheader>Inicio</v-subheader>
+                <v-list-item @click="menu('/shop/Home')">
+                  <v-list-item-icon  >
+                    <v-icon color="indigo">mdi-home</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title>Inicio</v-list-item-title>
+                </v-list-item> 
+                <v-list-item @click="menu('/shop/Account')">
+                  <v-list-item-icon>
+                    <v-icon color="indigo">mdi-account</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title>Cuenta</v-list-item-title>
+                </v-list-item>
 
-              <v-list-item @click="menu('/shop/Suggestions')">
-                <v-list-item-icon>
-                  <v-icon>mdi-clipboard-edit-outline</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>Quejas o Sugerencia</v-list-item-title>
-              </v-list-item>
+                <v-subheader>Echale un ojo</v-subheader>
+                <v-list-item @click="menu('/shop/Novedades')">
+                  <v-list-item-icon  >
+                    <v-icon color="primary">mdi-tag</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title>Novedades</v-list-item-title>
+                </v-list-item> 
 
+                <v-subheader>¿Necesitas ayuda?</v-subheader>
+
+                <v-list-item @click="menu('/shop/Foro')">
+                  <v-list-item-icon>
+                    <v-icon>mdi-account-group-outline</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title>Foro</v-list-item-title>
+                </v-list-item>
+
+                <v-list-item @click="menu('/shop/Forum')">
+                  <v-list-item-icon>
+                    <v-icon>mdi-comment-text-outline</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title>Preguntas</v-list-item-title>
+                </v-list-item>
+
+                <v-list-item @click="menu('/shop/Suggestions')">
+                  <v-list-item-icon>
+                    <v-icon>mdi-clipboard-edit-outline</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title>Quejas o Sugerencia</v-list-item-title>
+                </v-list-item>
+  
             </v-list-item-group>
           </v-list-item-group> 
         </v-list>
