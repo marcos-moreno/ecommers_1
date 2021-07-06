@@ -35,8 +35,8 @@
                   <v-divider></v-divider>
                   <v-card-text> Limite de Crédito <br>{{formatMXN(user.so_creditlimit) + ' MXN'}}</v-card-text>
                   <v-divider></v-divider>
-                  <v-card-text> Nombre <br>{{user.username}}</v-card-text>
-                  <v-divider></v-divider>
+                  <!-- <v-card-text> Nombre <br>{{user.username}}</v-card-text>
+                  <v-divider></v-divider> -->
 
                 </v-card-text> 
                 <v-divider class="mt-12"></v-divider> 
@@ -56,7 +56,7 @@
                   v-model="user.taxid" label="RFC" required></v-text-field> 
                 </v-card-text> 
                   -->
-                  <v-card-text> user.email <br>{{user.email}}</v-card-text>
+                  <v-card-text> Correo <br>{{user.email}}</v-card-text>
                   <v-divider></v-divider>
                   <v-card-text v-if="user.taxid != 'XAXX010101000'" > RFC <br>{{user.taxid}}    </v-card-text>
                   <v-divider></v-divider>
