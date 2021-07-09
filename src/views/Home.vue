@@ -192,7 +192,7 @@
     </v-navigation-drawer>  
     <div style="min-heigth:40px;">
       <app-slider v-if="verfiltro == false && page == 1" /> 
-    </div> 
+    </div>
     <template class="grey lighten-2"  >
 
 
@@ -527,10 +527,11 @@ export default {
     
     // if(this.recoverParams()){
     //   this.applyFilter();
-    // }  
+    // }
+    
     await this.applyFilter();
     this.getExtremos();
-    this.verfiltro = true; 
+    
     this.productosOferta = [];
     for (let index = 0; index < this.productos.length; index++) {
       let element = this.productos[index];  
@@ -539,6 +540,8 @@ export default {
       } 
     } 
     await this.paginator(); 
+    this.verfiltro = false;
+    this.page = 1;
     this.isLoad = false;  
   } 
   ,methods: {
