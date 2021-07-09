@@ -40,7 +40,7 @@
     <v-navigation-drawer v-model="sceemFiltro" absolute temporary width="300px" class="blue-grey lighten-5 height-app" app>   
         <v-list nav dense >
           <!-- Inicio filtro CELULAR-->
-          <v-list-item-group>
+          <!-- <v-list-item-group> -->
               <div v-if="typeScreem=='filter'">
                 <v-list-item class="px-2">
                   <v-list-item-title  @click.stop="sceemFiltro = !sceemFiltro">
@@ -81,60 +81,83 @@
                 <!-- <v-list-item>  -->
   
                <v-list>
-                    <v-list-group v-model="show_marca">
-                      <template v-slot:activator>
-                        <v-list-item-content>
-                          <v-list-item-title >MARCA</v-list-item-title>
-                        </v-list-item-content>
-                      </template> 
-                      <v-list-item>
-                        <v-list-item-content>
-                          <v-list-item-title >  
-                            <v-checkbox class="my-8"
-                            style="width:0.5px;height:0.5px;"
-                                v-for="marca in atttibutes.marcas" :key="marca.value"
-                                      @change="applyFilter()" v-model="marca.isview" :label="marca.marca"></v-checkbox>
-    
-                          </v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </v-list-group>
-                    <v-list-group v-model="show_intencidad">
-                      <template v-slot:activator>
-                        <v-list-item-content>
-                          <v-list-item-title >INTENCIDAD</v-list-item-title>
-                        </v-list-item-content>
-                      </template> 
-                      <v-list-item>
-                        <v-list-item-content>
-                          <v-list-item-title > 
-                            <v-checkbox class="my-8"
-                            style="width:0.5px;height:0.5px;"
-                            v-for="intencidad in atttibutes.intencidades" :key="intencidad.m_class_intensity_id"
-                              @change="applyFilter()" v-model="intencidad.isview" :label="intencidad.intencidad"></v-checkbox>
-                          </v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </v-list-group>
-                  </v-list>
-                  <v-divider class="my-5"></v-divider>
-                  <div><strong >Clasificación</strong></div>
-                  <v-list>
-                    <v-list-group
-                      v-for="categoria in atttibutes.categorias" :key="categoria.m_product_category_id" no-action>
-                      <template v-slot:activator>
-                        <v-list-item-content>
-                          <v-list-item-title v-text="categoria.categoria"></v-list-item-title>
-                        </v-list-item-content>
-                      </template> 
-                      <v-list-item v-for="sub_categoria in categoria.sub_categorias"
-                                    :key="sub_categoria.m_product_classification_id">
-                        <v-list-item-content>
-                          <v-list-item-title v-text="sub_categoria.sub_categoria"></v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </v-list-group>
-                  </v-list>
+                <v-list-group  @click="!show_marca?show_marca=true:show_marca=false" :value="show_marca">
+                  <template v-slot:activator>
+                    <v-list-item-content>
+                      <v-list-item-title>MARCA</v-list-item-title>
+                    </v-list-item-content>
+                  </template> 
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title >  
+                        <v-checkbox class="my-8"
+                        style="width:0.5px;height:0.5px;"
+                          v-for="marca in atttibutes.marcas" :key="marca.value"
+                                  @change="applyFilter()" v-model="marca.isview" :label="marca.marca"></v-checkbox>
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-group>
+              </v-list>
+
+              <v-list>
+                <v-list-group @click="!show_intencidad?show_intencidad=true:show_intencidad=false" :value="show_intencidad">
+                  <template v-slot:activator >
+                    <v-list-item-content>
+                      <v-list-item-title >INTENCIDAD</v-list-item-title>
+                    </v-list-item-content>
+                  </template> 
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title > 
+                        <v-checkbox class="my-8"
+                        style="width:0.5px;height:0.5px;"
+                        v-for="intencidad in atttibutes.intencidades" :key="intencidad.m_class_intensity_id"
+                          @change="applyFilter()" v-model="intencidad.isview" :label="intencidad.intencidad"></v-checkbox>
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-group>
+              </v-list>
+
+
+              <v-divider class="my-5"></v-divider>
+              <div><strong >Clasificación</strong></div>
+
+              <v-list >  
+                <v-list-group 
+                  v-for="categoria in atttibutes.categorias" 
+                  :key="categoria.m_product_category_id"
+                  v-model="categoria.is_active"
+                  no-action 
+                  sub-group  
+                >
+                  <template v-slot:activator >
+                    <v-list-item-content
+                      @click="add_category_filter(categoria)"  
+                      v-bind:style= "[
+                      comprobarExistenciaInArray(filtrosCategorias,categoria.m_product_category_id,'m_product_classification_id')
+                      ? {'color':'green'} : {}]"
+                    > 
+                      <v-list-item-title v-text="categoria.categoria.substring(0,26)"></v-list-item-title>
+                    </v-list-item-content>
+                  </template>  
+                  <v-list-item  @click="add_sub_category(sub_categoria,categoria)" 
+                                v-for="sub_categoria in categoria.sub_categorias"
+                                :key="sub_categoria.m_product_classification_id">
+                    <v-list-item-content
+                      v-bind:style= "[
+                      comprobarExistenciaInArray(filtrosSubcategoria,sub_categoria.m_product_classification_id,'m_product_classification_id')
+                      ? {'color':'#F78B09'} : {}]"
+                    >
+                      <v-list-item-title v-text="sub_categoria.sub_categoria.substring(0,18) + 
+                      (sub_categoria.sub_categoria.length > 18 ? '...':'')
+                      "></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-group>
+              </v-list>  
+
 
               </div>
               <!-- Fin filtro -->
@@ -150,7 +173,7 @@
                   </v-list-item>  
                 </div>
               </v-list-item-title> 
-          </v-list-item-group> 
+          <!-- </v-list-item-group>  -->
         </v-list>
         <br><br><br><br><br>
         <div class="my-10"></div>
@@ -165,7 +188,7 @@
 
       
       <v-row class="grey lighten-2" > 
-        <v-col cols="12" sm="1"></v-col> 
+        <!-- <v-col cols="12" sm="1"></v-col>  -->
         <v-col cols="12" sm="2" v-if="isMobile()">
               <v-alert dismissible>
                 <v-alert dense type="info">
@@ -196,8 +219,11 @@
               </v-alert> 
         </v-col> 
         <!-- Inicio filtro Escritorio-->
-        <v-col cols="12" sm="" v-if="isLoad==false">  
-          <v-list nav dense v-if="!isMobile()"  class="my-5">
+        <v-col cols="12" sm="3" v-if="isLoad==false"> 
+            <v-row>
+            <v-col  cols="12" sm="3"></v-col>
+            <v-col  cols="12" sm="9">
+          <v-list nav dense v-if="!isMobile()" class="my-5" style="margin-left:10px">
               <h2>Filtrar por</h2> 
               <v-container class="px-0" fluid>
                 <v-switch @change="filterOnlystock()" v-model="onlystock" label="Solo producto con existencia." ></v-switch>
@@ -301,6 +327,8 @@
                 </v-list-group>
               </v-list>  
           </v-list>  
+          </v-col>
+        </v-row> 
         </v-col> 
         
         <v-col cols="12" sm="6" class="grey lighten-5">  
