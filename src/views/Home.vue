@@ -267,7 +267,7 @@
               <v-divider class="my-5"></v-divider>
               <div><strong >Clasificación</strong></div>
 
-              <v-list>  
+              <v-list >  
                 <v-list-group 
                   v-for="categoria in atttibutes.categorias" 
                   :key="categoria.m_product_category_id"
@@ -275,14 +275,14 @@
                   no-action 
                   sub-group  
                 >
-                  <template v-slot:activator>
+                  <template v-slot:activator >
                     <v-list-item-content
                       @click="add_category_filter(categoria)"  
                       v-bind:style= "[
                       comprobarExistenciaInArray(filtrosCategorias,categoria.m_product_category_id,'m_product_classification_id')
                       ? {'color':'green'} : {}]"
                     > 
-                      <v-list-item-title v-text="categoria.categoria"></v-list-item-title>
+                      <v-list-item-title v-text="categoria.categoria.substring(0,26)"></v-list-item-title>
                     </v-list-item-content>
                   </template>  
                   <v-list-item  @click="add_sub_category(sub_categoria,categoria)" 
@@ -293,7 +293,9 @@
                       comprobarExistenciaInArray(filtrosSubcategoria,sub_categoria.m_product_classification_id,'m_product_classification_id')
                       ? {'color':'#F78B09'} : {}]"
                     >
-                      <v-list-item-title v-text="sub_categoria.sub_categoria"></v-list-item-title>
+                      <v-list-item-title v-text="sub_categoria.sub_categoria.substring(0,18) + 
+                      (sub_categoria.sub_categoria.length > 18 ? '...':'')
+                      "></v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                 </v-list-group>
@@ -493,9 +495,9 @@ export default {
       } 
     } 
     this.getExtremos();
-    if(this.recoverParams()){
-      this.applyFilter();
-    } 
+    // if(this.recoverParams()){
+    //   this.applyFilter();
+    // } 
     await this.paginator(); 
     this.isLoad = false;  
   } 
@@ -564,14 +566,14 @@ export default {
       return respuesta;
     },
     async getattibutes(){
-      this.atttibutes.marcas = await this.requestattributes('marcas',0);
-      this.atttibutes.categorias = await this.requestattributes('categoria',0);
+      this.requestattributes_marcas();
+      this.requestattributes_intencidad();
+      this.requestattributes_presentacion();  
+      await this.requestattributes_categoria(); 
       for (let index = 0; index < this.atttibutes.categorias.length; index++) {  
         let res = await this.requestattributes('sub_categoria' ,this.atttibutes.categorias[index].m_product_category_id)
         this.atttibutes.categorias[index].sub_categorias = res;
       }
-      this.atttibutes.intencidades = await this.requestattributes('intencidad',0);
-      this.atttibutes.presentaciones = await this.requestattributes('presentacion',0); 
     }, 
     async requestattributes(types,m_p_cat_id){
       let resource = [];
@@ -585,6 +587,58 @@ export default {
         resource = [];
       }
       return resource;
+    },
+    async requestattributes_marcas(){
+      let types = 'marcas';
+      let resource = [];
+      resource = await axios.get(config.apiAdempiere + "/productos/getattributes", 
+      {'headers': { 'token': this.$cookie.get('token') },params:{type:types,m_product_category_id:0}})
+      .then(res=>{return res.data;}) 
+      .catch(err=>{return err;});    
+      if (resource.status == "success") {
+        this.atttibutes.marcas = resource.data;
+      }else{
+        this.atttibutes.marcas = [];
+      } 
+    },
+    async requestattributes_categoria(){
+      let types = 'categoria';
+      let resource = [];
+      resource = await axios.get(config.apiAdempiere + "/productos/getattributes", 
+      {'headers': { 'token': this.$cookie.get('token') },params:{type:types,m_product_category_id:0}})
+      .then(res=>{return res.data;}) 
+      .catch(err=>{return err;});    
+      if (resource.status == "success") {
+        this.atttibutes.categorias = resource.data;
+      }else{
+        this.atttibutes.categorias = [];
+      } 
+    },
+    async requestattributes_intencidad(){
+      let types = 'intencidad';
+      let resource = [];
+      resource = await axios.get(config.apiAdempiere + "/productos/getattributes", 
+      {'headers': { 'token': this.$cookie.get('token') },params:{type:types,m_product_category_id:0}})
+      .then(res=>{return res.data;}) 
+      .catch(err=>{return err;});    
+      if (resource.status == "success") {
+        this.atttibutes.intencidades = resource.data;
+      }else{
+        this.atttibutes.intencidades = [];
+      } 
+    },
+    async requestattributes_presentacion(){
+      let types = 'presentacion';
+      let resource = [];
+      resource = await axios.get(config.apiAdempiere + "/productos/getattributes", 
+      {'headers': { 'token': this.$cookie.get('token') },params:{type:types,m_product_category_id:0}})
+      .then(res=>{return res.data;}) 
+      .catch(err=>{return err;});    
+      if (resource.status == "success") {
+        this.atttibutes.presentaciones = resource.data;
+      }else{
+        this.atttibutes.presentaciones = [];
+      } 
     },
     recoverParams(){ 
       if (this.$route.query.isValid != undefined) { 
