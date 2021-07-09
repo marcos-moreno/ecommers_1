@@ -525,11 +525,11 @@ export default {
     await this.validaLogin();
     // await this.allProduct(); 
     
-    this.getExtremos();
     // if(this.recoverParams()){
     //   this.applyFilter();
-    // } 
+    // }  
     await this.applyFilter();
+    this.getExtremos();
     this.productosOferta = [];
     for (let index = 0; index < this.productos.length; index++) {
       let element = this.productos[index];  
