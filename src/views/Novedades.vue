@@ -1,29 +1,19 @@
 <template> 
   <div>
-    <app-menu/>   
-    <!-- <center>
-      <v-row>
-        <v-col  cols="12" sm="6" v-for="(banner,i) in bannerNovedades" :key="i" >
-          <v-img  
-          :src="banner.src" width="800">
-          </v-img> 
-        </v-col>
-      </v-row>
-      
-    </center>  -->
- <div style="min-heigth:40px;">
-  <v-carousel  v-model="indexSlider" hide-delimiters height="100%"> 
-    <v-carousel-item v-for="(item,i) in bannerNovedades" :key="i"  >
-        <v-img contain :src="item.src" height="100%" width="100%"></v-img>
-    </v-carousel-item>
-  </v-carousel> 
- </div> 
-<!-- 
-    <v-carousel  hide-delimiters > 
-      <v-carousel-item  v-for="(banner,i) in bannerNovedades" :key="i" >
-          <v-img contain :src="banner.src" height="100%" width="100%"></v-img>
-      </v-carousel-item>
-    </v-carousel>   -->
+    <app-menu/>    
+
+    <div style="min-heigth:40px;">
+      <v-carousel hide-delimiters height="100%"> 
+        <v-carousel-item  > 
+            <v-img src="../../public/bannernovedada.png" height="100%" width="100%"></v-img>
+        </v-carousel-item>
+      </v-carousel>
+      <!-- <v-carousel  v-model="indexSlider" hide-delimiters height="100%"> 
+        <v-carousel-item v-for="(item,i) in bannerNovedades" :key="i"  > 
+            <v-img contain :src="item.src" height="100%" width="100%"></v-img>
+        </v-carousel-item>
+      </v-carousel>  -->
+    </div>  
 
     <center class="my-5"><h1>Novedades</h1></center>
     <v-row class="lighten-1" > 
@@ -88,8 +78,7 @@ import axios from 'axios';
 import AppMenu from '../components/Menu.vue';
 
 export default {
-  name: "Productos", 
-  props: ['pagina'], 
+  name: "Novedades",  
   data() {
     return { 
       page: 1,
@@ -105,7 +94,7 @@ export default {
         [
             // {src: '../novedad1.jpg',},
             // {src: '../novedad2.jpg',}, 
-            {src: '../bannernovedada.png',}, 
+            {src: '../../public/bannernovedada.png',}, 
             
         ],  
     }; 
@@ -122,16 +111,16 @@ export default {
   } 
   ,methods: {    
     async validaLogin(){
-         this.user = await axios.get(config.apiAdempiere + "/user/userByToken", 
-        {'headers': { 'token': this.$cookie.get('token') }})
-        .then(res=>{return res.data;})
-        .catch(err=>{return err;});    
-        if (this.user.status == "success") {
-          this.user = this.user.user; 
-          this.isLogged = true;
-        }else if(this.user.status == "unauthorized"){ 
-          this.isLogged = false;
-        }  
+      this.user = await axios.get(config.apiAdempiere + "/user/userByToken", 
+      {'headers': { 'token': this.$cookie.get('token') }})
+      .then(res=>{return res.data;})
+      .catch(err=>{return err;});    
+      if (this.user.status == "success") {
+        this.user = this.user.user; 
+        this.isLogged = true;
+      }else if(this.user.status == "unauthorized"){ 
+        this.isLogged = false;
+      }  
     }
     ,async allProduct(){  
       this.productos = [];
@@ -173,7 +162,7 @@ export default {
       var formatter = new Intl.NumberFormat('en-ES', {style: 'currency', currency: 'USD',});
       return formatter.format(value);
     },seeProduct(value){   
-      this.$router.push(`/shop/Product/${value}/home/${this.page}`);
+      this.$router.push(`/shop/Product/${value}/Novedades/${this.page}`);
     } 
   },
   

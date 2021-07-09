@@ -18,8 +18,7 @@
         </v-container>   
       </div>
       <v-spacer></v-spacer> 
-    </v-app-bar>
-     
+    </v-app-bar> 
     <v-app-bar color="deep" dark v-if="isMobile()">  
       <v-container>
         <v-row>
@@ -38,19 +37,19 @@
       </v-container> 
     </v-app-bar> 
 
-    <v-navigation-drawer v-model="sceemFiltro" absolute temporary width="300px"> 
+    <v-navigation-drawer v-model="sceemFiltro" absolute temporary width="300px" class="blue-grey lighten-5 height-app" app>   
         <v-list nav dense >
+          <!-- Inicio filtro CELULAR-->
           <v-list-item-group>
-              <!-- Inicio filtro -->
               <div v-if="typeScreem=='filter'">
                 <v-list-item class="px-2">
-                <v-list-item-title  @click.stop="sceemFiltro = !sceemFiltro">
-                  <h1>Filtrar por</h1>
-                </v-list-item-title> 
-                <v-btn icon  @click.stop="sceemFiltro = !sceemFiltro"> 
-                  <v-icon>mdi-chevron-right</v-icon>
-                </v-btn>
-              </v-list-item>
+                  <v-list-item-title  @click.stop="sceemFiltro = !sceemFiltro">
+                    <h1>Filtrar por</h1>
+                  </v-list-item-title> 
+                  <v-btn icon  @click.stop="sceemFiltro = !sceemFiltro"> 
+                    <v-icon>mdi-chevron-right</v-icon>
+                  </v-btn>
+                </v-list-item>
                 <v-list-item> 
                     <v-list-item>
                         <v-container class="px-0" fluid>
@@ -78,15 +77,65 @@
                       </v-row>
                     </v-card-text>
                   </v-card>  
-                </v-list-item-title>
-
+                </v-list-item-title> 
                 <!-- <v-list-item>  -->
-                <v-list-item-title>
-                <v-card flat color="transparent">
-                      <v-checkbox @change="applyFilter()" v-model="isfilterAndalucia"  label="Aromas de Andalucía"></v-checkbox>
-                      <v-checkbox @change="applyFilter()" v-model="isfilterLD" label="Air Natur Home"></v-checkbox>
-                </v-card> 
-                </v-list-item-title>
+  
+               <v-list>
+                    <v-list-group v-model="show_marca">
+                      <template v-slot:activator>
+                        <v-list-item-content>
+                          <v-list-item-title >MARCA</v-list-item-title>
+                        </v-list-item-content>
+                      </template> 
+                      <v-list-item>
+                        <v-list-item-content>
+                          <v-list-item-title >  
+                            <v-checkbox class="my-8"
+                            style="width:0.5px;height:0.5px;"
+                                v-for="marca in atttibutes.marcas" :key="marca.value"
+                                      @change="applyFilter()" v-model="marca.isview" :label="marca.marca"></v-checkbox>
+    
+                          </v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-list-group>
+                    <v-list-group v-model="show_intencidad">
+                      <template v-slot:activator>
+                        <v-list-item-content>
+                          <v-list-item-title >INTENCIDAD</v-list-item-title>
+                        </v-list-item-content>
+                      </template> 
+                      <v-list-item>
+                        <v-list-item-content>
+                          <v-list-item-title > 
+                            <v-checkbox class="my-8"
+                            style="width:0.5px;height:0.5px;"
+                            v-for="intencidad in atttibutes.intencidades" :key="intencidad.m_class_intensity_id"
+                              @change="applyFilter()" v-model="intencidad.isview" :label="intencidad.intencidad"></v-checkbox>
+                          </v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-list-group>
+                  </v-list>
+                  <v-divider class="my-5"></v-divider>
+                  <div><strong >Clasificación</strong></div>
+                  <v-list>
+                    <v-list-group
+                      v-for="categoria in atttibutes.categorias" :key="categoria.m_product_category_id" no-action>
+                      <template v-slot:activator>
+                        <v-list-item-content>
+                          <v-list-item-title v-text="categoria.categoria"></v-list-item-title>
+                        </v-list-item-content>
+                      </template> 
+                      <v-list-item v-for="sub_categoria in categoria.sub_categorias"
+                                    :key="sub_categoria.m_product_classification_id">
+                        <v-list-item-content>
+                          <v-list-item-title v-text="sub_categoria.sub_categoria"></v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-list-group>
+                  </v-list>
+
               </div>
               <!-- Fin filtro -->
               <v-list-item-title>
@@ -100,170 +149,270 @@
                     </v-btn>
                   </v-list-item>  
                 </div>
-              </v-list-item-title>
-          
+              </v-list-item-title> 
           </v-list-item-group> 
         </v-list>
+        <br><br><br><br><br>
+        <div class="my-10"></div>
     </v-navigation-drawer>  
     <div style="min-heigth:40px;">
       <app-slider v-if="verfiltro == false && page == 1" /> 
     </div> 
     <template class="grey lighten-2"  >
-      <v-row class="grey lighten-2" > 
-        <v-col cols="12" sm="1"></v-col>
 
+
+
+
+      
+      <v-row class="grey lighten-2" > 
+        <v-col cols="12" sm="1"></v-col> 
         <v-col cols="12" sm="2" v-if="isMobile()">
               <v-alert dismissible>
                 <v-alert dense type="info">
                   Para dar una mejor presentación a sus productos adquiera nuestras <strong>NUEVAS BOLSAS</strong>
                 </v-alert>
-              <v-col  v-for="producto in productosOferta" :key="producto.value">  
-                <center>
-                <v-alert width="90%" color="cyan" border="left"  elevation="1" colored-border> 
-                      <div  @click="seeProduct(producto.value)">
+                <v-col  v-for="producto in productosOferta" :key="producto.value">  
+                  <center>
+                    <v-alert width="90%" color="cyan" border="left"  elevation="1" colored-border> 
+                          <div  @click="seeProduct(producto.value)">
+                          <center>   
+                            <v-img width="40%" :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" 
+                                  :lazy-src="`../../public/noImg.png`"
+                                    aspect-ratio="1" class="grey lighten-2"> 
+                              <template v-slot:placeholder>
+                                <v-row class="fill-height ma-0" align="center" justify="center">
+                                  <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                                </v-row>
+                              </template> 
+                            </v-img>
+                          </center>
+                          <v-card-text>
+                            <div class="my-4 subtitle-3">{{producto.name.substring(0,83)}}</div> 
+                          </v-card-text>  
+                          </div>
+                    </v-alert>
+                  </center>
+                </v-col>
+              </v-alert> 
+        </v-col> 
+        <!-- Inicio filtro Escritorio-->
+        <v-col cols="12" sm="" v-if="isLoad==false">  
+          <v-list nav dense v-if="!isMobile()"  class="my-5">
+              <h2>Filtrar por</h2> 
+              <v-container class="px-0" fluid>
+                <v-switch @change="filterOnlystock()" v-model="onlystock" label="Solo producto con existencia." ></v-switch>
+              </v-container>   
+              <v-card flat color="transparent">
+                <br>
+                <div><strong>Precio</strong></div>
+                <v-card-text>
+                  <v-row>
+                    <v-col class="px-4">
+                      {{formatMXN(range[0])}}  -- {{formatMXN(range[1])}}
+                      <v-range-slider v-model="range" @change="movementPriceFilter()"  :max="max" :min="min" hide-details class="align-center" >
+                        <template v-slot:prepend>
+                          <v-text-field  style="display:none;" :value="range[0]"  type="number" @change="$set(range, 0, $event)"></v-text-field>
+                        </template>
+                        <template v-slot:append style="">
+                          <v-text-field  style="display:none;" :value="range[1]"  type="number" @change="$set(range, 1, $event)"></v-text-field>
+                        </template>
+                      </v-range-slider>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+              <br> 
+
+              <v-list>
+                <v-list-group  @click="!show_marca?show_marca=true:show_marca=false" :value="show_marca">
+                  <template v-slot:activator>
+                    <v-list-item-content>
+                      <v-list-item-title>MARCA</v-list-item-title>
+                    </v-list-item-content>
+                  </template> 
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title >  
+                        <v-checkbox class="my-8"
+                        style="width:0.5px;height:0.5px;"
+                          v-for="marca in atttibutes.marcas" :key="marca.value"
+                                  @change="applyFilter()" v-model="marca.isview" :label="marca.marca"></v-checkbox>
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-group>
+              </v-list>
+
+              <v-list>
+                <v-list-group @click="!show_intencidad?show_intencidad=true:show_intencidad=false" :value="show_intencidad">
+                  <template v-slot:activator >
+                    <v-list-item-content>
+                      <v-list-item-title >INTENCIDAD</v-list-item-title>
+                    </v-list-item-content>
+                  </template> 
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title > 
+                        <v-checkbox class="my-8"
+                        style="width:0.5px;height:0.5px;"
+                        v-for="intencidad in atttibutes.intencidades" :key="intencidad.m_class_intensity_id"
+                          @change="applyFilter()" v-model="intencidad.isview" :label="intencidad.intencidad"></v-checkbox>
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-group>
+              </v-list>
+
+
+              <v-divider class="my-5"></v-divider>
+              <div><strong >Clasificación</strong></div>
+
+              <v-list>  
+                <v-list-group 
+                  v-for="categoria in atttibutes.categorias" 
+                  :key="categoria.m_product_category_id"
+                  v-model="categoria.is_active"
+                  no-action 
+                  sub-group  
+                >
+                  <template v-slot:activator>
+                    <v-list-item-content
+                      @click="add_category_filter(categoria)"  
+                      v-bind:style= "[
+                      comprobarExistenciaInArray(filtrosCategorias,categoria.m_product_category_id,'m_product_classification_id')
+                      ? {'color':'green'} : {}]"
+                    > 
+                      <v-list-item-title v-text="categoria.categoria"></v-list-item-title>
+                    </v-list-item-content>
+                  </template>  
+                  <v-list-item  @click="add_sub_category(sub_categoria,categoria)" 
+                                v-for="sub_categoria in categoria.sub_categorias"
+                                :key="sub_categoria.m_product_classification_id">
+                    <v-list-item-content
+                      v-bind:style= "[
+                      comprobarExistenciaInArray(filtrosSubcategoria,sub_categoria.m_product_classification_id,'m_product_classification_id')
+                      ? {'color':'#F78B09'} : {}]"
+                    >
+                      <v-list-item-title v-text="sub_categoria.sub_categoria"></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-group>
+              </v-list>  
+          </v-list>  
+        </v-col> 
+        
+        <v-col cols="12" sm="6" class="grey lighten-5">  
+          <v-container class="grey lighten-5" > 
+          
+            <v-chip class="ma-2"  v-for="categoria in filtrosCategorias" :key="categoria.m_product_category_id" 
+              close color="primary" outlined @click:close="delete_categoria(categoria)">
+              {{categoria.categoria}}
+            </v-chip>
+
+            <v-chip class="ma-2" v-for="sub_categoria in filtrosSubcategoria" :key="sub_categoria.m_product_classification_id" 
+              close color="orange" label outlined  @click:close="delete_sub_categoria(sub_categoria.m_product_classification_id)">
+              {{sub_categoria.sub_categoria}}
+            </v-chip>
+            <br>
+            <p v-if="verfiltro == true && valorBuscado != ''" style="font-size: 2em;color :#909090">  
+              <strong>{{valorBuscado}}</strong> 
+              <v-btn text color="error" @click="deleteFilter">X</v-btn>
+            </p>{{productos.length}} Resultados
+          </v-container> 
+
+          <v-row class="mb-6" no-gutters >    
+            <div class="text-center">
+              <v-dialog v-model="isLoad" persistent width="300">
+                <v-card color="primary" dark >
+                  <v-card-text>
+                    cargando
+                    <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+                  </v-card-text>
+                </v-card> 
+              </v-dialog>
+            </div>  
+
+            <v-col v-for="producto in productosPaginator" :key="producto.value">  
+              <v-hover>
+                <template v-slot:default="{ hover }">
+                    <v-card style=" border-bottom: 2px solid red" :elevation="hover ? 24 : 2" class="mx-auto my-3"
+                      width="260" height="500" @click="seeProduct(producto.value)">
                       <center>   
-                        <v-img width="40%" :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" 
-                              :lazy-src="`../../public/noImg.png`"
-                                aspect-ratio="1" class="grey lighten-2"> 
+                        <v-img :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" :lazy-src="`../../public/noImg.png`"
+                                aspect-ratio="1" class="grey lighten-2" width="220" height="170"> 
                           <template v-slot:placeholder>
                             <v-row class="fill-height ma-0" align="center" justify="center">
                               <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
                             </v-row>
                           </template> 
-                        </v-img>
-                      </center>
-                      <v-card-text>
-                        <div class="my-4 subtitle-3">{{producto.name.substring(0,83)}}</div> 
-                      </v-card-text>  
-                      </div>
-                </v-alert>
-                </center>
-            </v-col>
-              </v-alert> 
-        </v-col>
+                        </v-img> 
+                      </center> 
 
-        <v-col cols="12" sm="2">   
-          <v-list nav dense v-if="!isMobile()"  class="my-5">
-              <v-list-item-group> 
-                  <div>
-                      <h1>Filtrar por</h1> 
-                  <v-container class="px-0" fluid>
-                    <v-switch @change="filterOnlystock()" v-model="onlystock" label="Solo producto con existencia." ></v-switch>
-                  </v-container>   
-                  <v-card flat color="transparent">
-                    <br>
-                    <div><strong>Precio</strong></div>
-                    <v-card-text>
-                      <v-row>
-                        <v-col class="px-4">
-                          {{formatMXN(range[0])}}  -- {{formatMXN(range[1])}}
-                          <v-range-slider v-model="range" @change="movementPriceFilter()"  :max="max" :min="min" hide-details class="align-center" >
-                            <template v-slot:prepend>
-                              <v-text-field  style="display:none;" :value="range[0]"  type="number" @change="$set(range, 0, $event)"></v-text-field>
-                            </template>
-                            <template v-slot:append style="">
-                              <v-text-field  style="display:none;" :value="range[1]"  type="number" @change="$set(range, 1, $event)"></v-text-field>
-                            </template>
-                          </v-range-slider>
-                        </v-col>
-                      </v-row>
-                    </v-card-text>
-                  </v-card><br>   
-                  <v-card flat color="transparent">
-                        <v-checkbox @change="applyFilter()" v-model="isfilterAndalucia"  label="Aromas de Andalucía"></v-checkbox>
-                        <v-checkbox @change="applyFilter()" v-model="isfilterLD" label="Air Natur Home"></v-checkbox>
-                  </v-card>  
-                  </div> 
-              </v-list-item-group> 
-            </v-list>
-        </v-col> 
-        
-        <v-col cols="12" sm="6" class="grey lighten-5">  
-                  <v-container class="grey lighten-5" >  
-                      <p v-if="verfiltro == true && valorBuscado != ''" style="font-size: 2em;color :#909090">  
-                      <strong>{{valorBuscado}}</strong> 
-                      <v-btn text color="error" @click="deleteFilter">X</v-btn>
-                      </p>{{productos.length}} Resultados
-                  </v-container> 
-                  <v-row class="mb-6" no-gutters >    
-                    <div class="text-center">
-                      <v-dialog v-model="isLoad" persistent width="300">
-                        <v-card color="primary" dark >
-                          <v-card-text>
-                            cargando
-                            <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
-                          </v-card-text>
-                        </v-card> 
-                      </v-dialog>
-                    </div>  
-                    <v-col v-for="producto in productosPaginator" :key="producto.value"> 
-                      <v-card class="mx-auto my-3" width="260" height="500" @click="seeProduct(producto.value)" >
-                        <center>   
-                          <v-img :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" :lazy-src="`../../public/noImg.png`"
-                                  aspect-ratio="1" class="grey lighten-2" width="220" height="170"> 
-                            <template v-slot:placeholder>
-                              <v-row class="fill-height ma-0" align="center" justify="center">
-                                <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
-                              </v-row>
-                            </template> 
-                          </v-img>
-                        </center>
-                        <v-card-text>
-                          <div class="my-4 subtitle-3">{{producto.name.substring(0,83)}}</div>
-                          <div class="my-4 subtitle-2">{{producto.value}}</div>
-                        </v-card-text> 
-                        <v-divider class="mx-4">Costos</v-divider>
-                        <v-card-title >
-                          {{ formatMXN(producto.l0) }}
-                        </v-card-title> 
+                    
+
+                      <v-container class="mx-auto" style="height:50%;"> 
                         <v-card-text>  
-                          <div class="my-4 subtitle-1">
-                            Cantidad Disponible: {{ producto.mex_quantytotal }}
-                          </div> 
-                        </v-card-text> 
-                      </v-card> 
-                    </v-col> 
-                  </v-row>   
-                  <div class="text-center">
-                    <v-pagination 
-                      v-on:input="paginator" 
-                      v-model="page" 
-                      :length="lengthPaginator"  
-                      circle
-                      :total-visible="7"
-                      ></v-pagination>
-                  </div>  
-                  <br> 
-              </v-col>
-              <v-col cols="12" sm="2" v-if="!isMobile()">
-                    <v-alert dismissible class="my-5">
-                      <v-alert dense type="info">
-                        Para dar una mejor presentación a sus productos adquiera nuestras <strong>NUEVAS BOLSAS</strong>
-                      </v-alert>
-                    <v-col  v-for="producto in productosOferta" :key="producto.value">  
-                      <center>
-                      <v-alert width="100%" color="cyan" border="left"  elevation="1" colored-border> 
-                            <div  @click="seeProduct(producto.value)">
-                            <center>   
-                              <v-img width="70%" :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" 
-                                    :lazy-src="`../../public/noImg.png`"
-                                      aspect-ratio="1" class="grey lighten-2"> 
-                                <template v-slot:placeholder>
-                                  <v-row class="fill-height ma-0" align="center" justify="center">
-                                    <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
-                                  </v-row>
-                                </template> 
-                              </v-img>
-                            </center>
-                            <v-card-text>
-                              <div class="my-4 subtitle-3">{{producto.name.substring(0,83)}}</div> 
-                            </v-card-text>  
-                            </div>
-                      </v-alert>
-                      </center>
-                  </v-col>
-                  </v-alert> 
-              </v-col>
+                          <div>{{producto.name}}</div>  
+                          <div class="my-4 subtitle-2">{{producto.categoria}} :  {{producto.sub_categoria}} </div> 
+                          <div class="my-4 subtitle-2">presentación: {{producto.presentacion}}</div> 
+                          <div class="my-4 subtitle-2">Intencidad : {{producto.intencidad}}</div>
+                        </v-card-text>  
+                      </v-container >
+
+                      <v-divider class="mx-4">Costos</v-divider>
+                      <v-card-actions>
+                          <v-chip class="ma-2"  color="pink" label text-color="white">
+                            {{ formatMXN(producto.l0) }}
+                          </v-chip> 
+                          <v-chip  class="ma-2" color="pink" label text-color="white">
+                            {{ producto.mex_quantytotal }}{{producto.mex_quantytotal==1?' Disponible':' Disponibles'}}
+                          </v-chip> 
+                      </v-card-actions> 
+                    </v-card> 
+                </template>
+              </v-hover> 
+            </v-col> 
+          </v-row>   
+          <div class="text-center">
+            <v-pagination 
+              v-on:input="paginator" 
+              v-model="page" 
+              :length="lengthPaginator"  
+              circle
+              :total-visible="7"
+              ></v-pagination>
+          </div>  
+          <br> 
+          </v-col>
+            <v-col cols="12" sm="2" v-if="!isMobile()">
+                  <v-alert dismissible class="my-5">
+                    <v-alert dense type="info">
+                      Para dar una mejor presentación a sus productos adquiera nuestras <strong>NUEVAS BOLSAS</strong>
+                    </v-alert>
+                  <v-col  v-for="producto in productosOferta" :key="producto.value">  
+                    <center> 
+                    <v-alert width="100%" color="cyan" border="left"  elevation="1" colored-border> 
+                          <div  @click="seeProduct(producto.value)">
+                          <center>   
+                            <v-img width="70%" :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" 
+                                  :lazy-src="`../../public/noImg.png`"
+                                    aspect-ratio="1" class="grey lighten-2"> 
+                              <template v-slot:placeholder>
+                                <v-row class="fill-height ma-0" align="center" justify="center">
+                                  <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                                </v-row>
+                              </template> 
+                            </v-img>
+                          </center>
+                          <v-card-text>
+                            <div class="my-4 subtitle-3">{{producto.name.substring(0,83)}}</div> 
+                          </v-card-text>  
+                          </div>
+                    </v-alert>
+                    </center>
+                </v-col>
+                </v-alert> 
+            </v-col>
           <v-col cols="12" sm="1"></v-col>
         </v-row>       
     </template> 
@@ -309,14 +458,20 @@ export default {
       isLoad : false,
       valorBuscado : "",
       verfiltro : false,
-      productosFiltrados : []
+      productosFiltrados : [],
+      atttibutes : {marcas:[],categorias:[],intencidades:[],presentaciones:[]},
+      filtrosCategorias : [],
+      filtrosSubcategoria : [],
+
+      show_intencidad : false,
+      show_marca : false,
     }; 
   }, 
   components: { 
     'app-slider': AppSlider,
     'app-menu': AppMenu, 
   }, 
-  async created() {   
+  async created() {
     try{
       if (parseInt(this.pagina) > 0) {
         this.page = parseInt(this.pagina);
@@ -326,7 +481,8 @@ export default {
     }catch (ex){
       this.page = 1;
     }
-    this.isLoad = true;  
+    this.isLoad = true; 
+    await this.getattibutes();
     await this.validaLogin();
     await this.allProduct(); 
     this.productosOferta = [];
@@ -342,9 +498,94 @@ export default {
     } 
     await this.paginator(); 
     this.isLoad = false;  
-    
   } 
   ,methods: {
+    add_category_filter(categoria){ 
+      if (categoria.sub_categorias.length == 0) {
+        this.add_category(categoria,true);
+      } 
+    },
+    delete_sub_categoria(m_product_classification_id){ 
+      if (this.comprobarExistenciaInArray(this.filtrosSubcategoria,m_product_classification_id,'m_product_classification_id')){
+        let filtros = [];
+        for (let index = 0; index < this.filtrosSubcategoria.length; index++) { 
+          if (this.filtrosSubcategoria[index].m_product_classification_id != m_product_classification_id) {
+            filtros.push(this.filtrosSubcategoria[index]); 
+          }
+        }
+        this.filtrosSubcategoria = filtros;
+        this.applyFilter();
+      }
+    },
+    delete_categoria(categoria){ 
+      if (this.comprobarExistenciaInArray(this.filtrosCategorias,categoria.m_product_category_id,'m_product_category_id')){
+        for (let index = 0; index < categoria.sub_categorias.length; index++) {
+          this.delete_sub_categoria(categoria.sub_categorias[index].m_product_classification_id);
+        }
+        let filtros = []; 
+        for (let index = 0; index < this.filtrosCategorias.length; index++) { 
+          if (this.filtrosCategorias[index].m_product_category_id != categoria.m_product_category_id) {
+            filtros.push(this.filtrosCategorias[index]); 
+          }
+        }  
+        this.filtrosCategorias = filtros;
+        this.applyFilter();
+      } 
+    },
+    add_category(categoria,apllifilter){
+      if (!this.comprobarExistenciaInArray(
+        this.filtrosCategorias
+        ,categoria.m_product_category_id
+        ,'m_product_category_id')) {
+        this.filtrosCategorias.push(categoria); 
+        if (apllifilter) {
+          this.applyFilter(); 
+        }
+      }
+    },
+    add_sub_category(sub_categoria,categoria){  
+      this.add_category(categoria,false);
+      if (!this.comprobarExistenciaInArray(
+        this.filtrosSubcategoria
+      ,sub_categoria.m_product_classification_id
+      ,'m_product_classification_id')){
+        this.filtrosSubcategoria.push(sub_categoria);
+        this.applyFilter();
+      }
+    },
+    comprobarExistenciaInArray(array,value,field){
+      let respuesta = false;
+      for (let index = 0; index < array.length; index++) {
+        const element = array[index]; 
+        if (element[field] == value) {
+          respuesta = true;
+        }
+      } 
+      return respuesta;
+    },
+    async getattibutes(){
+      this.atttibutes.marcas = await this.requestattributes('marcas',0);
+      this.atttibutes.categorias = await this.requestattributes('categoria',0);
+      for (let index = 0; index < this.atttibutes.categorias.length; index++) {  
+        let res = await this.requestattributes('sub_categoria' ,this.atttibutes.categorias[index].m_product_category_id)
+        this.atttibutes.categorias[index].sub_categorias = res;
+      }
+      this.atttibutes.intencidades = await this.requestattributes('intencidad',0);
+      this.atttibutes.presentaciones = await this.requestattributes('presentacion',0); 
+    }, 
+    async requestattributes(types,m_p_cat_id){
+      let resource = [];
+      resource = await axios.get(config.apiAdempiere + "/productos/getattributes", 
+      {'headers': { 'token': this.$cookie.get('token') },params:{type:types,m_product_category_id:m_p_cat_id}})
+      .then(res=>{return res.data;}) 
+      .catch(err=>{return err;});    
+      if (resource.status == "success") {
+        resource = resource.data;
+      }else{
+        resource = [];
+      }
+      return resource;
+    },
     recoverParams(){ 
       if (this.$route.query.isValid != undefined) { 
         try {
@@ -462,9 +703,32 @@ export default {
           this.isLogged = false;
         }  
     }
+    ,agrupacion_isview(array,fieldconcat,isFilter){
+      let cadenaRetorno = ""; 
+      for (let i = 0; i < array.length; i++) { 
+        const element = array[i];
+        if (isFilter) {
+          if (element.isview) {
+            cadenaRetorno += element[fieldconcat] + ",";
+          }
+        }else{
+          cadenaRetorno += element[fieldconcat] + ",";
+        } 
+      }
+      cadenaRetorno += "#";
+      cadenaRetorno = cadenaRetorno.replace(',#',''); 
+      return cadenaRetorno;
+    }
     ,async allProduct(){ 
       this.productos = [];
       this.productosPaginator = [];
+
+      let empresasValidas = this.agrupacion_isview(this.atttibutes.marcas,'m_product_group_id',true);
+      let intencidadesValidas = this.agrupacion_isview(this.atttibutes.intencidades,'m_class_intensity_id',true);
+   
+      let categorias_group_v = this.agrupacion_isview(this.filtrosCategorias,'m_product_category_id',false);
+      let sub_categorias_group_v = this.agrupacion_isview(this.filtrosSubcategoria,'m_product_classification_id',false);
+
       let uri = config.apiAdempiere + "/productos/all";
       this.productos = await axios.get(uri
       ,{
@@ -473,11 +737,13 @@ export default {
             filter: this.filter
             ,onliStock : this.onlystock
             ,range : this.range
-            ,andalucia : this.isfilterAndalucia 
-            ,ld : this.isfilterLD 
+            ,marcasfiltradas : empresasValidas
             ,ordenMenorP : this.ordenMenorP
             ,ordenMayorP : this.ordenMayorP
-            ,ordenMasVendido : this.ordenMasVendido 
+            ,ordenMasVendido : this.ordenMasVendido  
+            ,intencidadesfiltradas : intencidadesValidas
+            ,categorias_group : categorias_group_v
+            ,sub_categorias_group : sub_categorias_group_v
         }
       }
       ).then(function (response) { 
@@ -509,7 +775,8 @@ export default {
       window.scrollTo(0,0);
     },formatMXN(value) {
       var formatter = new Intl.NumberFormat('en-ES', {style: 'currency', currency: 'USD',});
-      return formatter.format(value);
+      // return formatter.format(value);
+      return `${formatter.format(value)} MXN`;
     },seeProduct(value){   
       this.$router.push(`/shop/Product/${value}/home/${this.page}`);
     } 

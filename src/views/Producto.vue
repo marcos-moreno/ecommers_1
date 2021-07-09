@@ -106,23 +106,16 @@
                       <v-alert v-if="msgErro!=''" dense outlined type="error" >
                         {{msgErro}}
                       </v-alert>
-
-
+ 
                     </v-col>
                   </v-row> 
                   <v-row> 
                     <v-col>
-                      <v-card class="mx-auto" outlined > 
-                        <v-list-item three-line>
-                          <v-list-item-content>
-                            <div class="overline mb-">
-                              <strong>Descripción del producto</strong>
-                            </div>
-                            <div>
-                              <p v-html="producto.elements"></p>
-                            </div>
-                          </v-list-item-content> 
-                        </v-list-item>  
+                      <v-card class="mx-auto"> 
+                        <v-card-text>
+                          <p class="text--seondary" >Descripción del producto</p> 
+                          <div class="text--primary text-sm-left" v-html="producto.elements"> </div>
+                        </v-card-text> 
                       </v-card>
                     </v-col>
                   </v-row>  

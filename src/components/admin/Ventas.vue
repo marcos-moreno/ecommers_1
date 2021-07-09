@@ -409,7 +409,11 @@ export default {
                 this.ventas = this.ventas.data; 
                 for (let index = 0; index < this.ventas.length; index++) { 
                     this.ventas[index].grandtotalFormato = this.formatMXN(this.ventas[index].grandtotal);
-                    this.ventas[index].fechaprometidaFormato = this.formatDate(this.ventas[index].fechaprometida);
+                    if (this.ventas[index].fechaprometida == null || this.ventas[index].fechaprometida == undefined) {
+                          this.ventas[index].fechaprometidaFormato = 'No definida'
+                    }else{
+                        this.ventas[index].fechaprometidaFormato = this.formatDate(this.ventas[index].fechaprometida);
+                    }
                     this.ventas[index].formaPagoText = this.getTipoPago(this.ventas[index].method_pay);
                     this.ventas[index].creat_at = this.formatDate(this.ventas[index].created_at);
                     this.ventas[index].status_pay_com = this.ventas[index].status_pay.toUpperCase();
