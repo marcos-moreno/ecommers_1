@@ -450,10 +450,16 @@
         </v-row>
 
         <v-container v-else>
-             <v-skeleton-loader 
-          type="list-item-avatar, divider, list-item-three-line, card-heading, image, actions"
-        ></v-skeleton-loader>
-</v-container>
+          <v-skeleton-loader 
+            type="list-item-avatar, divider, list-item-three-line, card-heading, image, actions"
+          ></v-skeleton-loader>
+            <v-skeleton-loader 
+            type="list-item-avatar, divider, list-item-three-line, card-heading, image, actions"
+          ></v-skeleton-loader>
+            <v-skeleton-loader 
+            type="list-item-avatar, divider, list-item-three-line, card-heading, image, actions"
+          ></v-skeleton-loader>
+        </v-container>
     </template> 
   </v-app> 
 </template>  
