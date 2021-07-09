@@ -1,6 +1,18 @@
 <template>
  <v-app >
     <app-menu/>
+
+    <div class="text-center">
+      <v-dialog v-model="isLoad" persistent width="300">
+        <v-card color="primary" dark >
+          <v-card-text>
+            cargando
+            <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+          </v-card-text>
+        </v-card> 
+      </v-dialog>
+    </div> 
+
     <v-app-bar color="deep" dark > 
       <v-spacer></v-spacer> 
       <v-text-field @keyup.enter.native="search" v-model="filter" dense flat hide-details rounded solo-inverted ></v-text-field>  
@@ -185,11 +197,12 @@
 
 
 
+<!-- Este es el inicio del content -->
 
-      
-      <v-row class="grey lighten-2" > 
+      <v-row class="grey lighten-2" heigth v-if="isLoad==false">  
+
         <!-- <v-col cols="12" sm="1"></v-col>  -->
-        <v-col cols="12" sm="2" v-if="isMobile()">
+        <v-col cols="12" sm="2" v-if="isMobile() && isLoad==false" >
               <v-alert dismissible>
                 <v-alert dense type="info">
                   Para dar una mejor presentación a sus productos adquiera nuestras <strong>NUEVAS BOLSAS</strong>
@@ -219,7 +232,7 @@
               </v-alert> 
         </v-col> 
         <!-- Inicio filtro Escritorio-->
-        <v-col cols="12" sm="3" v-if="isLoad==false"> 
+        <v-col cols="12" sm="3" v-if="isLoad==false"  > 
             <v-row>
             <v-col  cols="12" sm="3"></v-col>
             <v-col  cols="12" sm="9">
@@ -331,8 +344,8 @@
         </v-row> 
         </v-col> 
         
-        <v-col cols="12" sm="6" class="grey lighten-5">  
-          <v-container class="grey lighten-5" > 
+        <v-col cols="12" sm="6" class="grey lighten-5" v-if="isLoad==false">  
+          <v-container class="grey lighten-5"  > 
           
             <v-chip class="ma-2"  v-for="categoria in filtrosCategorias" :key="categoria.m_product_category_id" 
               close color="primary" outlined @click:close="delete_categoria(categoria)">
@@ -350,21 +363,11 @@
             </p>{{productos.length}} Resultados
           </v-container> 
 
-          <v-row class="mb-6" no-gutters >    
-            <div class="text-center">
-              <v-dialog v-model="isLoad" persistent width="300">
-                <v-card color="primary" dark >
-                  <v-card-text>
-                    cargando
-                    <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
-                  </v-card-text>
-                </v-card> 
-              </v-dialog>
-            </div>  
+          <v-row class="mb-6" no-gutters > 
 
             <v-col v-for="producto in productosPaginator" :key="producto.value">  
               <v-hover>
-                <template v-slot:default="{ hover }">
+                <template v-slot:default="{ hover }" >
                     <v-card style=" border-bottom: 2px solid red" :elevation="hover ? 24 : 2" class="mx-auto my-3"
                       width="260" height="500" @click="seeProduct(producto.value)">
                       <center>   
@@ -414,7 +417,7 @@
           </div>  
           <br> 
           </v-col>
-            <v-col cols="12" sm="2" v-if="!isMobile()">
+            <v-col cols="12" sm="2" v-if="!isMobile() && isLoad==false " >
                   <v-alert dismissible class="my-5">
                     <v-alert dense type="info">
                       Para dar una mejor presentación a sus productos adquiera nuestras <strong>NUEVAS BOLSAS</strong>
@@ -444,7 +447,13 @@
                 </v-alert> 
             </v-col>
           <v-col cols="12" sm="1"></v-col>
-        </v-row>       
+        </v-row>
+
+        <v-container v-else>
+             <v-skeleton-loader 
+          type="list-item-avatar, divider, list-item-three-line, card-heading, image, actions"
+        ></v-skeleton-loader>
+</v-container>
     </template> 
   </v-app> 
 </template>  
@@ -514,7 +523,13 @@ export default {
     this.isLoad = true; 
     await this.getattibutes();
     await this.validaLogin();
-    await this.allProduct(); 
+    // await this.allProduct(); 
+    
+    this.getExtremos();
+    // if(this.recoverParams()){
+    //   this.applyFilter();
+    // } 
+    await this.applyFilter();
     this.productosOferta = [];
     for (let index = 0; index < this.productos.length; index++) {
       let element = this.productos[index];  
@@ -522,10 +537,6 @@ export default {
           this.productosOferta.push(element);
       } 
     } 
-    this.getExtremos();
-    // if(this.recoverParams()){
-    //   this.applyFilter();
-    // } 
     await this.paginator(); 
     this.isLoad = false;  
   } 
@@ -597,11 +608,7 @@ export default {
       this.requestattributes_marcas();
       this.requestattributes_intencidad();
       this.requestattributes_presentacion();  
-      await this.requestattributes_categoria(); 
-      for (let index = 0; index < this.atttibutes.categorias.length; index++) {  
-        let res = await this.requestattributes('sub_categoria' ,this.atttibutes.categorias[index].m_product_category_id)
-        this.atttibutes.categorias[index].sub_categorias = res;
-      }
+      this.requestattributes_categoria();  
     }, 
     async requestattributes(types,m_p_cat_id){
       let resource = [];
@@ -638,6 +645,11 @@ export default {
       .catch(err=>{return err;});    
       if (resource.status == "success") {
         this.atttibutes.categorias = resource.data;
+        for (let index = 0; index < this.atttibutes.categorias.length; index++) {
+          let res = await this.requestattributes('sub_categoria' 
+          ,this.atttibutes.categorias[index].m_product_category_id)
+          this.atttibutes.categorias[index].sub_categorias = res;
+        }
       }else{
         this.atttibutes.categorias = [];
       } 
@@ -668,29 +680,29 @@ export default {
         this.atttibutes.presentaciones = [];
       } 
     },
-    recoverParams(){ 
-      if (this.$route.query.isValid != undefined) { 
-        try {
-          this.filter = this.$route.query.filter;
-          this.onlystock = this.$route.query.onlystock=='true'?true:false; 
-          if (this.$route.query.range != undefined) { 
-            this.range = this.$route.query.range;
-          } 
-          this.isfilterAndalucia = this.$route.query.isfilterAndalucia=='true'?true:false;
-          this.isfilterLD = this.$route.query.isfilterLD=='true'?true:false;
-          this.ordenMenorP =  this.$route.query.ordenMenorP=='true'?true:false;
-          this.ordenMayorP = this.$route.query.ordenMayorP=='true'?true:false;
-          this.ordenMasVendido = this.$route.query.ordenMasVendido=='true'?true:false;
-          this.orden = this.$route.query.orden; 
-          return true;
-        } catch (error) { 
-          console.log(error);
-          return false;
-        }
-      }else{
-        return false;
-      }
-    },
+    // recoverParams(){ 
+    //   if (this.$route.query.isValid != undefined) {
+    //     try {
+    //       this.filter = this.$route.query.filter;
+    //       this.onlystock = this.$route.query.onlystock=='true'?true:false; 
+    //       if (this.$route.query.range != undefined) { 
+    //         this.range = this.$route.query.range;
+    //       } 
+    //       this.isfilterAndalucia = this.$route.query.isfilterAndalucia=='true'?true:false;
+    //       this.isfilterLD = this.$route.query.isfilterLD=='true'?true:false;
+    //       this.ordenMenorP =  this.$route.query.ordenMenorP=='true'?true:false;
+    //       this.ordenMayorP = this.$route.query.ordenMayorP=='true'?true:false;
+    //       this.ordenMasVendido = this.$route.query.ordenMasVendido=='true'?true:false;
+    //       this.orden = this.$route.query.orden; 
+    //       return true;
+    //     } catch (error) { 
+    //       console.log(error);
+    //       return false;
+    //     }
+    //   }else{
+    //     return false;
+    //   }
+    // },
     getExtremos(){
       for (let index = 0; index < this.productos.length; index++) {
         const element = this.productos[index]; 
