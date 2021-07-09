@@ -530,6 +530,7 @@ export default {
     // }  
     await this.applyFilter();
     this.getExtremos();
+    this.verfiltro = true; 
     this.productosOferta = [];
     for (let index = 0; index < this.productos.length; index++) {
       let element = this.productos[index];  
@@ -738,7 +739,7 @@ export default {
       this.isLoad = true;   
       await this.allProduct();
       this.page = 1;
-      await this.paginator();
+      await this.paginator();  
       this.verfiltro = true;
       this.sceemFiltro = false;
       this.isLoad = false;   
