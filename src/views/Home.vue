@@ -233,10 +233,10 @@
         </v-col> 
         <!-- Inicio filtro Escritorio-->
         <v-col cols="12" sm="3" v-if="isLoad==false"  > 
-            <v-row>
-            <v-col  cols="12" sm="3"></v-col>
-            <v-col  cols="12" sm="9">
-          <v-list nav dense v-if="!isMobile()" class="my-5" style="margin-left:10px">
+            <!-- <v-row>
+            <v-col  cols="12" sm="1"></v-col>
+            <v-col  cols="12" sm="10"> -->
+          <v-list nav dense v-if="!isMobile()" class="my-5" style="margin-left:30px" max-width="400">
               <h2>Filtrar por</h2> 
               <v-container class="px-0" fluid>
                 <v-switch @change="filterOnlystock()" v-model="onlystock" label="Solo producto con existencia." ></v-switch>
@@ -321,7 +321,7 @@
                       comprobarExistenciaInArray(filtrosCategorias,categoria.m_product_category_id,'m_product_classification_id')
                       ? {'color':'green'} : {}]"
                     > 
-                      <v-list-item-title v-text="categoria.categoria.substring(0,26)"></v-list-item-title>
+                      <v-list-item-title v-text="categoria.categoria.substring(0,15)"></v-list-item-title>
                     </v-list-item-content>
                   </template>  
                   <v-list-item  @click="add_sub_category(sub_categoria,categoria)" 
@@ -340,8 +340,8 @@
                 </v-list-group>
               </v-list>  
           </v-list>  
-          </v-col>
-        </v-row> 
+          <!-- </v-col>
+        </v-row>  -->
         </v-col> 
         
         <v-col cols="12" sm="6" class="grey lighten-5" v-if="isLoad==false">  
@@ -416,12 +416,12 @@
               ></v-pagination>
           </div>  
           <br> 
-          </v-col>
-            <v-col cols="12" sm="2" v-if="!isMobile() && isLoad==false " >
-                  <v-alert dismissible class="my-5">
-                    <v-alert dense type="info">
-                      Para dar una mejor presentación a sus productos adquiera nuestras <strong>NUEVAS BOLSAS</strong>
-                    </v-alert>
+        </v-col>
+        <v-col cols="12" sm="3" v-if="!isMobile() && isLoad==false " >
+                <v-alert dismissible class="my-5" style="margin-right:10px">
+                  <v-alert dense type="info">
+                    Para dar una mejor presentación a sus productos adquiera nuestras <strong>NUEVAS BOLSAS</strong>
+                  </v-alert>
                   <v-col  v-for="producto in productosOferta" :key="producto.value">  
                     <center> 
                     <v-alert width="100%" color="cyan" border="left"  elevation="1" colored-border> 
@@ -444,9 +444,9 @@
                     </v-alert>
                     </center>
                 </v-col>
-                </v-alert> 
-            </v-col>
-          <v-col cols="12" sm="1"></v-col>
+              </v-alert> 
+          </v-col>
+          <!-- <v-col cols="12" sm="1"></v-col> -->
         </v-row>
 
         <v-container v-else>
