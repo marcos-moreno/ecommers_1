@@ -286,7 +286,7 @@
                 <v-list-group @click="!show_intencidad?show_intencidad=true:show_intencidad=false" :value="show_intencidad">
                   <template v-slot:activator >
                     <v-list-item-content>
-                      <v-list-item-title >INTENCIDAD</v-list-item-title>
+                      <v-list-item-title >INTENSIDAD</v-list-item-title>
                     </v-list-item-content>
                   </template> 
                   <v-list-item>
