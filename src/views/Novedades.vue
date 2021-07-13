@@ -18,7 +18,10 @@
     <center class="my-5"><h1>Novedades</h1></center>
     <v-row class="lighten-1" > 
       <v-col cols="12" sm="2"></v-col>  
-      <v-col cols="12" sm="8" class="grey lighten-5"> 
+      <v-col cols="12" sm="8" class="grey lighten-5">  
+          <zoom-on-hover :scale="1" width="400px"
+            :img-normal="`../bannnerAir.jpg`">
+          </zoom-on-hover>
           <v-row class="mb-6" no-gutters >    
               <div class="text-center">
                   <v-dialog v-model="isLoad" persistent width="300">
@@ -64,9 +67,10 @@
                 v-model="page" :length="lengthPaginator" circle :total-visible="7">
             </v-pagination>
           </div>  
-          <br>
+          <br> 
       </v-col>
-      <v-col cols="12" sm="2"></v-col>
+      <v-col cols="12" sm="2"> 
+      </v-col>
     </v-row>      
   </div>
  

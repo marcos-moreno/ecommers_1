@@ -5,8 +5,10 @@
         ¿QUÉ AROMAS MANEJAN?
       </h1>
     </v-card-title> 
-    <v-card-title color="basil" class="justify-center"> 
-            <v-list color="basil"  max-width="400">
+    <v-row>
+      <v-col>
+        <v-card-title color="basil" class="justify-center"> 
+          <v-list color="basil"  max-width="400">
             <v-list-group  prepend-icon="mdi-ticket" v-for="clasearoma in items" :key="clasearoma.name" no-action >
                 <template v-slot:activator>
                 <v-list-item-content>
@@ -19,8 +21,47 @@
                 </v-list-item-content>
                 </v-list-item>
             </v-list-group>
-            </v-list>
-    </v-card-title> 
+          </v-list>
+        </v-card-title> 
+      </v-col>
+      <v-col>
+        <v-card-title color="basil" class="justify-center"> 
+          <v-list color="basil"  max-width="400">
+            <v-list-group  prepend-icon="mdi-ticket" v-for="clasearoma in items2" :key="clasearoma.name" no-action >
+                <template v-slot:activator>
+                <v-list-item-content>
+                    <v-list-item-title v-text="clasearoma.name"></v-list-item-title>
+                </v-list-item-content>
+                </template> 
+                <v-list-item v-for="aroma in clasearoma.values" :key="aroma">
+                <v-list-item-content>
+                    <v-list-item-title v-text="aroma"></v-list-item-title>
+                </v-list-item-content>
+                </v-list-item>
+            </v-list-group>
+          </v-list>
+        </v-card-title> 
+      </v-col>
+      <v-col>
+        <v-card-title color="basil" class="justify-center"> 
+          <v-list color="basil"  max-width="400">
+            <v-list-group  prepend-icon="mdi-ticket" v-for="clasearoma in items3" :key="clasearoma.name" no-action >
+                <template v-slot:activator>
+                <v-list-item-content>
+                    <v-list-item-title v-text="clasearoma.name"></v-list-item-title>
+                </v-list-item-content>
+                </template> 
+                <v-list-item v-for="aroma in clasearoma.values" :key="aroma">
+                <v-list-item-content>
+                    <v-list-item-title v-text="aroma"></v-list-item-title>
+                </v-list-item-content>
+                </v-list-item>
+            </v-list-group>
+          </v-list>
+        </v-card-title> 
+      </v-col>
+    </v-row>
+    
 </v-card>
 </template> 
 
@@ -53,7 +94,9 @@
         { 
           name: 'ESPECIADOS',
           values: ["Especias de la India","Té Moruno","Té Negro"]
-        },
+        }, 
+      ],
+      items2: [
         {
           name: 'BOLSAS',
           values: ["Aromas de Andalucía","Air Natur Home"]
@@ -78,7 +121,9 @@
         {
           name: 'CÍTRICOS',
           values: ["Naranja","Limón","Limón Pera","Brisa Cítrica","Zero Car"]
-        }, 
+        },  
+      ],
+      items3:[
         {
           name: 'AROMATICOS',
           values: ["Eucalipto","Lavanda","Menta","Jabón"]
@@ -103,7 +148,7 @@
           name: 'NEUTRO',
           values: ["Neutro"]
         },
-      ],
+      ]
     }),
   }
 </script>
