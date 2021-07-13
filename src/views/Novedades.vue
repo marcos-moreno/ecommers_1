@@ -18,19 +18,30 @@
     <center class="my-5"><h1>Novedades</h1></center>
     <v-row class="lighten-1" > 
       <v-col cols="12" sm="2"></v-col>  
+      
       <v-col cols="12" sm="8" class="grey lighten-5"> 
-         <v-carousel hide-delimiters height="900"> 
-        <v-carousel-item  > 
-             <zoom-on-hover :scale="1" width="400px"
-            :img-normal="`../bannnerAir.jpg`">
-          </zoom-on-hover> 
-        </v-carousel-item>
-         <v-carousel-item  >  
-           <zoom-on-hover :scale="1" width="400px"
-            :img-normal="`../bannnerAir2.jpg`">
-          </zoom-on-hover>
-        </v-carousel-item>
-      </v-carousel> 
+      
+          <v-carousel v-if="!isMobile()" hide-delimiters height="800" width="50%"> 
+            <v-carousel-item  >  
+              <zoom-on-hover :scale="1" width="400px"
+                :img-normal="`../bannnerAir.jpg`">
+              </zoom-on-hover> 
+            </v-carousel-item>
+            <v-carousel-item  >  
+              <zoom-on-hover :scale="1" width="400px"
+                :img-normal="`../bannnerAir2.jpg`">
+              </zoom-on-hover>
+            </v-carousel-item>
+          </v-carousel> 
+
+          <v-carousel v-else hide-delimiters height="200" width="50%"> 
+            <v-carousel-item  > 
+              <v-img src="../../public/bannnerAir.jpg"  ></v-img> 
+            </v-carousel-item>
+            <v-carousel-item  > 
+              <v-img src="../../public/bannnerAir2.jpg"  ></v-img>  
+            </v-carousel-item>
+          </v-carousel> 
          
           <v-row class="mb-6" no-gutters >    
               <div class="text-center">
@@ -116,6 +127,7 @@ export default {
   components: {  
     'app-menu': AppMenu, 
   }, 
+
   async created() {    
     this.isLoad = true;  
     await this.validaLogin();
@@ -123,7 +135,20 @@ export default {
     await this.paginator(); 
     this.isLoad = false;   
   } 
-  ,methods: {    
+  ,methods: { 
+    isMobile(){
+      if( navigator.userAgent.match(/Android/i)
+        || navigator.userAgent.match(/webOS/i)
+        || navigator.userAgent.match(/iPhone/i)
+        || navigator.userAgent.match(/iPad/i)
+        || navigator.userAgent.match(/iPod/i)
+        || navigator.userAgent.match(/BlackBerry/i)
+        || navigator.userAgent.match(/Windows Phone/i)){
+        return true;
+      }else{
+        return false;
+      }
+    },   
     async validaLogin(){
       this.user = await axios.get(config.apiAdempiere + "/user/userByToken", 
       {'headers': { 'token': this.$cookie.get('token') }})
