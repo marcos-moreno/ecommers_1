@@ -18,10 +18,20 @@
     <center class="my-5"><h1>Novedades</h1></center>
     <v-row class="lighten-1" > 
       <v-col cols="12" sm="2"></v-col>  
-      <v-col cols="12" sm="8" class="grey lighten-5">  
-          <zoom-on-hover :scale="1" width="400px"
+      <v-col cols="12" sm="8" class="grey lighten-5"> 
+         <v-carousel hide-delimiters height="900"> 
+        <v-carousel-item  > 
+             <zoom-on-hover :scale="1" width="400px"
             :img-normal="`../bannnerAir.jpg`">
+          </zoom-on-hover> 
+        </v-carousel-item>
+         <v-carousel-item  >  
+           <zoom-on-hover :scale="1" width="400px"
+            :img-normal="`../bannnerAir2.jpg`">
           </zoom-on-hover>
+        </v-carousel-item>
+      </v-carousel> 
+         
           <v-row class="mb-6" no-gutters >    
               <div class="text-center">
                   <v-dialog v-model="isLoad" persistent width="300">
