@@ -24,22 +24,47 @@
           <v-carousel v-if="!isMobile()" hide-delimiters height="800" width="50%"> 
             <v-carousel-item  >  
               <zoom-on-hover :scale="1" width="400px"
+               aspect-ratio="1" class="grey lighten-2"
                 :img-normal="`../bannnerAir.jpg`">
+                <template v-slot:placeholder>
+                    <v-row class="fill-height ma-0" align="center" justify="center">
+                      <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                    </v-row>
+                  </template> 
               </zoom-on-hover> 
             </v-carousel-item>
             <v-carousel-item  >  
-              <zoom-on-hover :scale="1" width="400px"
+              <zoom-on-hover  aspect-ratio="1" class="grey lighten-2" :scale="1" width="400px"
                 :img-normal="`../bannnerAir2.jpg`">
+                <template v-slot:placeholder>
+                    <v-row class="fill-height ma-0" align="center" justify="center">
+                      <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                    </v-row>
+                  </template> 
               </zoom-on-hover>
             </v-carousel-item>
           </v-carousel> 
 
-          <v-carousel v-else hide-delimiters height="200" width="50%"> 
+          <v-carousel v-else hide-delimiters height="380"> 
             <v-carousel-item  > 
-              <v-img src="../../public/bannnerAir.jpg"  ></v-img> 
+                <v-img src="../../public/bannnerAir.jpg"  
+                        aspect-ratio="1" class="grey lighten-2"> 
+                  <template v-slot:placeholder>
+                    <v-row class="fill-height ma-0" align="center" justify="center">
+                      <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                    </v-row>
+                  </template> 
+                </v-img> 
             </v-carousel-item>
             <v-carousel-item  > 
-              <v-img src="../../public/bannnerAir2.jpg"  ></v-img>  
+                <v-img src="../../public/bannnerAir2.jpg"  
+                        aspect-ratio="1" class="grey lighten-2"> 
+                  <template v-slot:placeholder>
+                    <v-row class="fill-height ma-0" align="center" justify="center">
+                      <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                    </v-row>
+                  </template> 
+                </v-img> 
             </v-carousel-item>
           </v-carousel> 
          
