@@ -29,8 +29,8 @@
               <zoom-on-hover :scale="2" width="400px" :img-normal="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`">
               </zoom-on-hover>  
             </center>
-            <v-card-title>{{producto.name}}</v-card-title>
-            <v-card-subtitle class="pb-0">
+            <v-card-title class="producto_principal">{{producto.name}}</v-card-title>
+            <v-card-subtitle class="pb-0 producto_principal">
                 {{producto.description}}
             </v-card-subtitle>
             <v-simple-table>
@@ -113,8 +113,8 @@
                     <v-col>
                       <v-card class="mx-auto"> 
                         <v-card-text>
-                          <p class="text--seondary" >Descripción del producto</p> 
-                          <div class="text--primary text-sm-left" v-html="producto.elements"> </div>
+                          <p class="producto_descripcion_general" >Descripción del producto</p> 
+                          <div class="text--primary text-sm-left producto_descripcion_general" v-html="producto.elements"> </div>
                         </v-card-text> 
                       </v-card>
                     </v-col>
@@ -130,7 +130,7 @@
               <template>
                 <v-tabs v-model="tabs" next-icon="mdi-arrow-right-bold-box-outline" prev-icon="mdi-arrow-left-bold-box-outline"
                   show-arrows fixed-tabs>
-                  <v-tab v-for="n in itemstabs" :key="n" >
+                  <v-tab v-for="n in itemstabs" :key="n" class="producto_especificaciones">
                     {{ n }}
                   </v-tab>
                 </v-tabs>
@@ -139,7 +139,7 @@
             <v-tabs-items v-model="tabs">
               <v-tab-item>
                 <v-card flat>
-                  <v-card-text>
+                  <v-card-text class="producto_especificaciones">
                       <p v-html="producto.technicalcharacteristics"></p>
                   </v-card-text>
                 </v-card>
@@ -149,7 +149,7 @@
                   <v-card-title class="text-h5">
                     Datos Generales:
                   </v-card-title>
-                  <v-card-text>
+                  <v-card-text class="producto_especificaciones">
                       <p v-html="producto.additionalinformation"></p> 
                   </v-card-text>
                 </v-card>
@@ -159,7 +159,7 @@
                   <v-card-title class="text-h5">
                     Instrucciones:
                   </v-card-title>
-                  <v-card-text>
+                  <v-card-text class="producto_especificaciones">
                       <p v-html="producto.usemode"></p> 
                   </v-card-text>
                 </v-card>
@@ -261,6 +261,21 @@
   .centered-input >>> input {
     text-align: center
   }
+    .producto_principal
+  {
+    font-style: italic;
+    font-family: "New Century Schoolbook", Times, serif;
+    font-weight: bold;
+  }
+  .producto_especificaciones
+  {
+    font-style: italic;
+    font-family: "New Century Schoolbook", Times, serif;
+  }
+  .producto_descripcion_general {
+    font-family: 'Book Antiqua';
+  }
+
 </style>
 
 <script>
