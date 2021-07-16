@@ -80,7 +80,7 @@
                                 <div style="color :#000" ><strong>{{purchase.documentno}}</strong></div>
                             </v-col>
  
-                            <v-col v-if="purchase.status_pay=='pagado'" cols="7" sm="4">
+                            <v-col v-if="purchase.status_pay=='pagado' || purchase.method_pay == 'CRE'" cols="7" sm="4">
                                 <v-btn text color="primary" @click="acuse(purchase)">
                                     Imprimir orden
                                 </v-btn>
@@ -149,16 +149,7 @@
                                 <div>Entrega en</div>
                                 <div style="color :#000">{{buscaSucursal(purchase.ad_org_recpt_id)}}</div>
                             </v-col>  
-                            <!-- <v-col  cols="6" sm="4">
-                                <v-btn x-small text color="primary" >
-                                    Ver Entregas
-                                </v-btn>
-                            </v-col> 
-                            <v-col  cols="6" sm="4">
-                                <v-btn x-small text color="primary" >
-                                    Ver Factura
-                                </v-btn>
-                            </v-col>  -->
+
                         </v-row>  
                         </v-container>
  
@@ -183,7 +174,6 @@
                                                       </v-row>
                                                     </template> 
                                                   </v-img> 
-                                                  <!-- <v-img class="mx-auto" width="150px" :src="producto.img" ></v-img> -->
                                               </v-col>
                                               <v-col  cols="12" md="8">
                                                   <div v-if="producto.prodCompleto.data.length > 0" class="my-2" style="font-size: 0.8em;color :#909090">
@@ -206,6 +196,59 @@
                           </v-expansion-panel>
                         </v-expansion-panels>
 
+                        <v-expansion-panels>
+                          <v-expansion-panel>
+                            <v-expansion-panel-header>
+                              <center>Entregas</center>
+                            </v-expansion-panel-header>
+                            <v-expansion-panel-content>  
+
+                              <template>
+                                <v-row v-if="purchase.entregas.length > 0">
+                                  <v-col cols="12" sm="4" v-for="entrega in purchase.entregas" :key="entrega.documentno">
+                                      <v-chip class="ma-2" color="success" outlined>Entrega: {{entrega.documentno}}</v-chip>
+                                      <v-stepper  vertical  v-if="entrega.estados.length > 0">
+                                        <template v-for="(estado, index) in  entrega.estados" :step="(index+2).toString()">
+                                          <v-stepper-step complete :step="(index+2).toString()" :key="'step-'+index+2"> 
+                                            {{estado.name}}
+                                            <small>{{formatDate(estado.datetrx)}}</small>
+                                          </v-stepper-step> 
+                                          <v-stepper-content :step="(index+2).toString()" :key="'cont-'+index+2"> 
+                                          </v-stepper-content>
+                                        </template>
+                                      </v-stepper> 
+                                      <v-stepper  v-else vertical >
+                                        <template>
+                                          <v-stepper-step complete step="1">
+                                            Preparando Material
+                                            <small>{{formatDate(purchase.created_at)}}</small>
+                                          </v-stepper-step>
+                                          <v-stepper-content step="1"> 
+                                          </v-stepper-content>
+                                        </template>
+                                      </v-stepper> 
+
+                                  </v-col>
+                                </v-row>
+                                <v-row v-else>
+                                  <v-col>
+                                    <v-stepper  vertical >
+                                      <template>
+                                        <v-stepper-step complete step="1">
+                                          Preparando Material
+                                          <small>{{formatDate(purchase.created_at)}}</small>
+                                        </v-stepper-step>
+                                        <v-stepper-content step="1"> 
+                                        </v-stepper-content>
+                                      </template>
+                                    </v-stepper> 
+                                  </v-col>
+                                </v-row>
+                              </template>
+
+                            </v-expansion-panel-content>
+                          </v-expansion-panel>
+                        </v-expansion-panels> 
 
                       </div>   
                     </v-card>
@@ -410,11 +453,55 @@ export default {
           'headers': { 'token': this.$cookie.get('token') }
         }).then(res=>{return res.data;})
         .catch(err=>{return err;});   
-        if (puchases.status == "success") { 
+
+        if (puchases.status == "success") {  
             this.purchases = puchases.data; 
+
+            for (let index = 0; index < this.purchases.length; index++) {
+               this.purchases[index].entregas = [];
+              const purchase = this.purchases[index]; 
+              if (purchase.status_pay =='pagado' || purchase.method_pay == 'CRE') {
+                
+                this.purchases[index].entregas = await axios.get(
+                  config.apiAdempiere + "/seguimientopedido/entregas", 
+                {
+                  'headers': { 'token': this.$cookie.get('token') },
+                  params: {code_entrega : purchase.documentno}
+                }).then(res=>{return res.data;})
+                .catch(err=>{console.log(err);return false;});   
+                
+
+                if (this.purchases[index].entregas.status == "success") { 
+                  this.purchases[index].entregas = this.purchases[index].entregas.data;
+ 
+                  // :::::::::::::::::::::::::: get estados
+                  for (let i = 0; i < this.purchases[index].entregas.length; i++) { 
+                    const entregas = this.purchases[index].entregas[i]; 
+                    let estadosres = await axios.get(
+                      config.apiAdempiere + "/seguimientopedido/estados", 
+                    {
+                      'headers': { 'token': this.$cookie.get('token') },
+                      params: {m_inout_id : entregas.m_inout_id}
+                    }).then(res=>{return res.data;})
+                    .catch(err=>{console.log(err);return false;});    
+
+                    if (estadosres.status == "success") {
+                      this.purchases[index].entregas[i].estados = estadosres.data;  
+                    }else{
+                      this.purchases[index].entregas[i].estados = [];
+                    } 
+                  }
+                  // :::::::::::::::::::::::::: get estados 
+                }else{
+                  this.purchases[index].entregas = [];
+                }
+              } 
+
+            }
+            console.log(this.purchases);
         }else if(this.user.status == "unauthorized"){  
             this.menu('/shop/Login/');
-        }  
+        }
     } 
     ,seeProduct(value){ 
       this.$router.push('/shop/Product/'+value+"/purchases/0");
