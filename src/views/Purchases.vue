@@ -194,9 +194,8 @@
 
                             </v-expansion-panel-content>
                           </v-expansion-panel>
-                        </v-expansion-panels>
-
-                        <v-expansion-panels v-if="purchase.status_pay!='CA'">
+                        </v-expansion-panels> 
+                        <v-expansion-panels v-if="purchase.status_pay!='Cancelado'">
                           <v-expansion-panel>
                             <v-expansion-panel-header>
                               <center>Entregas</center>
