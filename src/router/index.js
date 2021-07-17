@@ -26,8 +26,8 @@ const routes = [
   ,{ path: '/shop/Suggestions/',name: 'Suggestions',props: true,component: () => import('../views/Suggestions.vue')}
   ,{ path: '/shop/Forum/',name: 'Forum',props: true,component: () => import('../views/Forum.vue')}
   ,{ path: '/shop/Novedades/',name: 'Novedades',props: true,component: () => import('../views/Novedades.vue')}
-  
 
+  
 // */
   ,{ path: '/shop/register/',name: 'preRegistro',props: true,component: () => import('../views/pre-registro.vue')}
   
@@ -36,6 +36,7 @@ const routes = [
   ,{ path: '/shop/admin'+config.matchAdmin+'/HomeAdmin',name: 'HomeAdmin',props: true,component: () => import('../views/admin/HomeAdmin.vue')}
   ,{ path: '/shop/admin'+config.matchAdmin+'/ForumAdmin',name: 'ForumAdmin',props: true,component: () => import('../views/admin/ForumAdmin.vue')}
   ,{ path: '/shop/admin'+config.matchAdmin+'/ComplaintsSuggestionsAdmin',name: 'ComplaintsSuggestionsAdmin',props: true,component: () => import('../views/admin/ComplaintsSuggestionsAdmin.vue')}
+  ,{ path: '/shop/admin'+config.matchAdmin+'/SeguimientoPedido/',name: 'SeguimientoPedido',props: true,component: () => import('../views/generic/SeguimientoPedido.vue')}
 
   //Generic
   ,{ path: '/shop/Logout/',name: 'Logout',props: true,component: () => import('../components/Logout.vue')}

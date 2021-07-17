@@ -119,10 +119,13 @@
                                     {{buscarTipoPago(purchase.method_pay)}} 
                                      <!-- ({{purchase.estado_pago}}) -->
                                 </div>
-                            </v-col>
+                            </v-col> 
                             <v-col cols="6" sm="4">
                                 <div>Estado del pago</div> 
-                                <div style="color :#000"> 
+                                <div style="color :red" v-if="purchase.status_pay=='Cancelado'"> 
+                                  {{purchase.status_pay=="pendiente"?"Pendiente": (purchase.status_pay=="pagado"?"Pagado": purchase.status_pay)}} 
+                                </div>
+                                <div style="color :#000" v-else> 
                                   {{purchase.status_pay=="pendiente"?"Pendiente": (purchase.status_pay=="pagado"?"Pagado": purchase.status_pay)}} 
                                 </div>
                             </v-col>
@@ -329,8 +332,7 @@ export default {
       ).then(res=>{
         return res.data.data;
       }).catch(err=>{return err;});
-      this.dialogdiasentrega = true;
-      console.log(this.diasEntrega);
+      this.dialogdiasentrega = true; 
     },
     buscarTipoPago(method_pay){
       let valur = "";
@@ -496,8 +498,7 @@ export default {
                 }
               } 
 
-            }
-            console.log(this.purchases);
+            } 
         }else if(this.user.status == "unauthorized"){  
             this.menu('/shop/Login/');
         }
