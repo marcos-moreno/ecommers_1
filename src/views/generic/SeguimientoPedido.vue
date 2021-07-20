@@ -168,7 +168,7 @@ export default {
       ,solicitacode: false
       ,alert:{typeAlert:"",showAlery : false,msg:""} 
 
-      ,req_sol:{no_orden : "S27-61",code_seguridad:"0000"}
+      ,req_sol:{no_orden : "",code_seguridad:""}
 
       ,entregas:[]
       ,entrega:{estados:[]}
