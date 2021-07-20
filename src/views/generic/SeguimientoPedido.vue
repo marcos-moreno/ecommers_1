@@ -21,7 +21,9 @@
             Ingresa o escanea el No. de Orden
           </p> 
           <v-text-field label="Orden" @keyup="uppercase()" 
-            hide-details="auto" v-model="req_sol.no_orden">
+            hide-details="auto" v-model="req_sol.no_orden"
+            @keyup.enter.native="validaOrden()"
+          >
           </v-text-field> 
         </v-card-text>
         <br>
@@ -48,6 +50,7 @@
                 :type="showCode ? 'text' : 'password'" name="input-10-1" label="Código de seguridad"
                 hint="Ingresa 5 digitos" counter
                 @click:append="showCode = !showCode"
+                @keyup.enter.native="buscarOrden()"
               ></v-text-field> 
             </v-card-text>
             <br><br>
