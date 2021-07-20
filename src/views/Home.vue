@@ -116,7 +116,7 @@
                 <v-list-group @click="!show_intencidad?show_intencidad=true:show_intencidad=false" :value="show_intencidad">
                   <template v-slot:activator >
                     <v-list-item-content>
-                      <v-list-item-title >INTENCIDAD</v-list-item-title>
+                      <v-list-item-title >INTENSIDAD</v-list-item-title>
                     </v-list-item-content>
                   </template> 
                   <v-list-item>
@@ -388,7 +388,7 @@
                           <div>{{producto.name}}</div>  
                           <div class="my-4 subtitle-2">{{producto.categoria}} :  {{producto.sub_categoria}} </div> 
                           <div class="my-4 subtitle-2">presentación: {{producto.presentacion}}</div> 
-                          <div class="my-4 subtitle-2">Intencidad : {{producto.intencidad}}</div>
+                          <div class="my-4 subtitle-2">Intensidad : {{producto.intencidad}}</div>
                         </v-card-text>  
                       </v-container >
 
