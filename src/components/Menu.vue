@@ -173,6 +173,13 @@
                   </v-list-item-icon>
                   <v-list-item-title>Quejas o Sugerencia</v-list-item-title>
                 </v-list-item>
+
+                <v-list-item @click="menu('/shop/Capacitaciones')">
+                  <v-list-item-icon>
+                    <v-icon>mdi-video</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title>Capacitaciones</v-list-item-title>
+                </v-list-item>
   
             </v-list-item-group>
           </v-list-item-group> 

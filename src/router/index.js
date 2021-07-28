@@ -26,6 +26,7 @@ const routes = [
   ,{ path: '/shop/Suggestions/',name: 'Suggestions',props: true,component: () => import('../views/Suggestions.vue')}
   ,{ path: '/shop/Forum/',name: 'Forum',props: true,component: () => import('../views/Forum.vue')}
   ,{ path: '/shop/Novedades/',name: 'Novedades',props: true,component: () => import('../views/Novedades.vue')}
+  ,{ path: '/shop/Capacitaciones/',name: 'Capacitaciones',props: true,component: () => import('../components/Capacitaciones.vue')}
 
   
 // */
