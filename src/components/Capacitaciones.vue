@@ -22,6 +22,17 @@
         frameborder="0" allowfullscreen="allowfullscreen">
       </iframe>
       <br><br><br> 
+      
+      <p style="font-size: 1.3em;color :#909090">  
+       <strong>CAPACITACIÓN ESENCIAS.</strong> 
+      </p>
+      <iframe
+      width="560" height="349"
+        src="https://refividrio.com.mx/EcommerceDistribuidor/Videos/CAPACITACIONESENCIAS.mp4" 
+        frameborder="0" allowfullscreen="allowfullscreen">
+      </iframe>
+      <br><br><br> 
+      
     </v-container>
   </div>
 </template> 
