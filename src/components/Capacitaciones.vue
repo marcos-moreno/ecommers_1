@@ -24,7 +24,7 @@
       <br><br><br> 
       
       <p style="font-size: 1.3em;color :#909090">  
-       <strong>CAPACITACIÓN ESENCIAS.</strong> 
+       <strong>CAPACITACIÓN ACEITES ESENCIALES.</strong> 
       </p>
       <iframe
       width="560" height="349"
