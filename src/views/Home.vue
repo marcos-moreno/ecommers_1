@@ -198,15 +198,13 @@
 
 
 <!-- Este es el inicio del content -->
-
       <v-row class="grey lighten-2" heigth v-if="isLoad==false">  
-
         <!-- <v-col cols="12" sm="1"></v-col>  -->
-        <v-col cols="12" sm="2" v-if="isMobile() && isLoad==false" >
-              <v-alert dismissible>
-                <v-alert dense type="info">
-                  Para dar una mejor presentación a sus productos adquiera nuestras <strong>NUEVAS BOLSAS</strong>
-                </v-alert>
+        <v-col cols="12" sm="2" v-if="isMobile() && isLoad==false && verPromos == true" >
+              <v-alert>
+                  <v-alert class="my-2">
+                     Para dar una mejor presentación a sus productos adquiera nuestras <strong>NUEVAS BOLSAS</strong>
+                  </v-alert>
                 <v-col  v-for="producto in productosOferta" :key="producto.value">  
                   <center>
                     <v-alert width="90%" color="cyan" border="left"  elevation="1" colored-border> 
@@ -229,6 +227,8 @@
                     </v-alert>
                   </center>
                 </v-col>
+                <center><v-btn fab x-small color="pink" @click="verPromos=false" ><v-icon>mdi-close</v-icon></v-btn></center>
+
               </v-alert> 
         </v-col> 
         <!-- Inicio filtro Escritorio-->
@@ -363,7 +363,7 @@
             </p>{{productos.length}} Resultados
           </v-container> 
 
-          <v-row class="mb-6" no-gutters > 
+          <v-row class="mb-6" > 
 
             <v-col v-for="producto in productosPaginator" :key="producto.value">  
               <v-hover>
@@ -394,10 +394,10 @@
 
                       <v-divider class="mx-4">Costos</v-divider>
                       <v-card-actions>
-                          <v-chip class="ma-2"  color="pink" label text-color="white">
+                          <v-chip class="ma-1"  color="pink" label text-color="white">
                             {{ formatMXN(producto.l0) }}
                           </v-chip> 
-                          <v-chip  class="ma-2" color="pink" label text-color="white">
+                          <v-chip  class="ma-1" color="pink" label text-color="white">
                             {{ producto.mex_quantytotal }}{{producto.mex_quantytotal==1?' Disponible':' Disponibles'}}
                           </v-chip> 
                       </v-card-actions> 
@@ -417,13 +417,14 @@
           </div>  
           <br> 
         </v-col>
-        <v-col cols="12" sm="3" v-if="!isMobile() && isLoad==false " >
-                <v-alert dismissible class="my-5" style="margin-right:10px">
-                  <v-alert dense type="info">
-                    Para dar una mejor presentación a sus productos adquiera nuestras <strong>NUEVAS BOLSAS</strong>
+        <v-col cols="12" sm="3" v-if="!isMobile() && isLoad==false && verPromos == true" >
+                <v-alert class="my-5" style="margin-right:10px">
+                  <v-btn fab x-small color="pink" @click="verPromos=false" ><v-icon>mdi-close</v-icon></v-btn>
+                  <v-alert class="my-2">
+                     Para dar una mejor presentación a sus productos adquiera nuestras <strong>NUEVAS BOLSAS</strong>
                   </v-alert>
                   <v-col  v-for="producto in productosOferta" :key="producto.value">  
-                    <center> 
+                    <center>  
                     <v-alert width="100%" color="cyan" border="left"  elevation="1" colored-border> 
                           <div  @click="seeProduct(producto.value)">
                           <center>   
@@ -475,6 +476,7 @@ export default {
   props: ['pagina'], 
   data() {
     return {
+      verPromos : true,
       productosOferta : [],
       ordenMenorP : false,
       ordenMayorP : false,
