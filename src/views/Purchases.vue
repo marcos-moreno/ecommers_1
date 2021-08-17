@@ -358,7 +358,7 @@ export default {
     async acuse(data){   
         this.isLoad = true;
         let bodyTBL= []; 
-        let totl = (500 + (data.productos.length * 25));
+        let totl = (500 + (data.productos.length * 45));
         var doc = new jsPDF('p', 'pt',[500,totl ]);
         var img = new Image()
         img.src = '/refivid.png'; 
