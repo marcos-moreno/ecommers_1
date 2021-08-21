@@ -22,7 +22,19 @@
       <v-col cols="12" sm="8" class="grey lighten-5"> 
       
           <v-carousel v-if="!isMobile()" hide-delimiters height="800" width="50%"> 
-            <v-carousel-item  >  
+            
+            <v-carousel-item v-for="(item,i) in flyersNovedad" :key="i" >  
+              <zoom-on-hover :scale="1" width="400px"
+               aspect-ratio="1" class="grey lighten-2"
+                :img-normal="item">
+                <template v-slot:placeholder>
+                    <v-row class="fill-height ma-0" align="center" justify="center">
+                      <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                    </v-row>
+                  </template> 
+              </zoom-on-hover> 
+            </v-carousel-item>
+            <!-- <v-carousel-item  >  
               <zoom-on-hover :scale="1" width="400px"
                aspect-ratio="1" class="grey lighten-2"
                 :img-normal="`../bannnerAir.jpg`">
@@ -32,8 +44,8 @@
                     </v-row>
                   </template> 
               </zoom-on-hover> 
-            </v-carousel-item>
-            <v-carousel-item  >  
+            </v-carousel-item> -->
+            <!-- <v-carousel-item  >  
               <zoom-on-hover  aspect-ratio="1" class="grey lighten-2" :scale="1" width="400px"
                 :img-normal="`../bannnerAir2.jpg`">
                 <template v-slot:placeholder>
@@ -42,11 +54,21 @@
                     </v-row>
                   </template> 
               </zoom-on-hover>
-            </v-carousel-item>
+            </v-carousel-item> -->
           </v-carousel> 
 
           <v-carousel v-else hide-delimiters height="380"> 
-            <v-carousel-item  > 
+            <v-carousel-item v-for="(item,i) in flyersNovedad" :key="i" > 
+                <v-img :src="item" 
+                        aspect-ratio="1" class="grey lighten-2"> 
+                  <template v-slot:placeholder>
+                    <v-row class="fill-height ma-0" align="center" justify="center">
+                      <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                    </v-row>
+                  </template> 
+                </v-img> 
+            </v-carousel-item> 
+            <!-- <v-carousel-item  > 
                 <v-img src="../../public/bannnerAir.jpg"  
                         aspect-ratio="1" class="grey lighten-2"> 
                   <template v-slot:placeholder>
@@ -65,7 +87,7 @@
                     </v-row>
                   </template> 
                 </v-img> 
-            </v-carousel-item>
+            </v-carousel-item> -->
           </v-carousel> 
          
           <v-row class="mb-6" no-gutters >    
@@ -147,6 +169,16 @@ export default {
             {src: '../../public/bannernovedada.png',}, 
             
         ],  
+         flyersNovedad: [
+        '../flyers2108/novedades/1.jpeg',   
+        '../flyers2108/novedades/2.jpeg',   
+        '../flyers2108/novedades/3.jpeg',   
+        '../flyers2108/novedades/4.jpeg',   
+        '../flyers2108/novedades/5.jpeg',   
+        '../flyers2108/novedades/6.jpeg', 
+        '../bannnerAir.jpg', 
+        '../bannnerAir2.jpg',
+      ],
     }; 
   }, 
   components: {  

@@ -11,6 +11,14 @@
     data: () => ({
       indexSlider: 0,
       imgs: [
+        '../flyers2108/1.jpeg', 
+        '../flyers2108/2.jpeg', 
+        '../flyers2108/3.jpeg', 
+        '../flyers2108/4.jpeg', 
+        '../flyers2108/5.jpeg', 
+        '../flyers2108/6.jpeg', 
+
+
         '../catalogoHome.jpg', 
         '../bannerbolsas2.jpeg', 
         '../andalucia.webp',
