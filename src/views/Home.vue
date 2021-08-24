@@ -385,10 +385,11 @@
 
                       <v-container class="mx-auto" style="height:50%;"> 
                         <v-card-text>  
-                          <div>{{producto.name}}</div>  
-                          <div class="my-4 subtitle-2">{{producto.categoria}} :  {{producto.sub_categoria}} </div> 
-                          <div class="my-4 subtitle-2">presentación: {{producto.presentacion}}</div> 
+                          <div>{{producto.name.substring(0,48)}}</div>  
+                          <div class="my-4 subtitle-2">{{producto.categoria.substring(0,11)}} :  {{producto.sub_categoria.substring(0,12)}} </div> 
+                          <div class="my-4 subtitle-2">Presentación: {{producto.presentacion}}</div> 
                           <div class="my-4 subtitle-2">Intensidad : {{producto.intencidad}}</div>
+                          <div class="my-4 subtitle-2">Código : {{producto.value}}</div>
                         </v-card-text>  
                       </v-container >
 
