@@ -385,8 +385,8 @@
 
                       <v-container class="mx-auto" style="height:50%;"> 
                         <v-card-text>  
-                          <div>{{producto.name.substring(0,48)}}</div>  
-                          <div class="my-4 subtitle-2">{{producto.categoria.substring(0,11)}} :  {{producto.sub_categoria.substring(0,12)}} </div> 
+                          <div>{{producto.name.substring(0,70)}}</div>  
+                          <div class="my-4 subtitle-2" >{{cut_text(producto.categoria)}} : {{cut_text(producto.sub_categoria)}}</div> 
                           <div class="my-4 subtitle-2">Presentación: {{producto.presentacion}}</div> 
                           <div class="my-4 subtitle-2">Intensidad : {{producto.intencidad}}</div>
                           <div class="my-4 subtitle-2">Código : {{producto.value}}</div>
@@ -554,6 +554,19 @@ export default {
     this.isLoad = false;  
   } 
   ,methods: {
+    cut_text(text){
+      // producto.sub_categoria
+      let resturn_text = "";
+      if (text == null) {
+        return "";
+      }
+      try {
+        resturn_text = text.substring(0,10);
+      } catch (error) {
+        console.log(error);
+      }
+      return resturn_text;
+    },
     add_category_filter(categoria){ 
       if (categoria.sub_categorias.length == 0) {
         this.add_category(categoria,true);
