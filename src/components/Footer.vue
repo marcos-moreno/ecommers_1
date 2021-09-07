@@ -49,7 +49,7 @@
       </v-row>
 
      <v-card-text class="white--text pt-0">
-        <a @click="menu('/shop/AvisoPrivacidad')">Aviso de Privacidad</a>
+        <a href='/shop/AvisoPrivacidad'>Aviso de privacidad</a>
       </v-card-text>
 
       <v-card-text class="white--text pt-0">

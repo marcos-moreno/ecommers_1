@@ -17,7 +17,8 @@
         // '../flyers2108/4.jpeg', 
         // '../flyers2108/5.jpeg', 
         // '../flyers2108/6.jpeg', 
-
+        '../flyers2108/7.jpeg', 
+        '../flyers2108/8.jpeg', 
 
         '../catalogoHome.jpg', 
         '../bannerbolsas2.jpeg', 

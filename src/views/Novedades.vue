@@ -176,6 +176,9 @@ export default {
         // '../flyers2108/novedades/4.jpeg',   
         // '../flyers2108/novedades/5.jpeg',   
         // '../flyers2108/novedades/6.jpeg', 
+        '../flyers2108/novedades/7.jpeg',   
+        '../flyers2108/novedades/8.jpeg',   
+
         '../bannnerAir.jpg', 
         '../bannnerAir2.jpg',
       ],
