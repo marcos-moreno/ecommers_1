@@ -417,20 +417,35 @@
           <v-row class="mb-6" > 
 
             <v-col v-for="producto in productosPaginator" :key="producto.value">  
+                                        <!-- {{producto}} -->
+
               <v-hover>
                 <template v-slot:default="{ hover }" >
                     <a style="text-decoration: none;" :href="'/shop/Product/' + producto.value + '/home/' + page"> 
                       <v-card style=" border-bottom: 2px solid red" :elevation="hover ? 24 : 2" class="mx-auto my-3" width="260" height="500">
                           <!-- width="260" height="500" @click="seeProduct(producto.value)"> -->
                         <center>   
-                          <v-img :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" :lazy-src="`../../public/noImg.png`"
-                                  aspect-ratio="1" class="grey lighten-2" width="220" height="170"> 
-                            <template v-slot:placeholder>
-                              <v-row class="fill-height ma-0" align="center" justify="center">
-                                <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                            <v-img :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" :lazy-src="`../../public/noImg.png`"
+                                    aspect-ratio="1" class="grey lighten-2" width="220" height="170">  
+                              <v-row justify="end" class="fill-height ma-0" v-if="producto.monto_descuento != null">
+                                <v-avatar color="#02DE7D" size="70" >
+                                  <span class="white--text">
+                                      {{producto.descuento_name}}
+                                      <div class="white--text" style="font-size: 0.7em;">
+                                      descuento
+                                      </div>
+                                  </span> 
+                                </v-avatar>
                               </v-row>
-                            </template> 
-                          </v-img> 
+                              <template v-slot:placeholder>
+                                <v-row class="fill-height ma-0" align="center" justify="center">
+                                  <v-progress-circular indeterminate color="grey lighten-5" ></v-progress-circular>
+                                </v-row>
+                              </template> 
+                            </v-img>  
+                          <div class="text-decoration-line-through" style="color: green;margin-bottom:-25px" v-if="producto.monto_descuento != null">
+                              Antes {{formatMXN((producto.costo_original))}}
+                          </div>
                         </center>  
                         <v-container class="mx-auto" style="height:50%;"> 
                           <v-card-text>  
@@ -442,13 +457,21 @@
                           </v-card-text>
                         </v-container>
                         <v-divider class="mx-4">Costos</v-divider>
-                        <v-card-actions>
-                          <v-chip class="ma-1"  color="pink" label text-color="white">
-                            {{ formatMXN(producto.l0) }}
-                          </v-chip> 
-                          <v-chip  class="ma-1" color="pink" label text-color="white">
-                            {{ producto.mex_quantytotal }}{{producto.mex_quantytotal==1?' Disponible':' Disponibles'}}
-                          </v-chip> 
+                        <v-card-actions> 
+                          <v-chip class="ma-1"  color="pink" label text-color="white"> 
+                            <div v-if="producto.monto_descuento != null">
+                              Ahora {{ formatMXN(producto.l0) }}
+                            </div>
+                            <div v-else>
+                              {{ formatMXN(producto.l0) }}
+                            </div>
+                          </v-chip>  
+                          <p class="font-weight-light my-2" style="font-size: 0.9em;">
+                            {{ producto.mex_quantytotal }} {{producto.mex_quantytotal==1?' Disponible':' Disponibles'}}
+                          </p>
+                          <!-- <v-chip  class="ma-1" color="pink" label text-color="white">
+                            {{ producto.mex_quantytotal }} {{producto.mex_quantytotal==1?' Disponible':' Disponibles'}}
+                          </v-chip>  -->
                         </v-card-actions> 
                       </v-card> 
                     </a> 

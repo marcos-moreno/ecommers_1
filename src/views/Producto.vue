@@ -26,13 +26,27 @@
         <v-col>
           <v-card>  
             <center>   
+              <v-row justify="end" class="fill-height ma-0" v-if="producto.monto_descuento != null">
+                <v-avatar color="#02DE7D" size="70" >
+                  <span class="white--text">
+                      {{producto.descuento_name}}
+                      <div class="white--text" style="font-size: 0.7em;">
+                      descuento
+                      </div>
+                  </span> 
+                </v-avatar>
+              </v-row>
               <zoom-on-hover :scale="2" width="400px" :img-normal="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`">
               </zoom-on-hover>  
+
             </center>
-            <v-card-title class="producto_principal">{{producto.name}}</v-card-title>
-            <v-card-subtitle class="pb-0 producto_principal">
+            <!-- <v-card-subtitle class="pb-0 producto_principal">
                 {{producto.description}}
-            </v-card-subtitle>
+            </v-card-subtitle> -->
+            <center>   
+              <div style="font-size: 1.2em;" class="producto_principal my-2">{{producto.name}}</div>
+              <div style="font-size: 1em;" class="producto_principal">{{producto.description}}</div>
+            </center>
             <v-simple-table>
               <template v-slot:default>
                 <thead>
@@ -83,9 +97,18 @@
                             </center> 
                           </v-col>
                         </v-row> 
-                      </div>   
+                      </div>
+
+                      <div v-if="producto.monto_descuento != null">
+                        <div class="text-decoration-line-through text-center" style="color: green;margin-bottom:-25px">
+                                Antes {{formatMXN((producto.costo_original))}}
+                        </div> <br>
+                        <div class="font-black text-center" >
+                                Ahora {{ formatMXN(producto.l0) }} c/u.
+                        </div>
+                      </div> 
+                      <div v-else class="font-black text-center">{{formatMXN(producto.l0)}} c/u.</div>
                       
-                      <div class="font-black text-center" style=" font-size: 0.8em;">{{formatMXN(producto.l0)}} c/u.</div>
                       <p class="font-black text-center" style=" font-size: 1.8em;">{{calculaTotalProd}}</p>
                       <center>
                         <div v-if="producto.mex_quantytotal < qty" class="font-weight-thin-black" style="font-size: 0.8em; color:#F72D04"> 
@@ -113,8 +136,8 @@
                     <v-col>
                       <v-card class="mx-auto"> 
                         <v-card-text>
-                          <p class="producto_descripcion_general" >Descripción del producto</p> 
-                          <div class="text--primary text-sm-left producto_descripcion_general" v-html="producto.elements"> </div>
+                          <p class="producto_descripcion_general" style="font-size: 1.4em;"  >Descripción del producto</p> 
+                          <div style="font-size: 1.4em;" class="text--primary text-sm-left producto_descripcion_general" v-html="producto.elements"> </div>
                         </v-card-text> 
                       </v-card>
                     </v-col>
@@ -173,6 +196,7 @@
               <v-card> 
                 <v-row v-for="producto in productosOferta" :key="producto.value" @click="seeProduct(producto.value)">
                   <v-col  cols="12" sm="6" md="2"  >  
+                    <center>
                     <v-img width="140px" :src="`https://refividrio.com.mx/imgdis/${producto.value}.jpg`" :lazy-src="`../../public/noImg.png`"
                       aspect-ratio="1" class="grey lighten-2" > 
                       <template v-slot:placeholder>
@@ -181,6 +205,7 @@
                         </v-row>
                       </template> 
                     </v-img>
+                    </center>
                   </v-col>
                   <v-col cols="12" sm="6" md="10">
                     <div class="my-5" style="font-size: 1em;color :#00A6FF">  
