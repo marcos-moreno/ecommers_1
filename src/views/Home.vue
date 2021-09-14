@@ -138,7 +138,7 @@
                 <v-list-group @click="!show_escencia?show_escencia=true:show_escencia=false" :value="show_escencia">
                   <template v-slot:activator >
                     <v-list-item-content>
-                      <v-list-item-title >Escencia</v-list-item-title>
+                      <v-list-item-title >PRODUCTO</v-list-item-title>
                     </v-list-item-content>
                   </template> 
                   <v-list-item>
@@ -335,7 +335,7 @@
                 <v-list-group @click="!show_escencia?show_escencia=true:show_escencia=false" :value="show_escencia">
                   <template v-slot:activator >
                     <v-list-item-content>
-                      <v-list-item-title >ESCENCIA</v-list-item-title>
+                      <v-list-item-title >PRODUCTO</v-list-item-title>
                     </v-list-item-content>
                   </template>
                   <v-list-item>
